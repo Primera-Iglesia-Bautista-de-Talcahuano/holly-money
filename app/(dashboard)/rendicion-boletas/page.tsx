@@ -13,7 +13,48 @@ type Boleta = {
 };
 
 export default function RendicionBoletasPage() {
-  const [boletas, setBoletas] = useState<Boleta[]>([]);
+  const [boletas, setBoletas] = useState<Boleta[]>([
+    {
+      id: "1",
+      numero: "BOL-001",
+      fecha: "2026-03-01",
+      monto: 15000,
+      descripcion: "Boleta de luz - Marzo",
+      rendida: false,
+    },
+    {
+      id: "2",
+      numero: "BOL-002",
+      fecha: "2026-03-05",
+      monto: 25000,
+      descripcion: "Boleta de agua - Marzo",
+      rendida: true,
+    },
+    {
+      id: "3",
+      numero: "BOL-003",
+      fecha: "2026-03-10",
+      monto: 12000,
+      descripcion: "Boleta de gas - Marzo",
+      rendida: false,
+    },
+    {
+      id: "4",
+      numero: "BOL-004",
+      fecha: "2026-03-15",
+      monto: 35000,
+      descripcion: "Boleta de teléfono - Marzo",
+      rendida: true,
+    },
+    {
+      id: "5",
+      numero: "BOL-005",
+      fecha: "2026-03-20",
+      monto: 18000,
+      descripcion: "Boleta de internet - Marzo",
+      rendida: false,
+    },
+  ]);
   const [numero, setNumero] = useState("");
   const [fecha, setFecha] = useState("");
   const [monto, setMonto] = useState("");
