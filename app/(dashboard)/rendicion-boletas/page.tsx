@@ -9,6 +9,7 @@ type Boleta = {
   monto: number;
   descripcion: string;
   rendida: boolean;
+  archivo?: File;
 };
 
 export default function RendicionBoletasPage() {
@@ -17,6 +18,7 @@ export default function RendicionBoletasPage() {
   const [fecha, setFecha] = useState("");
   const [monto, setMonto] = useState("");
   const [descripcion, setDescripcion] = useState("");
+  const [archivo, setArchivo] = useState<File | null>(null);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,6 +34,7 @@ export default function RendicionBoletasPage() {
       monto: parseFloat(monto),
       descripcion,
       rendida: false,
+      archivo: archivo || undefined,
     };
 
     setBoletas((prev) => [nuevaBoleta, ...prev]);
@@ -39,6 +42,7 @@ export default function RendicionBoletasPage() {
     setFecha("");
     setMonto("");
     setDescripcion("");
+    setArchivo(null);
   };
 
   const toggleRendida = (id: string) => {
@@ -118,6 +122,32 @@ export default function RendicionBoletasPage() {
             />
           </div>
 
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="boleta-archivo">
+              Adjuntar Archivo o Foto
+            </label>
+            <input
+              id="boleta-archivo"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="input"
+              onChange={(e) => setArchivo(e.target.files?.[0] || null)}
+            />
+            {archivo && (
+              <div className="mt-2">
+                <p className="text-sm text-slate-600">Archivo seleccionado: {archivo.name}</p>
+                {archivo.type.startsWith("image/") && (
+                  <img
+                    src={URL.createObjectURL(archivo)}
+                    alt="Vista previa"
+                    className="mt-2 max-h-32 rounded border"
+                  />
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="sm:col-span-2 flex items-center gap-2">
             <button type="submit" className="btn-primary px-4 py-2">
               Agregar Boleta
@@ -130,6 +160,7 @@ export default function RendicionBoletasPage() {
                 setFecha("");
                 setMonto("");
                 setDescripcion("");
+                setArchivo(null);
               }}
             >
               Limpiar
@@ -151,6 +182,7 @@ export default function RendicionBoletasPage() {
                   <th className="px-3 py-2 text-left">Fecha</th>
                   <th className="px-3 py-2 text-left">Monto</th>
                   <th className="px-3 py-2 text-left">Descripción</th>
+                  <th className="px-3 py-2 text-left">Archivo</th>
                   <th className="px-3 py-2 text-left">Estado</th>
                   <th className="px-3 py-2 text-left">Acción</th>
                 </tr>
@@ -162,6 +194,13 @@ export default function RendicionBoletasPage() {
                     <td className="px-3 py-2">{boleta.fecha}</td>
                     <td className="px-3 py-2">{clp.format(boleta.monto)}</td>
                     <td className="px-3 py-2">{boleta.descripcion || "Sin descripción"}</td>
+                    <td className="px-3 py-2">
+                      {boleta.archivo ? (
+                        <span className="text-green-600 text-sm">📎 {boleta.archivo.name}</span>
+                      ) : (
+                        <span className="text-slate-400 text-sm">Sin archivo</span>
+                      )}
+                    </td>
                     <td className="px-3 py-2">
                       <span
                         className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
