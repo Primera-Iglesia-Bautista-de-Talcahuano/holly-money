@@ -179,6 +179,7 @@ export default function RendicionBoletasPage() {
               <div className="mt-2">
                 <p className="text-sm text-slate-600">Archivo seleccionado: {archivo.name}</p>
                 {archivo.type.startsWith("image/") && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={URL.createObjectURL(archivo)}
                     alt="Vista previa"

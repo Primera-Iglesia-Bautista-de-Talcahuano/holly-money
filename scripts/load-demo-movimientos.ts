@@ -2,7 +2,9 @@ import { PrismaClient, TipoMovimiento } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const ingresos = ["diezmos", "ofrendas", "donaciones", "actividades", "otros"];
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const egresos = ["servicios basicos", "mantencion", "ayuda social", "materiales", "actividades", "administracion", "transporte", "otros"];
 
 const data = [
