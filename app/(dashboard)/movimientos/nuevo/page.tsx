@@ -10,11 +10,11 @@ export default async function NuevoMovimientoPage() {
   }
 
   return (
-    <section>
-      <h1 className="text-2xl font-semibold">Nuevo Movimiento</h1>
-      <p className="mb-4 mt-2 text-muted">
-        Formulario unificado para ingreso o egreso. La fecha y usuario de registro se guardan automaticamente.
-      </p>
+    <section className="mx-auto max-w-4xl space-y-8">
+      <div className="space-y-1">
+        <h1 className="text-3xl font-extrabold tracking-tight text-on-surface">Registro de Movimiento</h1>
+        <p className="text-sm font-medium text-on-surface-variant">Formulario ministerial para el control de ingresos y egresos.</p>
+      </div>
       <MovimientoForm mode="create" />
     </section>
   );

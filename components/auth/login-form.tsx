@@ -54,51 +54,53 @@ export function LoginForm() {
   };
 
   return (
-    <form className="mt-5 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-      <div className="space-y-4">
-        <div>
-          <label className="mb-2 block text-sm font-medium tracking-wide text-on-surface" htmlFor="email">
-            Email
+    <form className="mt-8 space-y-8" onSubmit={handleSubmit(onSubmit)}>
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1" htmlFor="email">
+            Correo Electrónico
           </label>
           <Input
             id="email"
             type="email"
             placeholder="admin@iglesia.local"
+            className="h-14 bg-surface-container-low border-none rounded-2xl px-5 text-base font-medium"
             {...register("email")}
           />
-          {errors.email && <p className="mt-2 text-xs font-semibold text-error">{errors.email.message}</p>}
+          {errors.email && <p className="mt-1.5 text-[10px] font-bold text-error ml-1 uppercase">{errors.email.message}</p>}
         </div>
-        <div>
-          <label className="mb-2 block text-sm font-medium tracking-wide text-on-surface" htmlFor="password">
-            Contrasena
+        <div className="space-y-2">
+          <label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1" htmlFor="password">
+            Contraseña Segura
           </label>
           <Input
             id="password"
             type="password"
-            placeholder="********"
+            placeholder="••••••••"
+            className="h-14 bg-surface-container-low border-none rounded-2xl px-5 text-base font-medium"
             {...register("password")}
           />
           {errors.password && (
-            <p className="mt-2 text-xs font-semibold text-error">{errors.password.message}</p>
+            <p className="mt-1.5 text-[10px] font-bold text-error ml-1 uppercase">{errors.password.message}</p>
           )}
         </div>
       </div>
 
-      {error && <p className="rounded-xl bg-error-container px-4 py-3 text-sm font-medium text-on-error-container">{error}</p>}
+      {error && <p className="rounded-2xl bg-error-container/50 border border-error/10 px-4 py-3 text-sm font-bold text-on-error-container text-center">{error}</p>}
 
       <Button
         type="submit"
         variant="primary"
         disabled={isSubmitting}
-        className="w-full"
+        className="h-14 w-full text-lg shadow-xl shadow-primary/20 rounded-2xl"
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Ingresando...
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            Verificando Acceso...
           </>
         ) : (
-          "Ingresar"
+          "Acceder al Sistema"
         )}
       </Button>
     </form>

@@ -2,14 +2,28 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function AnularButton({ movimientoId, disabled }: { movimientoId: string; disabled?: boolean }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [motivo, setMotivo] = useState("");
 
-  async function onClick() {
-    const motivo = window.prompt("Indica motivo de anulacion:");
-    if (!motivo) return;
+  async function handleAnular() {
+    if (!motivo.trim()) return;
 
     setLoading(true);
     const res = await fetch(`/api/movimientos/${movimientoId}/anular`, {
@@ -25,17 +39,43 @@ export function AnularButton({ movimientoId, disabled }: { movimientoId: string;
       return;
     }
 
+    setIsOpen(false);
     router.refresh();
   }
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled || loading}
-      className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-700 disabled:opacity-50"
-    >
-      {loading ? "Anulando..." : "Anular"}
-    </button>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger render={<Button variant="destructive" disabled={disabled} size="sm" />}>
+        Anular
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Anular Movimiento</DialogTitle>
+          <DialogDescription>
+            Por favor ingresa un motivo para anular este movimiento.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="motivo">Motivo</Label>
+            <Input
+              id="motivo"
+              autoFocus
+              value={motivo}
+              onChange={(e) => setMotivo(e.target.value)}
+              placeholder="Ej: Error de digitación"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <DialogClose render={<Button variant="ghost" disabled={loading} />}>
+            Cancelar
+          </DialogClose>
+          <Button onClick={handleAnular} disabled={loading || !motivo.trim()} variant="destructive">
+            {loading ? "Anulando..." : "Confirmar Anulación"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

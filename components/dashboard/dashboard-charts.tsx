@@ -9,48 +9,153 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
 
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+
+const clp = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
+
 type SerieItem = { name: string; ingresos: number; egresos: number };
 type CategoriaItem = { categoria: string; total: number };
 
-const COLORS = ["#0f766e", "#0ea5e9", "#f59e0b", "#16a34a", "#ef4444", "#6366f1", "#a855f7", "#14b8a6"];
+const COLORS = [
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
+];
+
+const ingresosEgresosConfig = {
+  ingresos: {
+    label: "Ingresos",
+    color: "var(--color-primary)",
+  },
+  egresos: {
+    label: "Egresos",
+    color: "var(--color-tertiary)",
+  },
+} satisfies ChartConfig;
 
 export function IngresosEgresosChart({ data }: { data: SerieItem[] }) {
   return (
-    <div className="h-72">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="ingresos" fill="#0f766e" name="Ingresos" />
-          <Bar dataKey="egresos" fill="#ef4444" name="Egresos" />
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="h-[300px] sm:h-72 w-full">
+      <ChartContainer config={ingresosEgresosConfig} className="h-full w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--outline-variant) / 0.3)" />
+            <XAxis 
+              dataKey="name" 
+              tickLine={false}
+              axisLine={false}
+              tickMargin={10}
+              fontSize={10} 
+              stroke="hsl(var(--on-surface-variant))" 
+            />
+            <YAxis 
+              tickLine={false}
+              axisLine={false}
+              tickMargin={5}
+              fontSize={10}
+              width={40}
+              stroke="hsl(var(--on-surface-variant))"
+              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+            />
+            <ChartTooltip cursor={{ fill: 'hsl(var(--on-surface-variant) / 0.05)' }} content={<ChartTooltipContent indicator="dashed" />} />
+            <Legend 
+              verticalAlign="top" 
+              align="right" 
+              iconType="circle" 
+              content={({ payload }) => (
+                <div className="flex justify-end gap-4 sm:gap-6 mb-6">
+                  {payload?.map((entry, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                      <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-on-surface-variant/70">{entry.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            />
+            <Bar dataKey="ingresos" fill="var(--color-ingresos)" radius={[4, 4, 0, 0]} barSize={20} />
+            <Bar dataKey="egresos" fill="var(--color-egresos)" radius={[4, 4, 0, 0]} barSize={20} />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartContainer>
     </div>
   );
 }
 
+const getCategoriaConfig = (data: CategoriaItem[]) => {
+  const config: ChartConfig = {
+    total: {
+      label: "Total Registrado",
+    },
+  };
+  data.forEach((item, index) => {
+    config[item.categoria] = {
+      label: item.categoria,
+      color: COLORS[index % COLORS.length],
+    };
+  });
+  return config;
+};
+
 export function CategoriaChart({ data }: { data: CategoriaItem[] }) {
+  const finalData = data.map((item, index) => ({
+    ...item,
+    fill: COLORS[index % COLORS.length],
+  }));
+  const config = getCategoriaConfig(data);
+
   return (
-    <div className="h-72">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie data={data} dataKey="total" nameKey="categoria" outerRadius={100} label>
-            {data.map((entry, index) => (
-              <Cell key={`${entry.categoria}-${index}`} fill={COLORS[index % COLORS.length]} />
+    <div className="h-[400px] sm:h-80 w-full min-w-0 overflow-hidden">
+      <ChartContainer config={config} className="h-full w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+          <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+          <Pie 
+            data={finalData} 
+            dataKey="total" 
+            nameKey="categoria" 
+            innerRadius={60} 
+            outerRadius={85} 
+            paddingAngle={4}
+            stroke="none"
+            cx="50%"
+            cy="40%"
+          >
+            {finalData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} className="hover:opacity-80 transition-opacity outline-none" />
             ))}
           </Pie>
-          <Tooltip />
-          <Legend />
+          <Legend 
+            verticalAlign="bottom" 
+            align="center" 
+            layout="horizontal"
+            iconType="circle"
+            content={({ payload }) => (
+              <div className="flex flex-wrap justify-center gap-x-4 gap-y-3 pt-6 sm:pt-0 sm:pl-4 sm:flex-col sm:justify-start sm:items-start max-h-[140px] sm:max-h-full overflow-y-auto w-full">
+                {payload?.map((entry: any, index) => (
+                  <div key={index} className="flex items-center gap-3 bg-surface-container-low/50 sm:bg-transparent px-3 py-1.5 rounded-full sm:p-0 min-w-[120px] sm:min-w-0">
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
+                    <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 truncate max-w-[80px] sm:max-w-none">{entry.value}</span>
+                    <span className="text-[10px] sm:text-[11px] font-black text-on-surface ml-auto">{clp.format(entry.payload.total)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          />
         </PieChart>
       </ResponsiveContainer>
-    </div>
+    </ChartContainer>
+  </div>
   );
 }

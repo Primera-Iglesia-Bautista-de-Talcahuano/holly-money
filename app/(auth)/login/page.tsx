@@ -18,13 +18,13 @@ export default async function LoginPage() {
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary-container/20 text-primary">
             <BookMarked className="h-8 w-8" />
           </div>
-          <CardTitle className="text-3xl">The Reverent Ledger</CardTitle>
-          <CardDescription className="text-base mt-2">Sacred Financial Management</CardDescription>
+          <CardTitle className="text-3xl font-bold tracking-tight text-on-surface">Sistema Contable Iglesia</CardTitle>
+          <CardDescription className="text-on-surface-variant font-medium text-base mt-2">Gestión Ministerial de Finanzas</CardDescription>
         </CardHeader>
         <CardContent>
           <LoginForm />
         </CardContent>
-        <CardFooter className="flex justify-center border-t border-outline-variant/10 pt-6">
+        <CardFooter className="flex justify-center pt-8">
           <p className="text-center text-xs tracking-wider text-on-surface-variant max-w-[250px]">
             Usuario inicial: admin@iglesia.local / contrasena definida por seed.
           </p>
