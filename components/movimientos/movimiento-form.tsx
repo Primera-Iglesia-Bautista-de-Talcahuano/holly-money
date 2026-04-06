@@ -259,7 +259,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
             type="submit"
             disabled={form.formState.isSubmitting}
             variant="primary"
-            className="h-12 sm:h-14 px-8 sm:px-10 text-base sm:text-lg shadow-xl shadow-primary/20 rounded-2xl flex-1 sm:flex-none"
+            className="h-10 sm:h-11 px-6 sm:px-8 text-sm sm:text-base shadow-lg shadow-primary/20 rounded-xl flex-1 sm:flex-none"
           >
             {form.formState.isSubmitting
               ? "Procesando Registro..."
@@ -272,7 +272,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
               type="button"
               variant="outline"
               onClick={() => onSuccess?.()}
-              className="h-12 sm:h-14 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-2xl flex-1 sm:flex-none"
+              className="h-10 sm:h-11 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-xl flex-1 sm:flex-none"
             >
               Cerrar Formulario
             </Button>

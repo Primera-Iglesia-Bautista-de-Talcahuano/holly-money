@@ -128,7 +128,7 @@ export default function RendicionBoletasPage() {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger
               render={
-                <Button variant="primary" className="h-12 px-8 shadow-xl shadow-primary/10">
+                <Button variant="primary" className="h-10 px-6 shadow-lg shadow-primary/10">
                   <Plus className="mr-2 h-5 w-5" />
                   Agregar Boleta
                 </Button>
@@ -243,14 +243,14 @@ export default function RendicionBoletasPage() {
                   </div>
 
                   <div className="flex flex-col gap-3 pt-6 border-t border-on-surface-variant/5">
-                    <Button type="submit" variant="primary" className="h-12 sm:h-14 text-base sm:text-lg shadow-xl shadow-primary/10">
+                    <Button type="submit" variant="primary" className="h-10 sm:h-11 text-sm sm:text-base shadow-lg shadow-primary/10 rounded-xl">
                       Registrar Boleta para Rendición
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setOpen(false)}
-                      className="h-12 sm:h-14 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors"
+                      className="h-10 sm:h-11 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-xl"
                     >
                       Cancelar
                     </Button>

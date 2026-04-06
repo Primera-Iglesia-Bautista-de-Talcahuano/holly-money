@@ -92,7 +92,7 @@ export function LoginForm() {
         type="submit"
         variant="primary"
         disabled={isSubmitting}
-        className="h-14 w-full text-lg shadow-xl shadow-primary/20 rounded-2xl"
+        className="h-12 w-full text-base sm:text-lg shadow-xl shadow-primary/20 rounded-xl"
       >
         {isSubmitting ? (
           <>

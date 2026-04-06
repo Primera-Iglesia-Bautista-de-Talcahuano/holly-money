@@ -20,7 +20,7 @@ export function NewMovimientoDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button variant="primary" className="h-12 px-8 shadow-xl shadow-primary/10">
+          <Button variant="primary" className="h-10 px-6 shadow-lg shadow-primary/10">
             <Plus className="mr-2 h-5 w-5" />
             Nuevo Movimiento
           </Button>

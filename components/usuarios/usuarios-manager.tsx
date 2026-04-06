@@ -111,7 +111,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger
             render={
-              <Button variant="primary" className="h-12 px-8 shadow-xl shadow-primary/10">
+              <Button variant="primary" className="h-10 px-6 shadow-lg shadow-primary/10">
                 <Plus className="mr-2 h-5 w-5" />
                 Invitar Usuario
               </Button>
@@ -187,7 +187,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     variant="primary"
                     type="submit"
                     disabled={submitting}
-                    className="h-12 sm:h-14 text-base sm:text-lg shadow-xl shadow-primary/20 rounded-2xl"
+                    className="h-10 sm:h-11 text-sm sm:text-base shadow-lg shadow-primary/20 rounded-xl"
                   >
                     {submitting ? "Procesando Invitación..." : "Confirmar & Registrar Usuario"}
                   </Button>
@@ -195,7 +195,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     variant="outline"
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="h-12 sm:h-14 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors"
+                    className="h-10 sm:h-11 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-xl"
                   >
                     Cancelar
                   </Button>

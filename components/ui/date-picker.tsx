@@ -38,7 +38,7 @@ export function DatePicker({
       <PopoverTrigger render={
         <Button
           variant={"outline"}
-          size="2xl"
+          size="xl"
           className={cn(
             "w-full justify-start text-left font-normal bg-surface-container-low border border-outline/20 hover:bg-surface-container-high",
             !date && "text-muted-foreground"

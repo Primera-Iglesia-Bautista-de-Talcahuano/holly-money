@@ -47,10 +47,10 @@ export default async function DashboardPage({ searchParams }: { searchParams?: D
             <DatePicker name="to" defaultValue={to} />
           </div>
 
-          <Button type="submit" variant="primary" className="h-11 sm:h-14 whitespace-nowrap px-6 sm:px-10 shadow-xl shadow-primary/10 rounded-2xl">
+          <Button type="submit" variant="primary" className="h-10 sm:h-11 whitespace-nowrap px-5 sm:px-7 shadow-lg shadow-primary/10 rounded-xl">
             Filtrar Datos
           </Button>
-          <Link href="/dashboard" className="inline-flex h-11 sm:h-14 px-6 sm:px-8 items-center justify-center rounded-2xl bg-surface-container-low border-none text-on-surface hover:bg-surface-container-high text-sm font-bold transition-all duration-200">
+          <Link href="/dashboard" className="inline-flex h-10 sm:h-11 px-5 sm:px-7 items-center justify-center rounded-xl bg-surface-container-low border-none text-on-surface hover:bg-surface-container-high text-sm font-bold transition-all duration-200">
             Limpiar Filtros
           </Link>
         </form>
