@@ -3,6 +3,7 @@ import type { AppsScriptResponse, MovementIntegrationPayload } from "@/services/
 import { movimientosService } from "@/services/movimientos/movimientos.service";
 
 export async function syncMovementToSheet(
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   movement: MovementIntegrationPayload,
 ): Promise<AppsScriptResponse> {
   // Obtener todos los movimientos activos para sincronizar el Sheet completo
