@@ -40,13 +40,13 @@ export function DatePicker({
           variant={"outline"}
           size="xl"
           className={cn(
-            "w-full justify-start text-left font-normal bg-surface-container-low border border-outline/20 hover:bg-surface-container-high",
+            "w-full justify-start text-left font-normal bg-surface-container-low border border-outline/20 hover:bg-surface-container-high overflow-hidden",
             !date && "text-muted-foreground"
           )}
         />
       }>
         <CalendarIcon className="mr-2 h-4 w-4" />
-        {date ? formatDate(date) : <span>Seleccionar fecha</span>}
+        {date ? formatDate(date) : <span className="truncate">Seleccionar fecha</span>}
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0 z-50 bg-popover text-popover-foreground shadow-md rounded-xl overflow-hidden ring-1 ring-border">
         <Calendar

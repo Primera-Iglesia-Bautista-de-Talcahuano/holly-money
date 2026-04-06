@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { cn, formatDate } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { dashboardService } from "@/services/dashboard/dashboard.service";
+import { getCurrentUser } from "@/lib/auth/session";
+import { canCreateOrEditMovements } from "@/lib/permissions/rbac";
 import { IngresosEgresosChart, CategoriaChart } from "@/components/dashboard/dashboard-charts";
+import { MovimientosTable } from "@/components/movimientos/movimientos-table";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -17,7 +20,11 @@ type DashboardSearchParams = {
 export default async function DashboardPage({ searchParams }: { searchParams?: DashboardSearchParams }) {
   const from = (await searchParams)?.from;
   const to = (await searchParams)?.to;
-  const data = await dashboardService.getResumen({ from, to });
+  const [data, user] = await Promise.all([
+    dashboardService.getResumen({ from, to }),
+    getCurrentUser(),
+  ]);
+  const canWrite = canCreateOrEditMovements(user?.role);
 
   return (
     <section className="mx-auto max-w-6xl space-y-8">
@@ -32,27 +39,29 @@ export default async function DashboardPage({ searchParams }: { searchParams?: D
           </div>
         </div>
 
-        <form className="mt-8 grid w-full grid-cols-1 gap-6 sm:grid-cols-[minmax(220px,_1fr)_minmax(220px,_1fr)_auto_auto] items-end" method="get">
-          <div className="space-y-2">
+        <form className="mt-8 flex flex-wrap items-end gap-3 w-full" method="get">
+          <div className="min-w-[160px] flex-1">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1" htmlFor="from">
               Periodo Inicial
             </Label>
             <DatePicker name="from" defaultValue={from} />
           </div>
 
-          <div className="space-y-2">
+          <div className="min-w-[160px] flex-1">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1" htmlFor="to">
               Periodo Final
             </Label>
             <DatePicker name="to" defaultValue={to} />
           </div>
 
-          <Button type="submit" variant="primary" className="h-10 sm:h-11 whitespace-nowrap px-5 sm:px-7 shadow-lg shadow-primary/10 rounded-xl">
-            Filtrar Datos
-          </Button>
-          <Link href="/dashboard" className="inline-flex h-10 sm:h-11 px-5 sm:px-7 items-center justify-center rounded-xl bg-surface-container-low border-none text-on-surface hover:bg-surface-container-high text-sm font-bold transition-all duration-200">
-            Limpiar Filtros
-          </Link>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button type="submit" variant="primary" className="flex-1 sm:flex-none h-11 whitespace-nowrap px-6 shadow-lg shadow-primary/10 rounded-xl">
+              Filtrar Datos
+            </Button>
+            <Link href="/dashboard" className="flex-1 sm:flex-none inline-flex h-11 px-6 items-center justify-center rounded-xl bg-surface-container-low border-none text-on-surface hover:bg-surface-container-high text-sm font-bold transition-all duration-200 whitespace-nowrap">
+              Limpiar Filtros
+            </Link>
+          </div>
         </form>
       </Card>
 
@@ -82,67 +91,38 @@ export default async function DashboardPage({ searchParams }: { searchParams?: D
         </CardActive>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0px_4px_24px_-4px_rgba(25,28,30,0.06)] border border-outline/10">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[800px]">
-            <thead>
-              <tr className="text-on-surface-variant/40 border-none">
-                <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Folio</th>
-                <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Fecha</th>
-                <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Tipo</th>
-                <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em] text-right">Monto</th>
-                <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Categoria</th>
-                <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Concepto</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y-0">
-              {data.ultimosMovimientos.map((row, index) => (
-                <tr 
-                  key={row.id} 
-                  className={cn(
-                    "group transition-all duration-300 hover:bg-surface-container-low/60",
-                    index % 2 === 0 ? "bg-transparent" : "bg-surface-container-low/20"
-                  )}
-                >
-                  <td className="px-8 py-5">
-                    <Link className="font-bold text-primary hover:text-primary-container transition-colors" href={`/movimientos/${row.id}`}>
-                      #{row.folioDisplay}
-                    </Link>
-                  </td>
-                  <td className="px-8 py-5 text-on-surface-variant font-medium text-sm whitespace-nowrap tabular-nums">
-                    {formatDate(row.fechaMovimiento)}
-                  </td>
-                  <td className="px-8 py-5">
-                    <span className={cn(
-                      "inline-flex rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase",
-                      row.tipoMovimiento === 'INGRESO' ? 'bg-primary/10 text-primary' : 'bg-tertiary/10 text-tertiary'
-                    )}>
-                      {row.tipoMovimiento}
-                    </span>
-                  </td>
-                  <td className="px-8 py-5 text-right font-black text-on-surface tabular-nums">
-                    {clp.format(Number(row.monto))}
-                  </td>
-                  <td className="px-8 py-5">
-                    <span className="inline-flex rounded-full bg-secondary-container/50 px-3 py-1 text-[10px] font-bold text-on-secondary-container uppercase tracking-widest">
-                      {row.categoria}
-                    </span>
-                  </td>
-                  <td className="px-8 py-5 text-on-surface font-medium truncate max-w-[200px] text-sm" title={row.concepto}>
-                    {row.concepto}
-                  </td>
-                </tr>
-              ))}
-              {!data.ultimosMovimientos.length && (
-                <tr>
-                  <td className="px-8 py-20 text-center text-sm font-medium text-on-surface-variant/60" colSpan={6}>
-                    Aún no hay movimientos registrados en el sistema.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-lg font-bold tracking-tight text-on-surface">Últimos Movimientos</h2>
+          <Link
+            href="/movimientos"
+            className="text-sm font-semibold text-primary hover:text-primary/70 transition-colors"
+          >
+            Ver todos →
+          </Link>
         </div>
+        <MovimientosTable
+          canWrite={canWrite}
+          rows={data.ultimosMovimientos.map((row) => ({
+            id: row.id,
+            folioDisplay: row.folioDisplay,
+            fechaMovimiento: row.fechaMovimiento.toISOString(),
+            tipoMovimiento: row.tipoMovimiento,
+            monto: row.monto.toString(),
+            categoria: row.categoria,
+            concepto: row.concepto,
+            referente: row.referente,
+            recibidoPor: row.recibidoPor,
+            entregadoPor: row.entregadoPor,
+            beneficiario: row.beneficiario,
+            medioPago: row.medioPago,
+            numeroRespaldo: row.numeroRespaldo,
+            observaciones: row.observaciones,
+            motivoAnulacion: row.motivoAnulacion,
+            estado: row.estado,
+            creadoPor: row.creadoPor,
+          }))}
+        />
       </div>
     </section>
   );
@@ -157,11 +137,11 @@ function KpiCard({ label, value, variant }: { label: string; value: string; vari
   }[variant || "neutral"];
 
   return (
-    <CardActive className="flex flex-col gap-3 p-6 sm:p-8 transition-all hover:translate-y-[-4px] hover:shadow-[0px_30px_60px_-15px_rgba(25,28,30,0.12)] border-none min-w-0 overflow-hidden">
-      <div className={cn("w-fit px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest", colors)}>
+    <CardActive className="flex flex-col gap-3 p-5 sm:p-8 transition-all hover:translate-y-[-4px] hover:shadow-[0px_30px_60px_-15px_rgba(25,28,30,0.12)] border-none min-w-0">
+      <div className={cn("max-w-full overflow-hidden px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest truncate", colors)}>
         {label}
       </div>
-      <p className="text-3xl font-black tracking-tight text-on-surface tabular-nums">{value}</p>
+      <p className="text-2xl sm:text-3xl font-black tracking-tight text-on-surface tabular-nums">{value}</p>
     </CardActive>
   );
 }

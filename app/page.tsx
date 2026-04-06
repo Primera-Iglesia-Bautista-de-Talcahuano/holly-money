@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getCurrentSession } from "@/lib/auth/session";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-export default function Home() {
+export default async function Home() {
+  const session = await getCurrentSession();
+  if (session) redirect("/dashboard");
   return (
     <main className="min-h-[100dvh] bg-[radial-gradient(circle_at_top_right,_var(--color-primary-fixed),_#f7f9fb_40%)] flex items-center justify-center p-6">
       <Card className="mx-auto max-w-4xl p-16 shadow-[0px_40px_80px_-20px_rgba(0,104,95,0.12)] border-none bg-surface-container-lowest/80 backdrop-blur-xl">

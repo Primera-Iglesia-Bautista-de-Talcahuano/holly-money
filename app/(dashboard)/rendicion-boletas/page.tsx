@@ -278,7 +278,7 @@ export default function RendicionBoletasPage() {
                     <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Descripción</th>
                     <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Adjunto</th>
                     <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Estado</th>
-                    <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em] text-right">Gesto</th>
+                    <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em] text-right">Acción</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y-0">

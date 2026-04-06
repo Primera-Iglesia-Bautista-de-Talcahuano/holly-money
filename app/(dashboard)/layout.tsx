@@ -32,7 +32,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     { href: "/talonario", label: "Talonario", icon: <Book className="h-5 w-5" /> },
     { href: "/rendicion-boletas", label: "Rendición Boletas", icon: <FileText className="h-5 w-5" /> },
     { href: "/usuarios", label: "Usuarios", icon: <Users className="h-5 w-5" /> },
-    { href: "/configuracion", label: "Configuracion", icon: <Settings className="h-5 w-5" /> },
+    { href: "/configuracion", label: "Configuración", icon: <Settings className="h-5 w-5" /> },
   ];
 
   const allowedLinks =
@@ -116,11 +116,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
                     <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">{session.user.email}</p>
                     <p className="text-[10px] font-bold text-primary tracking-widest uppercase mt-1">{session.user.role}</p>
                   </div>
-                  <DropdownMenuItem className="hover:scale-[1.02] active:scale-[0.98]">
-                    <Link href="/dashboard" className="flex items-center gap-3 w-full">
+                  <DropdownMenuItem disabled className="opacity-40 cursor-not-allowed">
+                    <div className="flex items-center gap-3 w-full">
                       <Users className="h-4 w-4" />
                       <span>Mi Perfil</span>
-                    </Link>
+                    </div>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="hover:scale-[1.02] active:scale-[0.98]">
                     <Link href="/configuracion" className="flex items-center gap-3 w-full">

@@ -34,21 +34,25 @@ export const dashboardService = {
       where.AND = filters;
     }
 
-    const activos = await prisma.movimiento.findMany({
-      where,
-      orderBy: { fechaMovimiento: "asc" },
-      select: {
-        id: true,
-        folioDisplay: true,
-        fechaMovimiento: true,
-        tipoMovimiento: true,
-        monto: true,
-        categoria: true,
-        concepto: true,
-        estado: true,
-        creadoEn: true,
-      },
-    });
+    const [activos, ultimosMovimientos] = await Promise.all([
+      prisma.movimiento.findMany({
+        where,
+        orderBy: { fechaMovimiento: "asc" },
+        select: {
+          id: true,
+          fechaMovimiento: true,
+          tipoMovimiento: true,
+          monto: true,
+          categoria: true,
+        },
+      }),
+      prisma.movimiento.findMany({
+        where,
+        orderBy: [{ fechaMovimiento: "desc" }, { folio: "desc" }],
+        take: 8,
+        include: { creadoPor: { select: { nombre: true } } },
+      }),
+    ]);
 
     const totalIngresos = activos
       .filter((m) => m.tipoMovimiento === "INGRESO")
@@ -77,10 +81,6 @@ export const dashboardService = {
     const resumenPorCategoria: CategoriaItem[] = Array.from(categoriaMap.entries())
       .map(([categoria, total]) => ({ categoria, total }))
       .sort((a, b) => b.total - a.total)
-      .slice(0, 8);
-
-    const ultimosMovimientos = [...activos]
-      .sort((a, b) => +new Date(b.fechaMovimiento) - +new Date(a.fechaMovimiento))
       .slice(0, 8);
 
     return {
