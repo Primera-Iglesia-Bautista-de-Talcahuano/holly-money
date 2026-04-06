@@ -1,10 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { format } from "date-fns"
+import { es } from "date-fns/locale/es"
 import { Calendar as CalendarIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -40,13 +40,13 @@ export function DatePicker({
           variant={"outline"}
           size="2xl"
           className={cn(
-            "w-full justify-start text-left font-normal bg-surface-container-lowest border-none",
+            "w-full justify-start text-left font-normal bg-surface-container-low border border-outline/20 hover:bg-surface-container-high",
             !date && "text-muted-foreground"
           )}
         />
       }>
         <CalendarIcon className="mr-2 h-4 w-4" />
-        {date ? format(date, "PPP") : <span>Seleccionar fecha</span>}
+        {date ? formatDate(date) : <span>Seleccionar fecha</span>}
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0 z-50 bg-popover text-popover-foreground shadow-md rounded-xl overflow-hidden ring-1 ring-border">
         <Calendar
@@ -54,13 +54,14 @@ export function DatePicker({
           selected={date}
           onSelect={handleSelect}
           initialFocus
+          locale={es}
         />
       </PopoverContent>
       {/* Hidden input to allow native form submission method="GET" */}
-      <input 
-        type="hidden" 
-        name={name} 
-        value={date ? format(date, "yyyy-MM-dd") : ""} 
+      <input
+        type="hidden"
+        name={name}
+        value={date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : ""}
       />
     </Popover>
   )

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -16,7 +16,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function AnularButton({ movimientoId, disabled }: { movimientoId: string; disabled?: boolean }) {
+export function AnularButton({
+  movimientoId,
+  disabled,
+  size,
+  className,
+  onSuccess,
+}: {
+  movimientoId: string;
+  disabled?: boolean;
+  size?: React.ComponentProps<typeof Button>["size"];
+  className?: string;
+  onSuccess?: () => void;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -40,15 +52,16 @@ export function AnularButton({ movimientoId, disabled }: { movimientoId: string;
     }
 
     setIsOpen(false);
+    onSuccess?.();
     router.refresh();
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger render={<Button variant="destructive" disabled={disabled} size="sm" />}>
+      <DialogTrigger render={<Button variant="destructive" disabled={disabled} size={size ?? "sm"} className={className} />}>
         Anular
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="w-[95vw] sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Anular Movimiento</DialogTitle>
           <DialogDescription>

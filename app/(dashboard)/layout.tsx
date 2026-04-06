@@ -62,7 +62,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                     }
                   />
                   <SheetContent side="left" className="p-0 border-none bg-surface-bright backdrop-blur-3xl">
-                    <div className="p-8 h-full flex flex-col">
+                    <div className="p-5 sm:p-8 h-full flex flex-col">
                       <SheetHeader className="mb-10 text-left">
                         <SheetTitle className="text-xl font-bold tracking-tight text-primary">Sistema Contable</SheetTitle>
                       </SheetHeader>

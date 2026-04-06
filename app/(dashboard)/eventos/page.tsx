@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
 import { format } from "date-fns";
+import { formatDate } from "@/lib/utils";
 import { Plus } from "lucide-react";
 import {
   Dialog,
@@ -57,7 +58,7 @@ export default function EventosPage() {
       <Card className="bg-surface-container-lowest p-8 shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.08)]">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-on-surface">Eventos</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-surface">Eventos</h1>
             <p className="mt-1 text-sm text-on-surface-variant font-medium">Registrar eventos separados de movimientos contables.</p>
           </div>
           
@@ -73,13 +74,13 @@ export default function EventosPage() {
             <DialogContent className="w-[95vw] sm:max-w-2xl bg-surface-container-lowest p-0 border-none shadow-[0px_40px_80px_-20px_rgba(25,28,30,0.15)] rounded-[2rem] overflow-y-auto max-h-[90vh] scrollbar-thin scrollbar-thumb-on-surface-variant/10">
               <div className="p-6 sm:p-12 space-y-8 sm:space-y-10">
                 <DialogHeader>
-                  <DialogTitle className="text-3xl font-bold tracking-tight text-on-surface">Nuevo Evento</DialogTitle>
+                  <DialogTitle className="text-2xl sm:text-3xl font-bold tracking-tight text-on-surface">Nuevo Evento</DialogTitle>
                   <DialogDescription className="text-on-surface-variant font-medium text-base mt-2">
                     Registre los detalles de un nuevo evento ministerial.
                   </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-10">
+                <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-10">
                   <div className="space-y-6">
                     <div className="flex items-center gap-4 px-1">
                       <div className="h-px flex-1 bg-on-surface-variant/10" />
@@ -105,7 +106,7 @@ export default function EventosPage() {
                           placeholder="Ej: Reunión de tesorería..."
                           value={titulo}
                           onChange={(e) => setTitulo(e.target.value)}
-                          className="h-14 bg-surface-container-low border-none rounded-2xl px-5 text-base font-medium"
+                          className="h-12 sm:h-14 bg-surface-container-low border-none rounded-2xl px-5 text-base font-medium"
                         />
                       </div>
 
@@ -113,7 +114,7 @@ export default function EventosPage() {
                         <Label htmlFor="evt-descripcion" className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Descripción Detallada <span className="text-[10px] opacity-50 ml-1 font-normal">(Opcional)</span></Label>
                         <textarea
                           id="evt-descripcion"
-                          className="flex min-h-[140px] w-full rounded-2xl border-none bg-surface-container-low px-5 py-4 text-base font-medium text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-fixed transition-all"
+                          className="flex min-h-[120px] w-full rounded-2xl border-none bg-surface-container-low px-5 py-4 text-base font-medium text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-fixed transition-all"
                           placeholder="Agregue detalles importantes sobre el evento..."
                           value={descripcion}
                           onChange={(e) => setDescripcion(e.target.value)}
@@ -123,14 +124,14 @@ export default function EventosPage() {
                   </div>
 
                   <div className="flex flex-col gap-3 pt-6 border-t border-on-surface-variant/5">
-                    <Button type="submit" variant="primary" className="h-14 text-lg shadow-xl shadow-primary/10">
+                    <Button type="submit" variant="primary" className="h-12 sm:h-14 text-base sm:text-lg shadow-xl shadow-primary/10">
                       Guardar Evento en Bitácora
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setOpen(false)}
-                      className="h-14 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors"
+                      className="h-12 sm:h-14 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors"
                     >
                       Cancelar
                     </Button>
@@ -154,7 +155,7 @@ export default function EventosPage() {
               <CardActive key={evento.id} className="p-6 transition-all hover:translate-y-[-2px] border-none">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary">{new Date(evento.fecha).toLocaleDateString("es-CL", { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary">{formatDate(evento.fecha)}</p>
                     <h3 className="text-lg font-bold text-on-surface">{evento.titulo}</h3>
                     <p className="mt-2 text-sm text-on-surface-variant leading-relaxed">
                       {evento.descripcion || "Sin descripción adicional."}

@@ -116,46 +116,43 @@ export function CategoriaChart({ data }: { data: CategoriaItem[] }) {
   const config = getCategoriaConfig(data);
 
   return (
-    <div className="h-[400px] sm:h-80 w-full min-w-0 overflow-hidden">
-      <ChartContainer config={config} className="h-full w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-          <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-          <Pie 
-            data={finalData} 
-            dataKey="total" 
-            nameKey="categoria" 
-            innerRadius={60} 
-            outerRadius={85} 
-            paddingAngle={4}
-            stroke="none"
-            cx="50%"
-            cy="40%"
-          >
-            {finalData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} className="hover:opacity-80 transition-opacity outline-none" />
-            ))}
-          </Pie>
-          <Legend 
-            verticalAlign="bottom" 
-            align="center" 
-            layout="horizontal"
-            iconType="circle"
-            content={({ payload }) => (
-              <div className="flex flex-wrap justify-center gap-x-4 gap-y-3 pt-6 sm:pt-0 sm:pl-4 sm:flex-col sm:justify-start sm:items-start max-h-[140px] sm:max-h-full overflow-y-auto w-full">
-                {payload?.map((entry, index) => (
-                  <div key={index} className="flex items-center gap-3 bg-surface-container-low/50 sm:bg-transparent px-3 py-1.5 rounded-full sm:p-0 min-w-[120px] sm:min-w-0">
-                    <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
-                    <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 truncate max-w-[80px] sm:max-w-none">{entry.value}</span>
-                    <span className="text-[10px] sm:text-[11px] font-black text-on-surface ml-auto">{clp.format((entry.payload as { total: number } | undefined)?.total ?? 0)}</span>
-                  </div>
+    <div className="flex flex-col gap-4 w-full min-w-0">
+      {/* Fixed-height pie — never shrinks based on legend */}
+      <div className="h-[200px] w-full">
+        <ChartContainer config={config} className="h-full w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+              <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+              <Pie
+                data={finalData}
+                dataKey="total"
+                nameKey="categoria"
+                innerRadius={60}
+                outerRadius={85}
+                paddingAngle={4}
+                stroke="none"
+                cx="50%"
+                cy="50%"
+              >
+                {finalData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} className="hover:opacity-80 transition-opacity outline-none" />
                 ))}
-              </div>
-            )}
-          />
-        </PieChart>
-      </ResponsiveContainer>
-    </ChartContainer>
-  </div>
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </div>
+
+      {/* Legend outside Recharts — always 2 columns, never affects chart size */}
+      <div className="grid grid-cols-2 gap-x-6 gap-y-2 w-full">
+        {finalData.map((entry, index) => (
+          <div key={index} className="flex items-center gap-2 min-w-0">
+            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: entry.fill }} />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/80 truncate">{entry.categoria}</span>
+            <span className="text-[10px] font-black text-on-surface ml-auto shrink-0">{clp.format(entry.total)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

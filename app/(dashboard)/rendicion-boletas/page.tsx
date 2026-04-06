@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -119,7 +119,7 @@ export default function RendicionBoletasPage() {
       <Card className="bg-surface-container-lowest p-8 shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.08)]">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-on-surface">Rendición de Boletas</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-surface">Rendición de Boletas</h1>
             <p className="mt-1 text-sm text-on-surface-variant font-medium">
               Gestiona la rendición de boletas. <strong className="text-primary">Plazo máximo: 30 de cada mes.</strong>
             </p>
@@ -137,13 +137,13 @@ export default function RendicionBoletasPage() {
             <DialogContent className="w-[95vw] sm:max-w-2xl bg-surface-container-lowest p-0 border-none shadow-[0px_40px_80px_-20px_rgba(25,28,30,0.15)] rounded-[2rem] overflow-y-auto max-h-[90vh] scrollbar-thin scrollbar-thumb-on-surface-variant/10">
               <div className="p-6 sm:p-12 space-y-8 sm:space-y-10">
                 <DialogHeader>
-                  <DialogTitle className="text-3xl font-bold tracking-tight text-on-surface">Nueva Boleta</DialogTitle>
+                  <DialogTitle className="text-2xl sm:text-3xl font-bold tracking-tight text-on-surface">Nueva Boleta</DialogTitle>
                   <DialogDescription className="text-on-surface-variant font-medium text-base mt-2">
                     Ingrese los detalles de la boleta para ser rendida.
                   </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-10">
+                <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-10">
                   <div className="space-y-6">
                     <div className="flex items-center gap-4 px-1">
                       <div className="h-px flex-1 bg-on-surface-variant/10" />
@@ -161,7 +161,7 @@ export default function RendicionBoletasPage() {
                           placeholder="Ej: BOL-001"
                           value={numero}
                           onChange={(e) => setNumero(e.target.value)}
-                          className="h-14 bg-surface-container-low border-none rounded-2xl px-5 text-base font-medium"
+                          className="h-12 sm:h-14 bg-surface-container-low border-none rounded-2xl px-5 text-base font-medium"
                         />
                       </div>
 
@@ -181,7 +181,7 @@ export default function RendicionBoletasPage() {
                           placeholder="0"
                           value={monto}
                           onChange={(e) => setMonto(e.target.value)}
-                          className="h-14 bg-surface-container-low border-none rounded-2xl px-5 text-lg font-bold"
+                          className="h-12 sm:h-14 bg-surface-container-low border-none rounded-2xl px-5 text-lg font-bold"
                         />
                       </div>
 
@@ -193,27 +193,28 @@ export default function RendicionBoletasPage() {
                           placeholder="Descripción de la boleta..."
                           value={descripcion}
                           onChange={(e) => setDescripcion(e.target.value)}
-                          className="h-14 bg-surface-container-low border-none rounded-2xl px-5 text-base font-medium"
+                          className="h-12 sm:h-14 bg-surface-container-low border-none rounded-2xl px-5 text-base font-medium"
                         />
                       </div>
 
                       <div className="md:col-span-2 space-y-2">
                         <Label htmlFor="boleta-archivo" className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Adjuntar Comprobante (Imagen/PDF)</Label>
-                        <div className="relative group">
-                          <Input
+                        <label
+                          htmlFor="boleta-archivo"
+                          className="relative flex h-20 w-full cursor-pointer items-center justify-center rounded-2xl border-2 border-dashed border-on-surface-variant/20 bg-surface-container-low transition-colors hover:border-primary/40 hover:bg-surface-container-high"
+                        >
+                          <input
                             id="boleta-archivo"
                             type="file"
                             accept="image/*"
                             capture="environment"
                             onChange={(e) => setArchivo(e.target.files?.[0] || null)}
-                            className="h-20 bg-surface-container-low border-2 border-dashed border-on-surface-variant/10 group-hover:border-primary/30 transition-colors rounded-2xl px-4 sm:px-6 py-4 text-sm font-medium cursor-pointer"
+                            className="sr-only"
                           />
-                          {!archivo && (
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-on-surface-variant/40 text-xs font-bold uppercase tracking-widest">
-                              Click para subir o capturar foto
-                            </div>
-                          )}
-                        </div>
+                          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50">
+                            {archivo ? archivo.name : "Click para subir o capturar foto"}
+                          </span>
+                        </label>
                         {archivo && (
                           <div className="mt-4 bg-primary/5 p-4 rounded-2xl flex items-center justify-between border border-primary/10">
                             <div className="flex items-center gap-3">
@@ -242,14 +243,14 @@ export default function RendicionBoletasPage() {
                   </div>
 
                   <div className="flex flex-col gap-3 pt-6 border-t border-on-surface-variant/5">
-                    <Button type="submit" variant="primary" className="h-14 text-lg shadow-xl shadow-primary/10">
+                    <Button type="submit" variant="primary" className="h-12 sm:h-14 text-base sm:text-lg shadow-xl shadow-primary/10">
                       Registrar Boleta para Rendición
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setOpen(false)}
-                      className="h-14 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors"
+                      className="h-12 sm:h-14 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors"
                     >
                       Cancelar
                     </Button>
@@ -261,7 +262,7 @@ export default function RendicionBoletasPage() {
         </div>
       </Card>
 
-      <div className="bg-surface-container-low/30 rounded-[2rem] overflow-hidden">
+      <div className="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0px_4px_24px_-4px_rgba(25,28,30,0.06)] border border-outline/10">
           {boletas.length === 0 ? (
             <div className="p-20 text-center">
               <p className="text-sm font-medium text-on-surface-variant/60">No hay boletas registradas para el periodo actual.</p>
@@ -291,7 +292,7 @@ export default function RendicionBoletasPage() {
                     >
                       <td className="px-8 py-5 font-bold text-on-surface text-sm">{boleta.numero}</td>
                       <td className="px-8 py-5 text-on-surface-variant font-medium text-sm whitespace-nowrap tabular-nums">
-                        {new Date(boleta.fecha).toLocaleDateString("es-CL", { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                        {formatDate(boleta.fecha)}
                       </td>
                       <td className="px-8 py-5 font-black text-on-surface text-base tabular-nums">{clp.format(boleta.monto)}</td>
                       <td className="px-8 py-5 text-on-surface-variant font-medium text-sm max-w-[200px] truncate" title={boleta.descripcion}>

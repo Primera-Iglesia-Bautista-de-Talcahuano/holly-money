@@ -84,7 +84,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-10">
       {/* SECCIÓN 1: DATOS PRINCIPALES */}
       <div className="space-y-6">
         <div className="flex items-center gap-4 px-1">
@@ -95,7 +95,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
           <div className="h-px flex-1 bg-on-surface-variant/10" />
         </div>
         
-        <div className="grid gap-4 sm:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Fecha de Registro</Label>
             <Controller
@@ -109,13 +109,13 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
               )}
             />
             {form.formState.errors.fechaMovimiento && (
-              <p className="text-[10px] font-medium text-error mt-1 ml-1">{form.formState.errors.fechaMovimiento.message}</p>
+              <p className="text-xs font-medium text-error mt-1 ml-1">{form.formState.errors.fechaMovimiento.message}</p>
             )}
           </div>
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Tipo de Operación</Label>
             <select
-              className="flex h-14 w-full items-center justify-between rounded-2xl border-none bg-surface-container-low px-5 py-2 text-base font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary-fixed appearance-none transition-all"
+              className="flex h-12 sm:h-14 w-full items-center justify-between rounded-2xl border-none bg-surface-container-low px-5 py-2 text-base font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary-fixed appearance-none transition-all"
               {...form.register("tipoMovimiento")}
             >
               <option value="INGRESO">Ingreso (Entrada)</option>
@@ -127,18 +127,18 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
             <Input 
               type="number" 
               min="1" 
-              className="h-14 text-lg font-bold"
+              className="h-12 sm:h-14 text-lg font-bold"
               placeholder="0"
               {...form.register("monto", { valueAsNumber: true })} 
             />
             {form.formState.errors.monto && (
-              <p className="text-[10px] font-medium text-error mt-1 ml-1">{form.formState.errors.monto.message}</p>
+              <p className="text-xs font-medium text-error mt-1 ml-1">{form.formState.errors.monto.message}</p>
             )}
           </div>
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Categoría</Label>
             <select
-              className="flex h-14 w-full items-center justify-between rounded-2xl border-none bg-surface-container-low px-5 py-2 text-base font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary-fixed appearance-none transition-all"
+              className="flex h-12 sm:h-14 w-full items-center justify-between rounded-2xl border-none bg-surface-container-low px-5 py-2 text-base font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary-fixed appearance-none transition-all"
               {...form.register("categoria")}
             >
               <option value="">Seleccione Categoría</option>
@@ -149,7 +149,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
               ))}
             </select>
             {form.formState.errors.categoria && (
-              <p className="text-[10px] font-medium text-error mt-1 ml-1">{form.formState.errors.categoria.message}</p>
+              <p className="text-xs font-medium text-error mt-1 ml-1">{form.formState.errors.categoria.message}</p>
             )}
           </div>
         </div>
@@ -157,7 +157,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
         <div className="space-y-2">
           <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Concepto / Glosa</Label>
           <Input 
-            className="h-14 font-medium"
+            className="h-12 sm:h-14 font-medium"
             placeholder="Descripción breve del movimiento..."
             {...form.register("concepto")} 
           />
@@ -181,7 +181,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Referente / Entidad</Label>
             <Input 
-              className="h-14 bg-surface-container-low/50" 
+              className="h-12 sm:h-14 bg-surface-container-low/50" 
               placeholder="Opcional"
               {...form.register("referente")} 
             />
@@ -189,7 +189,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Recibido por</Label>
             <Input 
-              className="h-14 bg-surface-container-low/50" 
+              className="h-12 sm:h-14 bg-surface-container-low/50" 
               placeholder="Opcional"
               {...form.register("recibidoPor")} 
             />
@@ -197,7 +197,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Entregado por</Label>
             <Input 
-              className="h-14 bg-surface-container-low/50" 
+              className="h-12 sm:h-14 bg-surface-container-low/50" 
               placeholder="Opcional"
               {...form.register("entregadoPor")} 
             />
@@ -219,7 +219,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Beneficiario</Label>
             <Input 
-              className="h-14 bg-surface-container-low/50" 
+              className="h-12 sm:h-14 bg-surface-container-low/50" 
               placeholder="Opcional"
               {...form.register("beneficiario")} 
             />
@@ -227,7 +227,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Medio de Pago</Label>
             <Input 
-              className="h-14 bg-surface-container-low/50" 
+              className="h-12 sm:h-14 bg-surface-container-low/50" 
               placeholder="Efectivo, Transferencia, etc."
               {...form.register("medioPago")} 
             />
@@ -235,7 +235,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">N° Documento Respaldo</Label>
             <Input 
-              className="h-14 bg-surface-container-low/50" 
+              className="h-12 sm:h-14 bg-surface-container-low/50" 
               placeholder="Boleta, Factura, etc."
               {...form.register("numeroRespaldo")} 
             />
@@ -245,7 +245,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
         <div className="space-y-2">
           <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Observaciones Adicionales</Label>
           <textarea
-            className="flex min-h-[120px] w-full rounded-2xl border-none bg-surface-container-low/50 px-5 py-4 text-base font-medium text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-fixed transition-all"
+            className="flex min-h-[100px] sm:min-h-[120px] w-full rounded-2xl border-none bg-surface-container-low/50 px-5 py-4 text-base font-medium text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-fixed transition-all"
             placeholder="Algún detalle adicional relevante..."
             {...form.register("observaciones")}
           />
@@ -259,7 +259,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
             type="submit"
             disabled={form.formState.isSubmitting}
             variant="primary"
-            className="h-14 px-10 text-lg shadow-xl shadow-primary/20 rounded-2xl flex-1 sm:flex-none"
+            className="h-12 sm:h-14 px-8 sm:px-10 text-base sm:text-lg shadow-xl shadow-primary/20 rounded-2xl flex-1 sm:flex-none"
           >
             {form.formState.isSubmitting
               ? "Procesando Registro..."
@@ -267,12 +267,12 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
                 ? "Confirmar y Guardar Movimiento"
                 : "Actualizar Información"}
           </Button>
-          {(mode === "create" || onSuccess) && (
+          {onSuccess && (
             <Button
               type="button"
               variant="outline"
               onClick={() => onSuccess?.()}
-              className="h-14 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-2xl flex-1 sm:flex-none"
+              className="h-12 sm:h-14 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-2xl flex-1 sm:flex-none"
             >
               Cerrar Formulario
             </Button>

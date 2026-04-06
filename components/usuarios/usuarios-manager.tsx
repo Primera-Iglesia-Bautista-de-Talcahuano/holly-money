@@ -102,7 +102,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
   return (
     <div className="space-y-8">
       {/* Header with Search and Add Action */}
-      <div className="flex items-center justify-between px-2 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2 pb-4">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight text-on-surface">Administración de Equipo</h2>
           <p className="text-sm text-on-surface-variant font-medium">Control de accesos y roles para la gestión ministerial.</p>
@@ -142,7 +142,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                       placeholder="Ej: Juan Pérez"
                       value={newUser.nombre}
                       onChange={(e) => setNewUser((s) => ({ ...s, nombre: e.target.value }))}
-                      className="h-14 bg-surface-container-low border-none shadow-none rounded-2xl px-5 text-base font-medium"
+                      className="h-12 sm:h-14 bg-surface-container-low border-none shadow-none rounded-2xl px-5 text-base font-medium"
                     />
                   </div>
                   <div className="space-y-2">
@@ -153,7 +153,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                       placeholder="usuario@ejemplo.com"
                       value={newUser.email}
                       onChange={(e) => setNewUser((s) => ({ ...s, email: e.target.value }))}
-                      className="h-14 bg-surface-container-low border-none shadow-none rounded-2xl px-5 text-base font-medium"
+                      className="h-12 sm:h-14 bg-surface-container-low border-none shadow-none rounded-2xl px-5 text-base font-medium"
                     />
                   </div>
                   <div className="space-y-2">
@@ -164,14 +164,14 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                       placeholder="••••••••"
                       value={newUser.password}
                       onChange={(e) => setNewUser((s) => ({ ...s, password: e.target.value }))}
-                      className="h-14 bg-surface-container-low border-none shadow-none rounded-2xl px-5 text-base font-medium"
+                      className="h-12 sm:h-14 bg-surface-container-low border-none shadow-none rounded-2xl px-5 text-base font-medium"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="new-rol" className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Nivel de Acceso Ministerial</Label>
                     <select
                       id="new-rol"
-                      className="flex h-14 w-full rounded-2xl border-none bg-surface-container-low px-5 py-2 text-base font-medium text-on-surface focus:ring-2 focus:ring-primary outline-none transition-all appearance-none"
+                      className="flex h-12 sm:h-14 w-full rounded-2xl border-none bg-surface-container-low px-5 py-2 text-base font-medium text-on-surface focus:ring-2 focus:ring-primary outline-none transition-all appearance-none"
                       value={newUser.rol}
                       onChange={(e) => setNewUser((s) => ({ ...s, rol: e.target.value as UserRole }))}
                     >
@@ -187,7 +187,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     variant="primary"
                     type="submit"
                     disabled={submitting}
-                    className="h-14 text-lg shadow-xl shadow-primary/20 rounded-2xl"
+                    className="h-12 sm:h-14 text-base sm:text-lg shadow-xl shadow-primary/20 rounded-2xl"
                   >
                     {submitting ? "Procesando Invitación..." : "Confirmar & Registrar Usuario"}
                   </Button>
@@ -195,7 +195,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     variant="outline"
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="h-14 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors"
+                    className="h-12 sm:h-14 border-none bg-surface-container-low hover:bg-surface-container-high transition-colors"
                   >
                     Cancelar
                   </Button>
@@ -207,22 +207,22 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
       </div>
 
       {/* Quick Stats Grid */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="bg-surface-container-lowest p-8 shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.05)] border-none">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <Card className="bg-surface-container-lowest p-5 sm:p-8 shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.05)] border-none">
           <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Personal Activo</p>
           <div className="mt-2 flex items-baseline gap-2">
             <h3 className="text-4xl font-bold tracking-tight text-primary">{activeUsers}</h3>
             <span className="text-sm font-bold text-on-surface-variant">de {totalUsers} usuarios</span>
           </div>
         </Card>
-        <Card className="bg-surface-container-lowest p-8 shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.05)] border-none">
+        <Card className="bg-surface-container-lowest p-5 sm:p-8 shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.05)] border-none">
           <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Administradores</p>
           <div className="mt-2 flex items-baseline gap-2">
             <h3 className="text-4xl font-bold tracking-tight text-on-surface">{adminUsers}</h3>
             <span className="text-sm font-bold text-on-surface-variant">cuentas de control</span>
           </div>
         </Card>
-        <Card className="bg-surface-container-lowest p-8 shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.05)] border-none">
+        <Card className="bg-surface-container-lowest p-5 sm:p-8 shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.05)] border-none">
           <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Auditoría de Acceso</p>
           <div className="mt-2 flex items-baseline gap-2">
             <h3 className="text-4xl font-bold tracking-tight text-on-surface">100%</h3>
@@ -241,16 +241,16 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
           </span>
         </div>
 
-        <div className="bg-surface-container-low/30 rounded-[2rem] overflow-hidden">
+        <div className="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0px_4px_24px_-4px_rgba(25,28,30,0.06)] border border-outline/10">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 <tr className="text-on-surface-variant/40 border-none">
-                  <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Nombre & Estado</th>
-                  <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Correo Electrónico</th>
-                  <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Rol de Acceso</th>
-                  <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Estado Cuenta</th>
-                  <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em] text-right">Acciones</th>
+                  <th className="px-4 sm:px-8 py-4 sm:py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Nombre & Estado</th>
+                  <th className="px-4 sm:px-8 py-4 sm:py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Correo Electrónico</th>
+                  <th className="px-4 sm:px-8 py-4 sm:py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Rol de Acceso</th>
+                  <th className="px-4 sm:px-8 py-4 sm:py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Estado Cuenta</th>
+                  <th className="px-4 sm:px-8 py-4 sm:py-6 font-bold text-[10px] uppercase tracking-[0.2em] text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y-0">
@@ -262,7 +262,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                       index % 2 === 0 ? "bg-transparent" : "bg-surface-container-low/20"
                     )}
                   >
-                    <td className="px-8 py-5">
+                    <td className="px-4 sm:px-8 py-4 sm:py-5">
                       <div className="flex items-center gap-3">
                         <div className={`w-2 h-2 rounded-full flex-shrink-0 ${user.activo ? 'bg-primary shadow-[0_0_8px_rgba(13,148,136,0.4)]' : 'bg-on-surface-variant/30'}`} />
                         <Input
@@ -272,10 +272,10 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                         />
                       </div>
                     </td>
-                    <td className="px-8 py-5 text-sm font-medium text-on-surface-variant truncate max-w-[200px]">
+                    <td className="px-4 sm:px-8 py-4 sm:py-5 text-sm font-medium text-on-surface-variant truncate max-w-[200px]">
                       {user.email}
                     </td>
-                    <td className="px-8 py-5">
+                    <td className="px-4 sm:px-8 py-4 sm:py-5">
                       <div className="relative inline-block group/select">
                         <select
                           className="bg-surface-container-low/50 hover:bg-surface-container-low border-none rounded-full px-4 py-1.5 text-[11px] font-black text-primary uppercase tracking-widest outline-none cursor-pointer appearance-none transition-colors"
@@ -288,7 +288,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                         </select>
                       </div>
                     </td>
-                    <td className="px-8 py-5">
+                    <td className="px-4 sm:px-8 py-4 sm:py-5">
                       <label className="flex items-center gap-3 cursor-pointer group/toggle inline-flex">
                         <div className={`w-10 h-5 rounded-full p-1 transition-all duration-300 ${user.activo ? 'bg-primary' : 'bg-on-surface-variant/20'}`}>
                           <input
@@ -302,12 +302,12 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                         <span className="text-[10px] font-black text-on-surface-variant/60 tracking-widest">{user.activo ? "ACTIVO" : "INACTIVO"}</span>
                       </label>
                     </td>
-                    <td className="px-8 py-5 text-right">
+                    <td className="px-4 sm:px-8 py-4 sm:py-5 text-right">
                       <Button
                         variant="primary"
                         size="xs"
                         onClick={() => void saveUser(user)}
-                        className="opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100 rounded-full px-6 shadow-lg shadow-primary/10"
+                        className="sm:opacity-0 sm:group-hover:opacity-100 sm:scale-95 sm:group-hover:scale-100 transition-all rounded-full px-6 shadow-lg shadow-primary/10"
                       >
                         Guardar
                       </Button>

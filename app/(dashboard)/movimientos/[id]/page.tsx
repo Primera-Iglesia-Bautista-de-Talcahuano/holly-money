@@ -7,7 +7,7 @@ import { AnularButton } from "@/components/movimientos/anular-button";
 import { RegenerarPdfButton } from "@/components/movimientos/regenerar-pdf-button";
 import { Card, CardActive, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { ChevronLeft, Edit, FileText, User, Calendar, Tag, Info as InfoIcon } from "lucide-react";
 
 type Props = { params: Promise<{ id: string }> };
@@ -46,7 +46,7 @@ export default async function MovimientoDetallePage({ params }: Props) {
             Volver a la lista
           </Link>
           <div className="flex items-center gap-4">
-            <h1 className="text-4xl font-extrabold tracking-tight text-on-surface">Detalle #{row.folioDisplay}</h1>
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-on-surface">Detalle #{row.folioDisplay}</h1>
             <span className={cn(
               "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest",
               row.estado === 'ACTIVO' ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'
@@ -55,11 +55,11 @@ export default async function MovimientoDetallePage({ params }: Props) {
             </span>
           </div>
           <p className="text-sm font-medium text-on-surface-variant">
-            {row.tipoMovimiento} • Registrado el {new Date(row.fechaMovimiento).toLocaleDateString("es-CL")}
+            {row.tipoMovimiento} • Registrado el {formatDate(row.fechaMovimiento)}
           </p>
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           {canWrite && row.estado !== "ANULADO" && (
             <>
               <Button variant="outline" className="h-11 px-5 border-none bg-surface-container-low hover:bg-surface-container-high" render={<Link href={`/movimientos/${row.id}/editar`} />}>
@@ -67,7 +67,10 @@ export default async function MovimientoDetallePage({ params }: Props) {
                 Editar Datos
               </Button>
               <RegenerarPdfButton movimientoId={row.id} />
-              <AnularButton movimientoId={row.id} />
+              <AnularButton
+                movimientoId={row.id}
+                className="h-11 px-5 border-none bg-destructive/10 hover:bg-destructive/20 text-destructive shadow-none font-bold"
+              />
             </>
           )}
         </div>
@@ -75,8 +78,8 @@ export default async function MovimientoDetallePage({ params }: Props) {
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-8">
-          <CardActive className="p-10 border-none shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.05)]">
-            <div className="grid gap-10 md:grid-cols-2">
+          <CardActive className="p-5 sm:p-10 border-none shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.05)]">
+            <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-6">
                 <DetailItem icon={<FileText />} label="Monto total" value={clp.format(Number(row.monto))} valueClass="text-3xl font-black text-primary" />
                 <DetailItem icon={<Tag />} label="Categoría" value={row.categoria} />
@@ -84,7 +87,7 @@ export default async function MovimientoDetallePage({ params }: Props) {
                 <DetailItem icon={<User />} label="Referente / Donante" value={row.referente} />
               </div>
               <div className="space-y-6">
-                <DetailItem icon={<Calendar />} label="Fecha del Movimiento" value={new Date(row.fechaMovimiento).toLocaleDateString("es-CL", { dateStyle: 'long' })} />
+                <DetailItem icon={<Calendar />} label="Fecha del Movimiento" value={formatDate(row.fechaMovimiento)} />
                 <DetailItem icon={<InfoIcon />} label="Medio de Pago" value={row.medioPago} />
                 <DetailItem icon={<FileText />} label="Número de Respaldo" value={row.numeroRespaldo} />
                 <DetailItem icon={<User />} label="Beneficiario" value={row.beneficiario} />
@@ -143,7 +146,7 @@ export default async function MovimientoDetallePage({ params }: Props) {
               <div 
                 key={item.id} 
                 className={cn(
-                  "px-10 py-5 transition-all flex items-center justify-between",
+                  "px-4 sm:px-10 py-4 sm:py-5 transition-all flex items-center justify-between",
                   index % 2 === 0 ? "bg-transparent" : "bg-surface-container-low/10"
                 )}
               >

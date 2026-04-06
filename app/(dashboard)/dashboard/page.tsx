@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { dashboardService } from "@/services/dashboard/dashboard.service";
 import { IngresosEgresosChart, CategoriaChart } from "@/components/dashboard/dashboard-charts";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,8 @@ type DashboardSearchParams = {
 };
 
 export default async function DashboardPage({ searchParams }: { searchParams?: DashboardSearchParams }) {
-  const from = searchParams?.from;
-  const to = searchParams?.to;
+  const from = (await searchParams)?.from;
+  const to = (await searchParams)?.to;
   const data = await dashboardService.getResumen({ from, to });
 
   return (
@@ -24,7 +24,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: D
       <Card className="bg-surface-container-lowest p-6 sm:p-10 shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.08)]">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-on-surface">Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-surface">Dashboard</h1>
             <p className="mt-1 text-sm text-on-surface-variant font-medium">Resumen financiero de actividades.</p>
           </div>
           <div className="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-semibold">
@@ -47,10 +47,10 @@ export default async function DashboardPage({ searchParams }: { searchParams?: D
             <DatePicker name="to" defaultValue={to} />
           </div>
 
-          <Button type="submit" variant="primary" className="h-14 whitespace-nowrap px-10 shadow-xl shadow-primary/10 rounded-2xl">
+          <Button type="submit" variant="primary" className="h-11 sm:h-14 whitespace-nowrap px-6 sm:px-10 shadow-xl shadow-primary/10 rounded-2xl">
             Filtrar Datos
           </Button>
-          <Link href="/dashboard" className="inline-flex h-14 px-8 items-center justify-center rounded-2xl bg-surface-container-low border-none text-on-surface hover:bg-surface-container-high text-sm font-bold transition-all duration-200">
+          <Link href="/dashboard" className="inline-flex h-11 sm:h-14 px-6 sm:px-8 items-center justify-center rounded-2xl bg-surface-container-low border-none text-on-surface hover:bg-surface-container-high text-sm font-bold transition-all duration-200">
             Limpiar Filtros
           </Link>
         </form>
@@ -82,7 +82,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: D
         </CardActive>
       </div>
 
-      <div className="bg-surface-container-low/30 rounded-[2rem] overflow-hidden">
+      <div className="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0px_4px_24px_-4px_rgba(25,28,30,0.06)] border border-outline/10">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
@@ -109,8 +109,8 @@ export default async function DashboardPage({ searchParams }: { searchParams?: D
                       #{row.folioDisplay}
                     </Link>
                   </td>
-                  <td className="px-8 py-5 text-on-surface-variant font-medium text-sm">
-                    {new Date(row.fechaMovimiento).toLocaleDateString("es-CL", { day: '2-digit', month: 'short' })}
+                  <td className="px-8 py-5 text-on-surface-variant font-medium text-sm whitespace-nowrap tabular-nums">
+                    {formatDate(row.fechaMovimiento)}
                   </td>
                   <td className="px-8 py-5">
                     <span className={cn(
