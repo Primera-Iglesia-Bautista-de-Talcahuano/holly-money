@@ -143,11 +143,11 @@ export function CategoriaChart({ data }: { data: CategoriaItem[] }) {
             iconType="circle"
             content={({ payload }) => (
               <div className="flex flex-wrap justify-center gap-x-4 gap-y-3 pt-6 sm:pt-0 sm:pl-4 sm:flex-col sm:justify-start sm:items-start max-h-[140px] sm:max-h-full overflow-y-auto w-full">
-                {payload?.map((entry: any, index) => (
+                {payload?.map((entry, index) => (
                   <div key={index} className="flex items-center gap-3 bg-surface-container-low/50 sm:bg-transparent px-3 py-1.5 rounded-full sm:p-0 min-w-[120px] sm:min-w-0">
                     <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
                     <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 truncate max-w-[80px] sm:max-w-none">{entry.value}</span>
-                    <span className="text-[10px] sm:text-[11px] font-black text-on-surface ml-auto">{clp.format(entry.payload.total)}</span>
+                    <span className="text-[10px] sm:text-[11px] font-black text-on-surface ml-auto">{clp.format((entry.payload as { total: number } | undefined)?.total ?? 0)}</span>
                   </div>
                 ))}
               </div>

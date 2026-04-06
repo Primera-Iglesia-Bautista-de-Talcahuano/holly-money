@@ -2,7 +2,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { dashboardService } from "@/services/dashboard/dashboard.service";
 import { IngresosEgresosChart, CategoriaChart } from "@/components/dashboard/dashboard-charts";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";

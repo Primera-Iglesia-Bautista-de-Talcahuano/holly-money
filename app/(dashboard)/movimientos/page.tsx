@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { canCreateOrEditMovements } from "@/lib/permissions/rbac";
 import { AnularButton } from "@/components/movimientos/anular-button";
 import { NewMovimientoDialog } from "@/components/movimientos/new-movimiento-dialog";
-import { Card, CardActive, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
