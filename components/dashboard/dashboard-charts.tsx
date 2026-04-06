@@ -26,11 +26,11 @@ type SerieItem = { name: string; ingresos: number; egresos: number };
 type CategoriaItem = { categoria: string; total: number };
 
 const COLORS = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
+  "var(--color-chart-1)",
+  "var(--color-chart-2)",
+  "var(--color-chart-3)",
+  "var(--color-chart-4)",
+  "var(--color-chart-5)",
 ];
 
 const ingresosEgresosConfig = {
