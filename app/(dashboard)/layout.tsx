@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LogoutButton } from "@/components/auth/logout-button";
-import { getCurrentSession } from "@/lib/auth/session";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { LayoutDashboard, Briefcase, Book, FileText, Users, Settings, Menu } from "lucide-react";
 
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
@@ -21,8 +21,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const session = await getCurrentSession();
-  if (!session?.user) {
+  const user = await getCurrentUser();
+  if (!user) {
     redirect("/login");
   }
 
@@ -36,7 +36,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   ];
 
   const allowedLinks =
-    session.user.role === "ADMIN"
+    user.role === "ADMIN"
       ? links
       : links.filter((link) => link.href !== "/usuarios" && link.href !== "/configuracion");
 
@@ -47,7 +47,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <h2 className="mb-10 font-bold tracking-tight text-xl text-primary">Sistema Contable Iglesia</h2>
           <DashboardNav links={allowedLinks} />
         </aside>
-        
+
         <div className="flex flex-col bg-surface overflow-hidden">
           <header className="sticky top-0 z-20 bg-surface-bright/40 backdrop-blur-3xl px-6 sm:px-12 py-4 sm:py-6 border-b border-surface-container-highest/5 flex items-center justify-between">
             <div className="flex items-center gap-4 sm:gap-6">
@@ -71,11 +71,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
                         <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/40 mb-4">Tu Sesión</p>
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold">
-                            {session.user.name?.charAt(0)}
+                            {user.name?.charAt(0)}
                           </div>
                           <div className="overflow-hidden">
-                            <p className="text-sm font-bold text-on-surface truncate">{session.user.name}</p>
-                            <p className="text-[10px] text-on-surface-variant truncate uppercase tracking-tighter font-medium">{session.user.role}</p>
+                            <p className="text-sm font-bold text-on-surface truncate">{user.name}</p>
+                            <p className="text-[10px] text-on-surface-variant truncate uppercase tracking-tighter font-medium">{user.role}</p>
                           </div>
                         </div>
                       </div>
@@ -99,12 +99,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
                       <div className="hidden sm:block text-right">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Operador</p>
                         <p className="text-sm font-bold text-on-surface leading-snug tracking-tight">
-                          {session.user.name}
+                          {user.name}
                         </p>
                       </div>
                       <div className="relative h-9 w-9 sm:h-11 sm:w-11 rounded-full bg-surface-container-high border-2 border-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform duration-500 shadow-sm">
                         <span className="font-heading font-black text-[10px] sm:text-xs uppercase tracking-tighter">
-                          {session.user.name?.charAt(0) || "U"}
+                          {user.name?.charAt(0) || "U"}
                         </span>
                         <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-primary border-2 border-surface-bright" />
                       </div>
@@ -113,8 +113,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 />
                 <DropdownMenuContent align="end" sideOffset={12}>
                   <div className="px-4 py-3 border-b border-surface-container-highest/5 mb-2">
-                    <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">{session.user.email}</p>
-                    <p className="text-[10px] font-bold text-primary tracking-widest uppercase mt-1">{session.user.role}</p>
+                    <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">{user.email}</p>
+                    <p className="text-[10px] font-bold text-primary tracking-widest uppercase mt-1">{user.role}</p>
                   </div>
                   <DropdownMenuItem disabled className="opacity-40 cursor-not-allowed">
                     <div className="flex items-center gap-3 w-full">

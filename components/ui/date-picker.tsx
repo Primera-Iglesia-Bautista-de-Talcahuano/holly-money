@@ -4,7 +4,7 @@ import * as React from "react"
 import { es } from "date-fns/locale/es"
 import { Calendar as CalendarIcon } from "lucide-react"
 
-import { cn, formatDate } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -38,7 +38,7 @@ export function DatePicker({
       <PopoverTrigger render={
         <Button
           variant={"outline"}
-          size="xl"
+          size="lg"
           className={cn(
             "w-full justify-start text-left font-normal bg-surface-container-low border border-outline/20 hover:bg-surface-container-high overflow-hidden",
             !date && "text-muted-foreground"
@@ -46,7 +46,7 @@ export function DatePicker({
         />
       }>
         <CalendarIcon className="mr-2 h-4 w-4" />
-        {date ? formatDate(date) : <span className="truncate">Seleccionar fecha</span>}
+        {date ? date.toLocaleDateString("es-CL", { day: "2-digit", month: "2-digit", year: "numeric" }) : <span className="truncate">Seleccionar fecha</span>}
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0 z-50 bg-popover text-popover-foreground shadow-md rounded-xl overflow-hidden ring-1 ring-border">
         <Calendar

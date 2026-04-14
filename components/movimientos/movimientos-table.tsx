@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { cn, formatDate } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { AnularButton } from "./anular-button";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,25 +15,29 @@ import {
 
 export type SerializedMovimiento = {
   id: string;
-  folioDisplay: string;
-  fechaMovimiento: string;
-  tipoMovimiento: string;
-  monto: string;
-  categoria: string;
-  concepto: string;
-  referente: string | null;
-  recibidoPor: string | null;
-  entregadoPor: string | null;
-  beneficiario: string | null;
-  medioPago: string | null;
-  numeroRespaldo: string | null;
-  observaciones: string | null;
-  motivoAnulacion: string | null;
-  estado: string;
-  creadoPor: { nombre: string };
+  folio_display: string;
+  movement_date: string;
+  movement_type: string;
+  amount: string;
+  category: string;
+  concept: string;
+  reference_person: string | null;
+  received_by: string | null;
+  delivered_by: string | null;
+  beneficiary: string | null;
+  payment_method: string | null;
+  support_number: string | null;
+  notes: string | null;
+  cancellation_reason: string | null;
+  status: string;
+  created_by: { full_name: string };
 };
 
 const clp = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("es-CL", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
 
 function Field({ label, value }: { label: string; value?: string | null }) {
   return (
@@ -43,6 +47,16 @@ function Field({ label, value }: { label: string; value?: string | null }) {
     </div>
   );
 }
+
+const MOVEMENT_TYPE_LABEL: Record<string, string> = {
+  INCOME: "Ingreso",
+  EXPENSE: "Egreso",
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  ACTIVE: "Activo",
+  CANCELLED: "Anulado",
+};
 
 export function MovimientosTable({
   rows,
@@ -78,32 +92,32 @@ export function MovimientosTable({
                     index % 2 === 0 ? "bg-transparent" : "bg-surface-container-low/20"
                   )}
                 >
-                  <td className="px-4 sm:px-8 py-4 sm:py-5 font-bold text-primary">#{row.folioDisplay}</td>
+                  <td className="px-4 sm:px-8 py-4 sm:py-5 font-bold text-primary">#{row.folio_display}</td>
                   <td className="px-4 sm:px-8 py-4 sm:py-5 text-on-surface-variant font-medium text-sm whitespace-nowrap tabular-nums">
-                    {formatDate(row.fechaMovimiento)}
+                    {formatDate(row.movement_date)}
                   </td>
                   <td className="px-4 sm:px-8 py-4 sm:py-5">
                     <span className={cn(
                       "inline-flex rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase",
-                      row.tipoMovimiento === "INGRESO" ? "bg-primary/10 text-primary" : "bg-tertiary/10 text-tertiary"
+                      row.movement_type === "INCOME" ? "bg-primary/10 text-primary" : "bg-tertiary/10 text-tertiary"
                     )}>
-                      {row.tipoMovimiento}
+                      {MOVEMENT_TYPE_LABEL[row.movement_type] ?? row.movement_type}
                     </span>
                   </td>
                   <td className="px-4 sm:px-8 py-4 sm:py-5 text-right font-black text-on-surface tabular-nums">
-                    {clp.format(Number(row.monto))}
+                    {clp.format(Number(row.amount))}
                   </td>
                   <td className="px-4 sm:px-8 py-4 sm:py-5">
                     <span className="inline-flex rounded-full bg-secondary-container/50 px-3 py-1 text-[10px] font-bold text-on-secondary-container uppercase tracking-widest">
-                      {row.categoria}
+                      {row.category}
                     </span>
                   </td>
                   <td className="px-4 sm:px-8 py-4 sm:py-5">
                     <span className={cn(
                       "inline-flex rounded-full px-2.5 py-1 text-[10px] font-black tracking-widest uppercase",
-                      row.estado === "ACTIVO" ? "bg-primary/5 text-primary/70" : "bg-destructive/5 text-destructive/70"
+                      row.status === "ACTIVE" ? "bg-primary/5 text-primary/70" : "bg-destructive/5 text-destructive/70"
                     )}>
-                      {row.estado}
+                      {STATUS_LABEL[row.status] ?? row.status}
                     </span>
                   </td>
                 </tr>
@@ -127,59 +141,59 @@ export function MovimientosTable({
               <DialogHeader>
                 <div className="flex items-center gap-3 flex-wrap">
                   <DialogTitle className="text-2xl font-extrabold tracking-tight text-on-surface">
-                    #{selected.folioDisplay}
+                    #{selected.folio_display}
                   </DialogTitle>
                   <span className={cn(
                     "rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase",
-                    selected.tipoMovimiento === "INGRESO" ? "bg-primary/10 text-primary" : "bg-tertiary/10 text-tertiary"
+                    selected.movement_type === "INCOME" ? "bg-primary/10 text-primary" : "bg-tertiary/10 text-tertiary"
                   )}>
-                    {selected.tipoMovimiento}
+                    {MOVEMENT_TYPE_LABEL[selected.movement_type] ?? selected.movement_type}
                   </span>
                   <span className={cn(
                     "rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase",
-                    selected.estado === "ACTIVO" ? "bg-primary/5 text-primary/70" : "bg-destructive/5 text-destructive/70"
+                    selected.status === "ACTIVE" ? "bg-primary/5 text-primary/70" : "bg-destructive/5 text-destructive/70"
                   )}>
-                    {selected.estado}
+                    {STATUS_LABEL[selected.status] ?? selected.status}
                   </span>
                 </div>
-                <DialogDescription className="sr-only">Detalle del movimiento {selected.folioDisplay}</DialogDescription>
+                <DialogDescription className="sr-only">Detalle del movimiento {selected.folio_display}</DialogDescription>
               </DialogHeader>
 
               {/* Monto destacado */}
               <div className="bg-surface-container-low rounded-2xl px-6 py-5">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/50 mb-1">Monto</p>
-                <p className="text-2xl sm:text-3xl font-black tabular-nums text-primary">{clp.format(Number(selected.monto))}</p>
+                <p className="text-2xl sm:text-3xl font-black tabular-nums text-primary">{clp.format(Number(selected.amount))}</p>
               </div>
 
               {/* Campos en grid */}
               <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-                <Field label="Fecha" value={formatDate(selected.fechaMovimiento)} />
-                <Field label="Categoría" value={selected.categoria} />
+                <Field label="Fecha" value={formatDate(selected.movement_date)} />
+                <Field label="Categoría" value={selected.category} />
                 <div className="col-span-2">
-                  <Field label="Concepto / Glosa" value={selected.concepto} />
+                  <Field label="Concepto / Glosa" value={selected.concept} />
                 </div>
-                <Field label="Referente / Entidad" value={selected.referente} />
-                <Field label="Responsable" value={selected.creadoPor.nombre} />
-                <Field label="Recibido por" value={selected.recibidoPor} />
-                <Field label="Entregado por" value={selected.entregadoPor} />
-                <Field label="Beneficiario" value={selected.beneficiario} />
-                <Field label="Medio de pago" value={selected.medioPago} />
+                <Field label="Referente / Entidad" value={selected.reference_person} />
+                <Field label="Responsable" value={selected.created_by.full_name} />
+                <Field label="Recibido por" value={selected.received_by} />
+                <Field label="Entregado por" value={selected.delivered_by} />
+                <Field label="Beneficiario" value={selected.beneficiary} />
+                <Field label="Medio de pago" value={selected.payment_method} />
                 <div className="col-span-2">
-                  <Field label="N° Documento Respaldo" value={selected.numeroRespaldo} />
+                  <Field label="N° Documento Respaldo" value={selected.support_number} />
                 </div>
               </div>
 
-              {selected.observaciones && (
+              {selected.notes && (
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/50">Observaciones</p>
-                  <p className="text-sm font-medium text-on-surface leading-relaxed">{selected.observaciones}</p>
+                  <p className="text-sm font-medium text-on-surface leading-relaxed">{selected.notes}</p>
                 </div>
               )}
 
-              {selected.estado === "ANULADO" && selected.motivoAnulacion && (
+              {selected.status === "CANCELLED" && selected.cancellation_reason && (
                 <div className="rounded-2xl bg-destructive/5 px-5 py-4 space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-destructive">Motivo de Anulación</p>
-                  <p className="text-sm font-semibold text-on-surface">{selected.motivoAnulacion}</p>
+                  <p className="text-sm font-semibold text-on-surface">{selected.cancellation_reason}</p>
                 </div>
               )}
 
@@ -192,7 +206,7 @@ export function MovimientosTable({
                 >
                   Ver detalles completos
                 </Button>
-                {canWrite && selected.estado !== "ANULADO" && (
+                {canWrite && selected.status !== "CANCELLED" && (
                   <AnularButton
                     movimientoId={selected.id}
                     onSuccess={() => setSelected(null)}

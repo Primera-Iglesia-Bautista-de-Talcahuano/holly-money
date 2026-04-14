@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope, Geist, Inter } from "next/font/google";
+import { Manrope, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 

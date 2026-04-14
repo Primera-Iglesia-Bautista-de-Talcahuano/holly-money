@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { canManageUsers } from "@/lib/permissions/rbac";
 import { UsuariosManager } from "@/components/usuarios/usuarios-manager";
 import { usuariosService } from "@/services/usuarios/usuarios.service";

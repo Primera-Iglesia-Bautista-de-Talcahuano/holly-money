@@ -2,8 +2,8 @@ type Props = { params: Promise<{ id: string }> };
 import { notFound, redirect } from "next/navigation";
 import { MovimientoForm } from "@/components/movimientos/movimiento-form";
 import { Card } from "@/components/ui/card";
-import { prisma } from "@/lib/db/prisma";
-import { getCurrentUser } from "@/lib/auth/session";
+import { movimientosService } from "@/services/movimientos/movimientos.service";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { canCreateOrEditMovements } from "@/lib/permissions/rbac";
 
 export default async function EditarMovimientoPage({ params }: Props) {
@@ -13,9 +13,14 @@ export default async function EditarMovimientoPage({ params }: Props) {
     redirect(`/movimientos/${id}`);
   }
 
-  const row = await prisma.movimiento.findUnique({ where: { id } });
-  if (!row) notFound();
-  if (row.estado === "ANULADO") redirect(`/movimientos/${id}`);
+  let row: Awaited<ReturnType<typeof movimientosService.findById>>;
+  try {
+    row = await movimientosService.findById(id);
+  } catch {
+    notFound();
+  }
+
+  if (row.status === "CANCELLED") redirect(`/movimientos/${id}`);
 
   return (
     <section className="mx-auto max-w-5xl space-y-8">
@@ -29,18 +34,18 @@ export default async function EditarMovimientoPage({ params }: Props) {
           mode="edit"
           movimientoId={id}
           initialValues={{
-            fechaMovimiento: row.fechaMovimiento.toISOString(),
-            tipoMovimiento: row.tipoMovimiento,
-            monto: Number(row.monto),
-            categoria: row.categoria,
-            concepto: row.concepto,
-            referente: row.referente ?? "",
-            recibidoPor: row.recibidoPor ?? "",
-            entregadoPor: row.entregadoPor ?? "",
-            beneficiario: row.beneficiario ?? "",
-            medioPago: row.medioPago ?? "",
-            numeroRespaldo: row.numeroRespaldo ?? "",
-            observaciones: row.observaciones ?? "",
+            movement_date: row.movement_date.slice(0, 10),
+            movement_type: row.movement_type,
+            amount: Number(row.amount),
+            category: row.category,
+            concept: row.concept,
+            reference_person: row.reference_person ?? "",
+            received_by: row.received_by ?? "",
+            delivered_by: row.delivered_by ?? "",
+            beneficiary: row.beneficiary ?? "",
+            payment_method: row.payment_method ?? "",
+            support_number: row.support_number ?? "",
+            notes: row.notes ?? "",
           }}
         />
       </Card>

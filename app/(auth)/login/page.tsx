@@ -1,16 +1,8 @@
-import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
-import { getCurrentSession } from "@/lib/auth/session";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookMarked } from "lucide-react";
 
 export default async function LoginPage() {
-  const session = await getCurrentSession();
-
-  if (session) {
-    redirect("/dashboard");
-  }
-
   return (
     <main className="flex min-h-[100dvh] items-center justify-center p-6 bg-surface">
       <Card className="w-full max-w-md bg-surface-container-low shadow-sm">

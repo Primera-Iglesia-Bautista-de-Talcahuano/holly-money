@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Card, CardActive } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -152,7 +152,7 @@ export default function EventosPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {eventos.map((evento) => (
-              <CardActive key={evento.id} className="p-6 transition-all hover:translate-y-[-2px] border-none">
+              <Card key={evento.id} className="p-6 transition-all hover:translate-y-[-2px] border-none">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-primary">{formatDate(evento.fecha)}</p>
@@ -162,7 +162,7 @@ export default function EventosPage() {
                     </p>
                   </div>
                 </div>
-              </CardActive>
+              </Card>
             ))}
           </div>
         )}

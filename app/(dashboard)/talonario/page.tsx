@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { MovimientoForm } from "@/components/movimientos/movimiento-form";
 import { Card } from "@/components/ui/card";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { canCreateOrEditMovements } from "@/lib/permissions/rbac";
 
 export default async function TalonarioPage() {

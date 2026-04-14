@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { MovimientoForm } from "@/components/movimientos/movimiento-form";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { canCreateOrEditMovements } from "@/lib/permissions/rbac";
 
 export default async function NuevoMovimientoPage() {

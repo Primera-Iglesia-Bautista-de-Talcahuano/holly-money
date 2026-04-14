@@ -6,7 +6,7 @@ import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createMovimientoSchema } from "@/lib/validators/movimiento";
 import type { CreateMovimientoInput } from "@/lib/validators/movimiento";
-import { CATEGORIAS_EGRESO, CATEGORIAS_INGRESO } from "@/types/movimientos";
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/types/movimientos";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -33,24 +33,24 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
   const form = useForm<MovimientoFormInput, unknown, CreateMovimientoInput>({
     resolver: zodResolver(createMovimientoSchema),
     defaultValues: {
-      fechaMovimiento: toDateValue(initialValues?.fechaMovimiento),
-      tipoMovimiento: initialValues?.tipoMovimiento ?? "INGRESO",
-      monto: initialValues?.monto ?? 0,
-      categoria: initialValues?.categoria ?? "",
-      concepto: initialValues?.concepto ?? "",
-      referente: initialValues?.referente ?? "",
-      recibidoPor: initialValues?.recibidoPor ?? "",
-      entregadoPor: initialValues?.entregadoPor ?? "",
-      beneficiario: initialValues?.beneficiario ?? "",
-      medioPago: initialValues?.medioPago ?? "",
-      numeroRespaldo: initialValues?.numeroRespaldo ?? "",
-      observaciones: initialValues?.observaciones ?? "",
+      movement_date: toDateValue(initialValues?.movement_date),
+      movement_type: initialValues?.movement_type ?? "INCOME",
+      amount: initialValues?.amount ?? 0,
+      category: initialValues?.category ?? "",
+      concept: initialValues?.concept ?? "",
+      reference_person: initialValues?.reference_person ?? "",
+      received_by: initialValues?.received_by ?? "",
+      delivered_by: initialValues?.delivered_by ?? "",
+      beneficiary: initialValues?.beneficiary ?? "",
+      payment_method: initialValues?.payment_method ?? "",
+      support_number: initialValues?.support_number ?? "",
+      notes: initialValues?.notes ?? "",
     },
   });
 
-  const tipo = useWatch({ control: form.control, name: "tipoMovimiento" });
+  const tipo = useWatch({ control: form.control, name: "movement_type" });
   const categorias = useMemo(
-    () => (tipo === "INGRESO" ? CATEGORIAS_INGRESO : CATEGORIAS_EGRESO),
+    () => (tipo === "INCOME" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES),
     [tipo],
   );
 
@@ -94,12 +94,12 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
           </h3>
           <div className="h-px flex-1 bg-on-surface-variant/10" />
         </div>
-        
+
         <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Fecha de Registro</Label>
             <Controller
-              name="fechaMovimiento"
+              name="movement_date"
               control={form.control}
               render={({ field }) => (
                 <DatePicker
@@ -108,38 +108,38 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
                 />
               )}
             />
-            {form.formState.errors.fechaMovimiento && (
-              <p className="text-xs font-medium text-error mt-1 ml-1">{form.formState.errors.fechaMovimiento.message}</p>
+            {form.formState.errors.movement_date && (
+              <p className="text-xs font-medium text-error mt-1 ml-1">{form.formState.errors.movement_date.message}</p>
             )}
           </div>
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Tipo de Operación</Label>
             <select
               className="flex h-12 sm:h-14 w-full items-center justify-between rounded-2xl border-none bg-surface-container-low px-5 py-2 text-base font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary-fixed appearance-none transition-all"
-              {...form.register("tipoMovimiento")}
+              {...form.register("movement_type")}
             >
-              <option value="INGRESO">Ingreso (Entrada)</option>
-              <option value="EGRESO">Egreso (Gasto)</option>
+              <option value="INCOME">Ingreso (Entrada)</option>
+              <option value="EXPENSE">Egreso (Gasto)</option>
             </select>
           </div>
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Monto (CLP)</Label>
-            <Input 
-              type="number" 
-              min="1" 
+            <Input
+              type="number"
+              min="1"
               className="h-12 sm:h-14 text-lg font-bold"
               placeholder="0"
-              {...form.register("monto", { valueAsNumber: true })} 
+              {...form.register("amount", { valueAsNumber: true })}
             />
-            {form.formState.errors.monto && (
-              <p className="text-xs font-medium text-error mt-1 ml-1">{form.formState.errors.monto.message}</p>
+            {form.formState.errors.amount && (
+              <p className="text-xs font-medium text-error mt-1 ml-1">{form.formState.errors.amount.message}</p>
             )}
           </div>
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Categoría</Label>
             <select
               className="flex h-12 sm:h-14 w-full items-center justify-between rounded-2xl border-none bg-surface-container-low px-5 py-2 text-base font-medium text-on-surface outline-none focus:ring-2 focus:ring-primary-fixed appearance-none transition-all"
-              {...form.register("categoria")}
+              {...form.register("category")}
             >
               <option value="">Seleccione Categoría</option>
               {categorias.map((category) => (
@@ -148,21 +148,21 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
                 </option>
               ))}
             </select>
-            {form.formState.errors.categoria && (
-              <p className="text-xs font-medium text-error mt-1 ml-1">{form.formState.errors.categoria.message}</p>
+            {form.formState.errors.category && (
+              <p className="text-xs font-medium text-error mt-1 ml-1">{form.formState.errors.category.message}</p>
             )}
           </div>
         </div>
 
         <div className="space-y-2">
           <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Concepto / Glosa</Label>
-          <Input 
+          <Input
             className="h-12 sm:h-14 font-medium"
             placeholder="Descripción breve del movimiento..."
-            {...form.register("concepto")} 
+            {...form.register("concept")}
           />
-          {form.formState.errors.concepto && (
-            <p className="text-[10px] font-medium text-error mt-1 ml-1">{form.formState.errors.concepto.message}</p>
+          {form.formState.errors.concept && (
+            <p className="text-[10px] font-medium text-error mt-1 ml-1">{form.formState.errors.concept.message}</p>
           )}
         </div>
       </div>
@@ -180,26 +180,26 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
         <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Referente / Entidad</Label>
-            <Input 
-              className="h-12 sm:h-14 bg-surface-container-low/50" 
+            <Input
+              className="h-12 sm:h-14 bg-surface-container-low/50"
               placeholder="Opcional"
-              {...form.register("referente")} 
+              {...form.register("reference_person")}
             />
           </div>
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Recibido por</Label>
-            <Input 
-              className="h-12 sm:h-14 bg-surface-container-low/50" 
+            <Input
+              className="h-12 sm:h-14 bg-surface-container-low/50"
               placeholder="Opcional"
-              {...form.register("recibidoPor")} 
+              {...form.register("received_by")}
             />
           </div>
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Entregado por</Label>
-            <Input 
-              className="h-12 sm:h-14 bg-surface-container-low/50" 
+            <Input
+              className="h-12 sm:h-14 bg-surface-container-low/50"
               placeholder="Opcional"
-              {...form.register("entregadoPor")} 
+              {...form.register("delivered_by")}
             />
           </div>
         </div>
@@ -218,26 +218,26 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
         <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Beneficiario</Label>
-            <Input 
-              className="h-12 sm:h-14 bg-surface-container-low/50" 
+            <Input
+              className="h-12 sm:h-14 bg-surface-container-low/50"
               placeholder="Opcional"
-              {...form.register("beneficiario")} 
+              {...form.register("beneficiary")}
             />
           </div>
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Medio de Pago</Label>
-            <Input 
-              className="h-12 sm:h-14 bg-surface-container-low/50" 
+            <Input
+              className="h-12 sm:h-14 bg-surface-container-low/50"
               placeholder="Efectivo, Transferencia, etc."
-              {...form.register("medioPago")} 
+              {...form.register("payment_method")}
             />
           </div>
           <div className="space-y-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">N° Documento Respaldo</Label>
-            <Input 
-              className="h-12 sm:h-14 bg-surface-container-low/50" 
+            <Input
+              className="h-12 sm:h-14 bg-surface-container-low/50"
               placeholder="Boleta, Factura, etc."
-              {...form.register("numeroRespaldo")} 
+              {...form.register("support_number")}
             />
           </div>
         </div>
@@ -247,7 +247,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
           <textarea
             className="flex min-h-[100px] sm:min-h-[120px] w-full rounded-2xl border-none bg-surface-container-low/50 px-5 py-4 text-base font-medium text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-fixed transition-all"
             placeholder="Algún detalle adicional relevante..."
-            {...form.register("observaciones")}
+            {...form.register("notes")}
           />
         </div>
       </div>

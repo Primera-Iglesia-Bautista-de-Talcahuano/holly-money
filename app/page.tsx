@@ -1,12 +1,8 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getCurrentSession } from "@/lib/auth/session";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 export default async function Home() {
-  const session = await getCurrentSession();
-  if (session) redirect("/dashboard");
   return (
     <main className="min-h-[100dvh] bg-[radial-gradient(circle_at_top_right,_var(--color-primary-fixed),_#f7f9fb_40%)] flex items-center justify-center p-6">
       <Card className="mx-auto max-w-4xl p-16 shadow-[0px_40px_80px_-20px_rgba(0,104,95,0.12)] border-none bg-surface-container-lowest/80 backdrop-blur-xl">
@@ -14,11 +10,11 @@ export default async function Home() {
           <div className="space-y-2">
              <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Sistema Contable Iglesia</p>
              <h1 className="text-5xl font-bold tracking-tight text-on-surface leading-tight">
-               Gracia & Precisión <br /> 
+               Gracia & Precisión <br />
                en la <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary-container">Gestión Ministerial</span>
              </h1>
           </div>
-          
+
           <p className="max-w-2xl text-lg font-medium text-on-surface-variant leading-relaxed">
             Una plataforma diseñada para trascender la frialdad de la contabilidad tradicional, brindando claridad y transparencia a la administración de su congregación.
           </p>

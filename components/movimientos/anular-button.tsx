@@ -41,7 +41,7 @@ export function AnularButton({
     const res = await fetch(`/api/movimientos/${movimientoId}/anular`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ motivoAnulacion: motivo }),
+      body: JSON.stringify({ cancellation_reason: motivo }),
     });
     setLoading(false);
 

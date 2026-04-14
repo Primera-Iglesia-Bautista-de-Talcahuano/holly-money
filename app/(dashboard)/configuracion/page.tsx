@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { canManageUsers } from "@/lib/permissions/rbac";
 import { auditoriaService } from "@/services/auditoria/auditoria.service";
-import { Card, CardActive, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function ConfiguracionPage() {
   const user = await getCurrentUser();
@@ -11,7 +11,7 @@ export default async function ConfiguracionPage() {
     redirect("/dashboard");
   }
 
-  const events = await auditoriaService.listarSistema(50);
+  const events = await auditoriaService.listSystem(50);
 
   return (
     <section className="mx-auto max-w-6xl space-y-8">
@@ -20,7 +20,7 @@ export default async function ConfiguracionPage() {
         <p className="mt-1 text-sm text-on-surface-variant font-medium">Historial de auditoría del sistema (usuarios y eventos globales).</p>
       </Card>
 
-      <CardActive className="p-0 overflow-hidden">
+      <Card className="p-0 overflow-hidden">
         <CardHeader>
           <CardTitle className="text-xl">Registro de Auditoría</CardTitle>
         </CardHeader>
@@ -38,24 +38,24 @@ export default async function ConfiguracionPage() {
               </thead>
               <tbody className="divide-y-0">
                 {events.map((event, index) => (
-                  <tr 
-                    key={event.id} 
+                  <tr
+                    key={event.id}
                     className={cn(
                       "transition-all duration-300 group hover:bg-surface-container-low/40",
                       index % 2 === 0 ? "bg-transparent" : "bg-surface-container-low/10"
                     )}
                   >
                     <td className="px-4 sm:px-6 py-5 whitespace-nowrap text-on-surface-variant font-medium tabular-nums text-xs">
-                      {new Date(event.fechaEvento).toLocaleString("es-CL", { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                      {new Date(event.event_date).toLocaleString("es-CL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                     </td>
                     <td className="px-4 sm:px-6 py-5">
                       <span className="inline-flex rounded-full bg-secondary-container px-3 py-1 text-[10px] font-bold text-on-secondary-container uppercase tracking-widest">
-                        {event.entidad}
+                        {event.entity}
                       </span>
                     </td>
-                    <td className="px-4 sm:px-6 py-5 font-black text-on-surface uppercase tracking-tight">{event.accion}</td>
-                    <td className="px-4 sm:px-6 py-5 text-on-surface-variant font-bold">{event.usuario.nombre}</td>
-                    <td className="px-4 sm:px-6 py-5 text-on-surface-variant/80 italic truncate max-w-xs text-xs">{event.observacion ?? "—"}</td>
+                    <td className="px-4 sm:px-6 py-5 font-black text-on-surface uppercase tracking-tight">{event.action}</td>
+                    <td className="px-4 sm:px-6 py-5 text-on-surface-variant font-bold">{event.users?.full_name ?? "—"}</td>
+                    <td className="px-4 sm:px-6 py-5 text-on-surface-variant/80 italic truncate max-w-xs text-xs">{event.note ?? "—"}</td>
                   </tr>
                 ))}
                 {!events.length && (
@@ -69,7 +69,7 @@ export default async function ConfiguracionPage() {
             </table>
           </div>
         </CardContent>
-      </CardActive>
+      </Card>
     </section>
   );
 }

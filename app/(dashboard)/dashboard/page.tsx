@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { dashboardService } from "@/services/dashboard/dashboard.service";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { canCreateOrEditMovements } from "@/lib/permissions/rbac";
 import { IngresosEgresosChart, CategoriaChart } from "@/components/dashboard/dashboard-charts";
 import { MovimientosTable } from "@/components/movimientos/movimientos-table";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Card, CardActive, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const clp = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
 
@@ -73,22 +73,22 @@ export default async function DashboardPage({ searchParams }: { searchParams?: D
       </div>
 
       <div className="mt-4 grid gap-6 lg:grid-cols-2">
-        <CardActive className="p-0 min-w-0">
+        <Card className="p-0 min-w-0">
           <CardHeader>
             <CardTitle className="text-xl">Ingresos vs Egresos</CardTitle>
           </CardHeader>
           <CardContent className="min-h-0">
             <IngresosEgresosChart data={data.serieIngresosEgresos} />
           </CardContent>
-        </CardActive>
-        <CardActive className="p-0 min-w-0">
+        </Card>
+        <Card className="p-0 min-w-0">
           <CardHeader>
             <CardTitle className="text-xl">Resumen por Categoria</CardTitle>
           </CardHeader>
           <CardContent className="min-h-0">
             <CategoriaChart data={data.resumenPorCategoria} />
           </CardContent>
-        </CardActive>
+        </Card>
       </div>
 
       <div className="space-y-4">
@@ -105,22 +105,22 @@ export default async function DashboardPage({ searchParams }: { searchParams?: D
           canWrite={canWrite}
           rows={data.ultimosMovimientos.map((row) => ({
             id: row.id,
-            folioDisplay: row.folioDisplay,
-            fechaMovimiento: row.fechaMovimiento.toISOString(),
-            tipoMovimiento: row.tipoMovimiento,
-            monto: row.monto.toString(),
-            categoria: row.categoria,
-            concepto: row.concepto,
-            referente: row.referente,
-            recibidoPor: row.recibidoPor,
-            entregadoPor: row.entregadoPor,
-            beneficiario: row.beneficiario,
-            medioPago: row.medioPago,
-            numeroRespaldo: row.numeroRespaldo,
-            observaciones: row.observaciones,
-            motivoAnulacion: row.motivoAnulacion,
-            estado: row.estado,
-            creadoPor: row.creadoPor,
+            folio_display: row.folio_display ?? String(row.folio),
+            movement_date: row.movement_date,
+            movement_type: row.movement_type,
+            amount: String(row.amount),
+            category: row.category,
+            concept: row.concept,
+            reference_person: null,
+            received_by: null,
+            delivered_by: null,
+            beneficiary: null,
+            payment_method: null,
+            support_number: null,
+            notes: null,
+            cancellation_reason: null,
+            status: row.status,
+            created_by: { full_name: (row.created_by as { full_name: string } | null)?.full_name ?? "" },
           }))}
         />
       </div>
@@ -137,11 +137,11 @@ function KpiCard({ label, value, variant }: { label: string; value: string; vari
   }[variant || "neutral"];
 
   return (
-    <CardActive className="flex flex-col gap-3 p-5 sm:p-8 transition-all hover:translate-y-[-4px] hover:shadow-[0px_30px_60px_-15px_rgba(25,28,30,0.12)] border-none min-w-0">
+    <Card className={cn("flex flex-col gap-3 p-5 sm:p-8 transition-all hover:translate-y-[-4px] hover:shadow-[0px_30px_60px_-15px_rgba(25,28,30,0.12)] border-none min-w-0")}>
       <div className={cn("max-w-full overflow-hidden px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest truncate", colors)}>
         {label}
       </div>
       <p className="text-2xl sm:text-3xl font-black tracking-tight text-on-surface tabular-nums">{value}</p>
-    </CardActive>
+    </Card>
   );
 }

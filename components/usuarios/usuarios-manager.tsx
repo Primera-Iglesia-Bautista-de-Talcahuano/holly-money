@@ -19,27 +19,27 @@ import { Plus } from "lucide-react";
 
 type UsuarioRow = {
   id: string;
-  nombre: string;
+  full_name: string;
   email: string;
-  rol: UserRole;
-  activo: boolean;
-  createdAt: string | Date;
+  role: UserRole;
+  active: boolean;
+  created_at: string | Date;
 };
 
 type NewUserForm = {
-  nombre: string;
+  full_name: string;
   email: string;
   password: string;
-  rol: UserRole;
-  activo: boolean;
+  role: UserRole;
+  active: boolean;
 };
 
 const defaultNewUser: NewUserForm = {
-  nombre: "",
+  full_name: "",
   email: "",
   password: "",
-  rol: "OPERADOR",
-  activo: true,
+  role: "OPERATOR",
+  active: true,
 };
 
 export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }) {
@@ -79,9 +79,9 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        nombre: user.nombre,
-        rol: user.rol,
-        activo: user.activo,
+        full_name: user.full_name,
+        role: user.role,
+        active: user.active,
       }),
     });
     if (!res.ok) {
@@ -96,8 +96,8 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
   }
 
   const totalUsers = users.length;
-  const activeUsers = users.filter((u) => u.activo).length;
-  const adminUsers = users.filter((u) => u.rol === "ADMIN").length;
+  const activeUsers = users.filter((u) => u.active).length;
+  const adminUsers = users.filter((u) => u.role === "ADMIN").length;
 
   return (
     <div className="space-y-8">
@@ -107,7 +107,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
           <h2 className="text-2xl font-bold tracking-tight text-on-surface">Administración de Equipo</h2>
           <p className="text-sm text-on-surface-variant font-medium">Control de accesos y roles para la gestión ministerial.</p>
         </div>
-        
+
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger
             render={
@@ -136,12 +136,12 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     <div className="h-px flex-1 bg-on-surface-variant/10" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="new-nombre" className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Nombre Completo</Label>
+                    <Label htmlFor="new-full_name" className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Nombre Completo</Label>
                     <Input
-                      id="new-nombre"
+                      id="new-full_name"
                       placeholder="Ej: Juan Pérez"
-                      value={newUser.nombre}
-                      onChange={(e) => setNewUser((s) => ({ ...s, nombre: e.target.value }))}
+                      value={newUser.full_name}
+                      onChange={(e) => setNewUser((s) => ({ ...s, full_name: e.target.value }))}
                       className="h-12 sm:h-14 bg-surface-container-low border-none shadow-none rounded-2xl px-5 text-base font-medium"
                     />
                   </div>
@@ -168,16 +168,16 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="new-rol" className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Nivel de Acceso Ministerial</Label>
+                    <Label htmlFor="new-role" className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Nivel de Acceso Ministerial</Label>
                     <select
-                      id="new-rol"
+                      id="new-role"
                       className="flex h-12 sm:h-14 w-full rounded-2xl border-none bg-surface-container-low px-5 py-2 text-base font-medium text-on-surface focus:ring-2 focus:ring-primary outline-none transition-all appearance-none"
-                      value={newUser.rol}
-                      onChange={(e) => setNewUser((s) => ({ ...s, rol: e.target.value as UserRole }))}
+                      value={newUser.role}
+                      onChange={(e) => setNewUser((s) => ({ ...s, role: e.target.value as UserRole }))}
                     >
                       <option value="ADMIN">ADMIN - Control del Sistema</option>
-                      <option value="OPERADOR">OPERADOR - Ingreso de Datos</option>
-                      <option value="VISOR">VISOR - Solo Lectura</option>
+                      <option value="OPERATOR">OPERATOR - Ingreso de Datos</option>
+                      <option value="VIEWER">VIEWER - Solo Lectura</option>
                     </select>
                   </div>
                 </div>
@@ -255,8 +255,8 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
               </thead>
               <tbody className="divide-y-0">
                 {users.map((user, index) => (
-                  <tr 
-                    key={user.id} 
+                  <tr
+                    key={user.id}
                     className={cn(
                       "group transition-all duration-300 hover:bg-surface-container-low/60",
                       index % 2 === 0 ? "bg-transparent" : "bg-surface-container-low/20"
@@ -264,10 +264,10 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                   >
                     <td className="px-4 sm:px-8 py-4 sm:py-5">
                       <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${user.activo ? 'bg-primary shadow-[0_0_8px_rgba(13,148,136,0.4)]' : 'bg-on-surface-variant/30'}`} />
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${user.active ? "bg-primary shadow-[0_0_8px_rgba(13,148,136,0.4)]" : "bg-on-surface-variant/30"}`} />
                         <Input
-                          value={user.nombre}
-                          onChange={(e) => updateUserLocal(user.id, { nombre: e.target.value })}
+                          value={user.full_name}
+                          onChange={(e) => updateUserLocal(user.id, { full_name: e.target.value })}
                           className="bg-transparent border-none shadow-none p-0 h-auto text-base font-bold text-on-surface focus-visible:ring-0 w-full min-w-[150px]"
                         />
                       </div>
@@ -279,27 +279,27 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                       <div className="relative inline-block group/select">
                         <select
                           className="bg-surface-container-low/50 hover:bg-surface-container-low border-none rounded-full px-4 py-1.5 text-[11px] font-black text-primary uppercase tracking-widest outline-none cursor-pointer appearance-none transition-colors"
-                          value={user.rol}
-                          onChange={(e) => updateUserLocal(user.id, { rol: e.target.value as UserRole })}
+                          value={user.role}
+                          onChange={(e) => updateUserLocal(user.id, { role: e.target.value as UserRole })}
                         >
                           <option value="ADMIN">ADMIN</option>
-                          <option value="OPERADOR">OPERADOR</option>
-                          <option value="VISOR">VISOR</option>
+                          <option value="OPERATOR">OPERATOR</option>
+                          <option value="VIEWER">VIEWER</option>
                         </select>
                       </div>
                     </td>
                     <td className="px-4 sm:px-8 py-4 sm:py-5">
                       <label className="flex items-center gap-3 cursor-pointer group/toggle inline-flex">
-                        <div className={`w-10 h-5 rounded-full p-1 transition-all duration-300 ${user.activo ? 'bg-primary' : 'bg-on-surface-variant/20'}`}>
+                        <div className={`w-10 h-5 rounded-full p-1 transition-all duration-300 ${user.active ? "bg-primary" : "bg-on-surface-variant/20"}`}>
                           <input
                             type="checkbox"
                             className="sr-only"
-                            checked={user.activo}
-                            onChange={(e) => updateUserLocal(user.id, { activo: e.target.checked })}
+                            checked={user.active}
+                            onChange={(e) => updateUserLocal(user.id, { active: e.target.checked })}
                           />
-                          <div className={`w-3 h-3 rounded-full bg-white shadow-sm transition-transform duration-300 ${user.activo ? 'translate-x-5' : 'translate-x-0'}`} />
+                          <div className={`w-3 h-3 rounded-full bg-white shadow-sm transition-transform duration-300 ${user.active ? "translate-x-5" : "translate-x-0"}`} />
                         </div>
-                        <span className="text-[10px] font-black text-on-surface-variant/60 tracking-widest">{user.activo ? "ACTIVO" : "INACTIVO"}</span>
+                        <span className="text-[10px] font-black text-on-surface-variant/60 tracking-widest">{user.active ? "ACTIVO" : "INACTIVO"}</span>
                       </label>
                     </td>
                     <td className="px-4 sm:px-8 py-4 sm:py-5 text-right">
@@ -317,7 +317,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
               </tbody>
             </table>
           </div>
-          
+
           {!users.length && (
             <div className="p-20 text-center">
               <p className="text-sm font-medium text-on-surface-variant/60">No hay usuarios registrados en el equipo ministerial.</p>
