@@ -42,8 +42,8 @@ export default async function Home() {
 
           <div className="pt-16 grid grid-cols-3 gap-12 border-t border-outline-variant/20 w-full opacity-60">
              <div className="space-y-1">
-                <p className="text-2xl font-bold text-on-surface">MVP</p>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Estado Actual</p>
+                <p className="text-2xl font-bold text-on-surface">V1.0</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Sistema Activo</p>
              </div>
              <div className="space-y-1">
                 <p className="text-2xl font-bold text-on-surface">V2.0</p>
