@@ -15,6 +15,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
+    "test": "jest --passWithNoTests",
     "ci": "pnpm run lint && pnpm run typecheck"
   },
   "dependencies": {
