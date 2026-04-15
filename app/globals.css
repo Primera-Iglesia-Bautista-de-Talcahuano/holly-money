@@ -2,7 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   /* Sage & Stone palette */
@@ -42,9 +41,9 @@
   --color-on-error: #ffffff;
   --color-on-error-container: #7a2c22;
 
-  --color-secondary: #7a8c82;
+  --color-secondary: #eef5f1;
   --color-secondary-container: #eef5f1;
-  --color-on-secondary: #ffffff;
+  --color-on-secondary: #2d4a38;
   --color-on-secondary-container: #2d4a38;
   --color-secondary-fixed: #eef5f1;
   --color-secondary-fixed-dim: #c8dfd0;
@@ -115,8 +114,6 @@
 
 @layer base {
   body {
-    background-color: var(--color-background);
-    color: var(--color-on-background);
     font-family: var(--font-sans), sans-serif;
     @apply bg-background text-foreground;
   }
