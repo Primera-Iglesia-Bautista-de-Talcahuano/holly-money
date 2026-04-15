@@ -2,17 +2,10 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { LogoutButton } from "@/components/auth/logout-button"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { LayoutDashboard, Briefcase, Book, FileText, Users, Settings, Menu } from "lucide-react"
-
+import { LayoutDashboard, Briefcase, Users, Settings, Menu, Plus } from "lucide-react"
 import { DashboardNav } from "@/components/dashboard/dashboard-nav"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser()
@@ -20,158 +13,131 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/")
   }
 
+  const initials = user.name
+    ? user.name.split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase()
+    : "U"
+
   const links = [
-    { href: "/dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
-    { href: "/movimientos", label: "Movimientos", icon: <Briefcase className="h-5 w-5" /> },
-    { href: "/talonario", label: "Talonario", icon: <Book className="h-5 w-5" /> },
-    {
-      href: "/rendicion-boletas",
-      label: "Rendición Boletas",
-      icon: <FileText className="h-5 w-5" />
-    },
-    { href: "/usuarios", label: "Usuarios", icon: <Users className="h-5 w-5" /> },
-    { href: "/configuracion", label: "Configuración", icon: <Settings className="h-5 w-5" /> }
+    { href: "/dashboard", label: "Dashboard", icon: <LayoutDashboard className="size-4" /> },
+    { href: "/movimientos", label: "Movimientos", icon: <Briefcase className="size-4" /> },
+    ...(user.role === "ADMIN"
+      ? [
+          { href: "/usuarios", label: "Usuarios", icon: <Users className="size-4" /> },
+          { href: "/configuracion", label: "Configuración", icon: <Settings className="size-4" /> },
+        ]
+      : []),
   ]
 
-  const allowedLinks =
-    user.role === "ADMIN"
-      ? links
-      : links.filter((link) => link.href !== "/usuarios" && link.href !== "/configuracion")
-
   return (
-    <div className="min-h-[100dvh] bg-surface">
-      <div className="grid min-h-[100dvh] grid-cols-1 md:grid-cols-[280px_1fr]">
-        <aside className="hidden md:block bg-surface-bright/80 backdrop-blur-[12px] p-8 shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.05)] border-none">
-          <h2 className="mb-10 font-bold tracking-tight text-xl text-primary">
-            Sistema Contable Iglesia
-          </h2>
-          <DashboardNav links={allowedLinks} />
-          <div className="mt-auto pt-8 border-t border-surface-container-highest/10">
-            <blockquote>
-              <p className="text-[11px] italic leading-relaxed text-on-surface-variant/50">
-                &ldquo;...procurando hacer lo que es honesto, no sólo delante del Señor, sino
-                también delante de los hombres.&rdquo;
-              </p>
-              <cite className="mt-2 block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/30 not-italic">
-                2 Corintios 8:20-21
-              </cite>
-            </blockquote>
-          </div>
-        </aside>
-
-        <div className="flex flex-col bg-surface overflow-hidden">
-          <header className="sticky top-0 z-20 bg-surface-bright/40 backdrop-blur-3xl px-6 sm:px-12 py-4 sm:py-6 border-b border-surface-container-highest/5 flex items-center justify-between">
-            <div className="flex items-center gap-4 sm:gap-6">
-              <div className="md:hidden">
-                <Sheet>
-                  <SheetTrigger
-                    render={
-                      <Button variant="ghost" size="icon" className="hover:bg-primary/5">
-                        <Menu className="h-5 w-5" />
-                        <span className="sr-only">Abrir menú</span>
-                      </Button>
-                    }
-                  />
-                  <SheetContent
-                    side="left"
-                    className="p-0 border-none bg-surface-bright backdrop-blur-3xl"
-                  >
-                    <div className="p-5 sm:p-8 h-full flex flex-col">
-                      <SheetHeader className="mb-10 text-left">
-                        <SheetTitle className="text-xl font-bold tracking-tight text-primary">
-                          Sistema Contable
-                        </SheetTitle>
-                      </SheetHeader>
-                      <DashboardNav links={allowedLinks} />
-                      <div className="mt-auto pt-8 border-t border-surface-container-highest/10">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/40 mb-4">
-                          Tu Sesión
-                        </p>
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold">
-                            {user.name?.charAt(0)}
-                          </div>
-                          <div className="overflow-hidden">
-                            <p className="text-sm font-bold text-on-surface truncate">
-                              {user.name}
-                            </p>
-                            <p className="text-[10px] text-on-surface-variant truncate uppercase tracking-tighter font-medium">
-                              {user.role}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
-
-              <div className="hidden sm:flex items-center gap-2 rounded-full bg-primary/5 px-4 py-1.5 border border-primary/5">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                <span className="text-[10px] font-bold tracking-[0.1em] text-primary uppercase">
-                  Ambiente de Gestión
-                </span>
-              </div>
-              <div className="sm:hidden font-bold text-sm tracking-tight text-primary">
-                Contabilidad PIBT
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 sm:gap-8">
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <button className="flex items-center gap-2 sm:gap-4 group cursor-pointer appearance-none bg-transparent border-none p-0 outline-none">
-                      <div className="hidden sm:block text-right">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">
-                          Operador
-                        </p>
-                        <p className="text-sm font-bold text-on-surface leading-snug tracking-tight">
-                          {user.name}
-                        </p>
-                      </div>
-                      <div className="relative h-9 w-9 sm:h-11 sm:w-11 rounded-full bg-surface-container-high border-2 border-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform duration-500 shadow-sm">
-                        <span className="font-heading font-black text-[10px] sm:text-xs uppercase tracking-tighter">
-                          {user.name?.charAt(0) || "U"}
-                        </span>
-                        <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-primary border-2 border-surface-bright" />
-                      </div>
-                    </button>
-                  }
-                />
-                <DropdownMenuContent align="end" sideOffset={12}>
-                  <div className="px-4 py-3 border-b border-surface-container-highest/5 mb-2">
-                    <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-                      {user.email}
-                    </p>
-                    <p className="text-[10px] font-bold text-primary tracking-widest uppercase mt-1">
-                      {user.role}
-                    </p>
-                  </div>
-                  <DropdownMenuItem disabled className="opacity-40 cursor-not-allowed">
-                    <div className="flex items-center gap-3 w-full">
-                      <Users className="h-4 w-4" />
-                      <span>Mi Perfil</span>
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="hover:scale-[1.02] active:scale-[0.98]">
-                    <Link href="/configuracion" className="flex items-center gap-3 w-full">
-                      <Settings className="h-4 w-4" />
-                      <span>Configuración</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <div className="h-px bg-surface-container-highest/10 my-2" />
-                  <DropdownMenuItem className="p-0 hover:bg-transparent">
-                    <LogoutButton />
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </header>
-          <main className="p-4 sm:p-12 min-h-0 flex-1 overflow-x-hidden w-full max-w-full">
-            {children}
-          </main>
+    <div className="min-h-[100dvh] bg-background flex">
+      {/* ── Desktop sidebar ───────────────────────────────────────── */}
+      <aside className="hidden md:flex w-[220px] shrink-0 flex-col bg-card border-r border-border min-h-[100dvh] sticky top-0">
+        {/* Brand */}
+        <div className="px-5 pt-6 pb-4 flex flex-col gap-0.5">
+          <span className="font-heading text-base font-bold text-foreground leading-tight">
+            Sistema Contable
+          </span>
+          <span className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-semibold">
+            PIBT
+          </span>
         </div>
+
+        {/* New movement CTA */}
+        <div className="px-4 pb-4">
+          <Button
+            render={<Link href="/movimientos/nuevo" />}
+            className="w-full gap-2 text-sm"
+          >
+            <Plus className="size-4" data-icon="inline-start" />
+            Nuevo Movimiento
+          </Button>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 px-3">
+          <DashboardNav links={links} />
+        </nav>
+
+        {/* User profile */}
+        <div className="px-4 py-4 border-t border-border">
+          <div className="flex items-center gap-3">
+            <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <span className="text-[11px] font-bold text-primary">{initials}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground truncate leading-tight">{user.name}</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wide truncate">{user.role}</p>
+            </div>
+          </div>
+          <div className="mt-3">
+            <LogoutButton />
+          </div>
+        </div>
+      </aside>
+
+      {/* ── Main content ──────────────────────────────────────────── */}
+      <div className="flex flex-col flex-1 min-w-0">
+        {/* Mobile top bar */}
+        <header className="md:hidden sticky top-0 z-20 bg-card border-b border-border px-4 h-14 flex items-center justify-between">
+          <Sheet>
+            <SheetTrigger
+              render={
+                <Button variant="ghost" size="icon" aria-label="Abrir menú">
+                  <Menu className="size-5" />
+                </Button>
+              }
+            />
+            <SheetContent side="left" className="w-72 p-0 bg-card border-r border-border">
+              <div className="flex flex-col h-full">
+                <SheetHeader className="px-5 pt-6 pb-4 text-left">
+                  <SheetTitle className="font-heading text-base font-bold text-foreground leading-tight">
+                    Sistema Contable
+                    <span className="block text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mt-0.5">
+                      PIBT
+                    </span>
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex-1 px-3">
+                  <DashboardNav links={links} />
+                </nav>
+                <div className="px-4 py-4 border-t border-border">
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="text-[11px] font-bold text-primary">{initials}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
+                      <p className="text-[11px] text-muted-foreground uppercase tracking-wide truncate">{user.role}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <LogoutButton />
+                  </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <span className="font-heading text-sm font-bold text-foreground">Sistema Contable</span>
+
+          {/* Mobile avatar */}
+          <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <span className="text-[11px] font-bold text-primary">{initials}</span>
+          </div>
+        </header>
+
+        {/* FAB — mobile only */}
+        <Link
+          href="/movimientos/nuevo"
+          className="md:hidden fixed bottom-6 right-6 z-50 size-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors"
+          aria-label="Nuevo movimiento"
+        >
+          <Plus className="size-6" />
+        </Link>
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-h-0 overflow-x-hidden">
+          {children}
+        </main>
       </div>
     </div>
   )
