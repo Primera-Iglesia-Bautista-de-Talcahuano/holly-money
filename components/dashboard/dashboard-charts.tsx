@@ -40,7 +40,7 @@ const ingresosEgresosConfig = {
   },
   egresos: {
     label: "Egresos",
-    color: "var(--color-tertiary)",
+    color: "var(--color-expense)",
   },
 } satisfies ChartConfig;
 
@@ -51,21 +51,21 @@ export function IngresosEgresosChart({ data }: { data: SerieItem[] }) {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--outline-variant) / 0.3)" />
-            <XAxis 
-              dataKey="name" 
+            <XAxis
+              dataKey="name"
               tickLine={false}
               axisLine={false}
               tickMargin={10}
-              fontSize={10} 
-              stroke="hsl(var(--on-surface-variant))" 
+              fontSize={11}
+              stroke="var(--color-muted-foreground)"
             />
-            <YAxis 
+            <YAxis
               tickLine={false}
               axisLine={false}
               tickMargin={5}
-              fontSize={10}
+              fontSize={11}
               width={40}
-              stroke="hsl(var(--on-surface-variant))"
+              stroke="var(--color-muted-foreground)"
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
             />
             <ChartTooltip cursor={{ fill: 'hsl(var(--on-surface-variant) / 0.05)' }} content={<ChartTooltipContent indicator="dashed" />} />
@@ -78,7 +78,7 @@ export function IngresosEgresosChart({ data }: { data: SerieItem[] }) {
                   {payload?.map((entry, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
-                      <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-on-surface-variant/70">{entry.value}</span>
+                      <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{entry.value}</span>
                     </div>
                   ))}
                 </div>
@@ -148,8 +148,8 @@ export function CategoriaChart({ data }: { data: CategoriaItem[] }) {
         {finalData.map((entry, index) => (
           <div key={index} className="flex items-center gap-2 min-w-0">
             <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: entry.fill }} />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/80 truncate">{entry.categoria}</span>
-            <span className="text-[10px] font-black text-on-surface ml-auto shrink-0">{clp.format(entry.total)}</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">{entry.categoria}</span>
+            <span className="text-xs font-black text-foreground ml-auto shrink-0">{clp.format(entry.total)}</span>
           </div>
         ))}
       </div>
