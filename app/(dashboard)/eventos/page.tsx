@@ -14,13 +14,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog"
-import {
-  Empty,
-  EmptyHeader,
-  EmptyTitle,
-  EmptyDescription,
-  EmptyMedia
-} from "@/components/ui/empty"
+import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 import { format } from "date-fns"
 import { formatDate } from "@/lib/utils"
 import { Plus, CalendarDays } from "lucide-react"
@@ -63,7 +57,9 @@ export default function EventosPage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-0.5">
-          <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">Eventos</h1>
+          <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">
+            Eventos
+          </h1>
           <p className="text-sm text-muted-foreground">
             Registrar eventos separados de movimientos contables.
           </p>
@@ -130,8 +126,7 @@ export default function EventosPage() {
                       htmlFor="evt-descripcion"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
-                      Descripción{" "}
-                      <span className="text-xs font-normal opacity-50">(Opcional)</span>
+                      Descripción <span className="text-xs font-normal opacity-50">(Opcional)</span>
                     </Label>
                     <textarea
                       id="evt-descripcion"
@@ -147,7 +142,12 @@ export default function EventosPage() {
                   <Button type="submit" className="h-11">
                     Guardar Evento
                   </Button>
-                  <Button variant="outline" type="button" onClick={() => setOpen(false)} className="h-11">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="h-11"
+                  >
                     Cancelar
                   </Button>
                 </div>

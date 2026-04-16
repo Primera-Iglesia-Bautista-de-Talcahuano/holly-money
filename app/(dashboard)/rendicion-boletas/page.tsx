@@ -15,13 +15,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog"
-import {
-  Empty,
-  EmptyHeader,
-  EmptyTitle,
-  EmptyDescription,
-  EmptyMedia
-} from "@/components/ui/empty"
+import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 import { format } from "date-fns"
 import { Plus, Receipt } from "lucide-react"
 
@@ -37,11 +31,46 @@ type Boleta = {
 
 export default function RendicionBoletasPage() {
   const [boletas, setBoletas] = useState<Boleta[]>([
-    { id: "1", numero: "BOL-001", fecha: "2026-03-01", monto: 15000, descripcion: "Boleta de luz - Marzo", rendida: false },
-    { id: "2", numero: "BOL-002", fecha: "2026-03-05", monto: 25000, descripcion: "Boleta de agua - Marzo", rendida: true },
-    { id: "3", numero: "BOL-003", fecha: "2026-03-10", monto: 12000, descripcion: "Boleta de gas - Marzo", rendida: false },
-    { id: "4", numero: "BOL-004", fecha: "2026-03-15", monto: 35000, descripcion: "Boleta de teléfono - Marzo", rendida: true },
-    { id: "5", numero: "BOL-005", fecha: "2026-03-20", monto: 18000, descripcion: "Boleta de internet - Marzo", rendida: false }
+    {
+      id: "1",
+      numero: "BOL-001",
+      fecha: "2026-03-01",
+      monto: 15000,
+      descripcion: "Boleta de luz - Marzo",
+      rendida: false
+    },
+    {
+      id: "2",
+      numero: "BOL-002",
+      fecha: "2026-03-05",
+      monto: 25000,
+      descripcion: "Boleta de agua - Marzo",
+      rendida: true
+    },
+    {
+      id: "3",
+      numero: "BOL-003",
+      fecha: "2026-03-10",
+      monto: 12000,
+      descripcion: "Boleta de gas - Marzo",
+      rendida: false
+    },
+    {
+      id: "4",
+      numero: "BOL-004",
+      fecha: "2026-03-15",
+      monto: 35000,
+      descripcion: "Boleta de teléfono - Marzo",
+      rendida: true
+    },
+    {
+      id: "5",
+      numero: "BOL-005",
+      fecha: "2026-03-20",
+      monto: 18000,
+      descripcion: "Boleta de internet - Marzo",
+      rendida: false
+    }
   ])
   const [numero, setNumero] = useState("")
   const [fecha, setFecha] = useState<Date | undefined>(undefined)
@@ -75,9 +104,7 @@ export default function RendicionBoletasPage() {
   }
 
   const toggleRendida = (id: string) => {
-    setBoletas((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, rendida: !b.rendida } : b))
-    )
+    setBoletas((prev) => prev.map((b) => (b.id === id ? { ...b, rendida: !b.rendida } : b)))
   }
 
   const clp = new Intl.NumberFormat("es-CL", {
@@ -221,7 +248,9 @@ export default function RendicionBoletasPage() {
                           className="size-10 object-cover rounded-lg border border-border"
                         />
                         <div className="flex flex-col gap-0.5 min-w-0">
-                          <p className="text-xs font-bold text-foreground truncate">{archivo.name}</p>
+                          <p className="text-xs font-bold text-foreground truncate">
+                            {archivo.name}
+                          </p>
                           <p className="text-[11px] text-muted-foreground">
                             {(archivo.size / 1024).toFixed(1)} KB
                           </p>
@@ -235,7 +264,12 @@ export default function RendicionBoletasPage() {
                   <Button type="submit" className="h-11">
                     Registrar Boleta
                   </Button>
-                  <Button variant="outline" type="button" onClick={() => setOpen(false)} className="h-11">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="h-11"
+                  >
                     Cancelar
                   </Button>
                 </div>
@@ -254,7 +288,9 @@ export default function RendicionBoletasPage() {
                 <Receipt />
               </EmptyMedia>
               <EmptyTitle>Sin boletas</EmptyTitle>
-              <EmptyDescription>No hay boletas registradas para el período actual.</EmptyDescription>
+              <EmptyDescription>
+                No hay boletas registradas para el período actual.
+              </EmptyDescription>
             </EmptyHeader>
           </Empty>
         ) : (
@@ -262,13 +298,27 @@ export default function RendicionBoletasPage() {
             <table className="w-full text-left border-collapse min-w-[900px]">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Número</th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Fecha</th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Monto</th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Descripción</th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Adjunto</th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Estado</th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground text-right">Acción</th>
+                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                    Número
+                  </th>
+                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                    Fecha
+                  </th>
+                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                    Monto
+                  </th>
+                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                    Descripción
+                  </th>
+                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                    Adjunto
+                  </th>
+                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                    Estado
+                  </th>
+                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground text-right">
+                    Acción
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -281,7 +331,10 @@ export default function RendicionBoletasPage() {
                     <td className="px-6 py-4 font-bold text-foreground tabular-nums text-sm">
                       {clp.format(boleta.monto)}
                     </td>
-                    <td className="px-6 py-4 text-muted-foreground text-sm max-w-[200px] truncate" title={boleta.descripcion}>
+                    <td
+                      className="px-6 py-4 text-muted-foreground text-sm max-w-[200px] truncate"
+                      title={boleta.descripcion}
+                    >
                       {boleta.descripcion || "—"}
                     </td>
                     <td className="px-6 py-4">
@@ -290,7 +343,9 @@ export default function RendicionBoletasPage() {
                           {boleta.archivo.name.split(".").pop()}
                         </span>
                       ) : (
-                        <span className="text-[11px] text-muted-foreground/50 italic">Sin adjunto</span>
+                        <span className="text-[11px] text-muted-foreground/50 italic">
+                          Sin adjunto
+                        </span>
                       )}
                     </td>
                     <td className="px-6 py-4">

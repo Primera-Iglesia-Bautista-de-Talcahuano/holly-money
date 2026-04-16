@@ -7,7 +7,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 import { ClipboardList } from "lucide-react"
 
-export default async function ConfiguracionPage() {
+function entityClass(entity: string) {
+  const e = entity.toUpperCase()
+  if (e === "MOVIMIENTO" || e === "MOVEMENT") return "bg-primary/10 text-primary"
+  if (e === "USUARIO" || e === "USER") return "bg-[#f5f3fa] text-[#7c6fa0]"
+  if (e === "CANCELADO" || e === "CANCELLED" || e === "ANULADO")
+    return "bg-destructive/10 text-destructive"
+  return "bg-muted text-muted-foreground"
+}
+
+export default async function AuditoriaPage() {
   const user = await getCurrentUser()
   if (!user || !canManageUsers(user.role)) {
     redirect("/dashboard")
@@ -29,23 +38,24 @@ export default async function ConfiguracionPage() {
           <CardTitle className="text-xl">Registro de Auditoría</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto px-6 pb-6">
+          {/* ── Desktop table ── */}
+          <div className="hidden sm:block overflow-x-auto px-6 pb-6">
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left">
+                  <th className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left">
                     Fecha
                   </th>
-                  <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left">
+                  <th className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left">
                     Entidad
                   </th>
-                  <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left">
+                  <th className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left">
                     Acción
                   </th>
-                  <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left">
+                  <th className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left">
                     Usuario
                   </th>
-                  <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left">
+                  <th className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left">
                     Observación
                   </th>
                 </tr>
@@ -59,7 +69,7 @@ export default async function ConfiguracionPage() {
                       index % 2 === 0 ? "bg-transparent" : "bg-muted/10"
                     )}
                   >
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-muted-foreground font-medium tabular-nums text-xs">
+                    <td className="px-4 py-4 whitespace-nowrap text-muted-foreground font-medium tabular-nums text-xs">
                       {new Date(event.event_date).toLocaleString("es-CL", {
                         day: "2-digit",
                         month: "2-digit",
@@ -67,42 +77,76 @@ export default async function ConfiguracionPage() {
                         minute: "2-digit"
                       })}
                     </td>
-                    <td className="px-4 sm:px-6 py-4">
-                      <span className="inline-flex rounded-full bg-muted px-3 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
+                    <td className="px-4 py-4">
+                      <span
+                        className={cn(
+                          "inline-flex rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest",
+                          entityClass(event.entity)
+                        )}
+                      >
                         {event.entity}
                       </span>
                     </td>
-                    <td className="px-4 sm:px-6 py-4 font-bold text-foreground uppercase tracking-tight">
+                    <td className="px-4 py-4 font-bold text-foreground uppercase tracking-tight text-xs">
                       {event.action}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 text-muted-foreground font-medium">
+                    <td className="px-4 py-4 text-muted-foreground font-medium text-sm">
                       {event.users?.full_name ?? "—"}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 text-muted-foreground italic truncate max-w-xs text-xs">
+                    <td className="px-4 py-4 text-muted-foreground italic truncate max-w-xs text-xs">
                       {event.note ?? "—"}
                     </td>
                   </tr>
                 ))}
-                {!events.length && (
-                  <tr>
-                    <td colSpan={5}>
-                      <Empty className="border-0 py-16">
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon">
-                            <ClipboardList />
-                          </EmptyMedia>
-                          <EmptyTitle>Sin eventos</EmptyTitle>
-                          <EmptyDescription>
-                            No hay eventos de auditoría registrados.
-                          </EmptyDescription>
-                        </EmptyHeader>
-                      </Empty>
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
+
+          {/* ── Mobile card list ── */}
+          <div className="sm:hidden divide-y divide-border">
+            {events.map((event) => (
+              <div key={event.id} className="px-4 py-3 flex flex-col gap-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className={cn(
+                      "inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest",
+                      entityClass(event.entity)
+                    )}
+                  >
+                    {event.entity}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground tabular-nums">
+                    {new Date(event.event_date).toLocaleString("es-CL", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit"
+                    })}
+                  </span>
+                </div>
+                <p className="text-sm font-bold text-foreground uppercase tracking-tight">
+                  {event.action}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {event.users?.full_name ?? "—"}
+                  {event.note && <span className="italic"> · {event.note}</span>}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Empty state ── */}
+          {!events.length && (
+            <Empty className="border-0 py-16">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <ClipboardList />
+                </EmptyMedia>
+                <EmptyTitle>Sin eventos</EmptyTitle>
+                <EmptyDescription>No hay eventos de auditoría registrados.</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
         </CardContent>
       </Card>
     </section>
