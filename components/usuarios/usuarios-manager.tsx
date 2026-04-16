@@ -49,6 +49,15 @@ const defaultNewUser: NewUserForm = {
   active: true
 }
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase()
+}
+
 export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }) {
   const [users, setUsers] = useState<UsuarioRow[]>(initialUsers)
   const [error, setError] = useState<string | null>(null)
@@ -94,7 +103,6 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
     if (!res.ok) {
       const payload = (await res.json().catch(() => ({}))) as { message?: string }
       setError(payload.message ?? `No se pudo actualizar ${user.email}.`)
-      return
     }
   }
 
@@ -108,7 +116,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Header with Add Action */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h2 className="text-2xl font-bold tracking-tight text-foreground">
@@ -240,7 +248,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
         </Dialog>
       </div>
 
-      {/* Quick Stats Grid */}
+      {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         <Card className="p-5 sm:p-6">
           <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
@@ -279,113 +287,15 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
         </p>
       )}
 
-      {/* Users Table */}
+      {/* User list */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold tracking-tight text-foreground">Usuarios Registrados</h2>
-          <span className="text-sm text-muted-foreground">
-            Mostrando {users.length} integrantes
-          </span>
+          <span className="text-sm text-muted-foreground">{users.length} integrantes</span>
         </div>
 
-        <Card className="p-0 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[800px]">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                    Nombre &amp; Estado
-                  </th>
-                  <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                    Correo Electrónico
-                  </th>
-                  <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                    Rol de Acceso
-                  </th>
-                  <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                    Estado Cuenta
-                  </th>
-                  <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-right">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {users.map((user) => (
-                  <tr key={user.id} className="group transition-colors hover:bg-muted/40">
-                    <td className="px-4 sm:px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={cn(
-                            "size-2 rounded-full shrink-0",
-                            user.active ? "bg-primary" : "bg-muted-foreground/30"
-                          )}
-                        />
-                        <Input
-                          value={user.full_name}
-                          onChange={(e) => updateUserLocal(user.id, { full_name: e.target.value })}
-                          className="bg-transparent border-none shadow-none p-0 h-auto text-base font-semibold text-foreground focus-visible:ring-0 w-full min-w-[150px]"
-                        />
-                      </div>
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 text-sm text-muted-foreground truncate max-w-[200px]">
-                      {user.email}
-                    </td>
-                    <td className="px-4 sm:px-6 py-4">
-                      <select
-                        className="bg-muted/50 hover:bg-muted border-none rounded-full px-4 py-1.5 text-[11px] font-bold text-primary uppercase tracking-widest outline-none cursor-pointer appearance-none transition-colors focus:ring-2 focus:ring-ring"
-                        value={user.role}
-                        onChange={(e) =>
-                          updateUserLocal(user.id, { role: e.target.value as UserRole })
-                        }
-                      >
-                        <option value="ADMIN">ADMIN</option>
-                        <option value="OPERATOR">OPERATOR</option>
-                        <option value="VIEWER">VIEWER</option>
-                      </select>
-                    </td>
-                    <td className="px-4 sm:px-6 py-4">
-                      <label className="flex items-center gap-3 cursor-pointer">
-                        <div
-                          className={cn(
-                            "w-10 h-5 rounded-full p-1 transition-all duration-300",
-                            user.active ? "bg-primary" : "bg-muted-foreground/20"
-                          )}
-                        >
-                          <input
-                            type="checkbox"
-                            className="sr-only"
-                            checked={user.active}
-                            onChange={(e) => updateUserLocal(user.id, { active: e.target.checked })}
-                          />
-                          <div
-                            className={cn(
-                              "size-3 rounded-full bg-white shadow-sm transition-transform duration-300",
-                              user.active ? "translate-x-5" : "translate-x-0"
-                            )}
-                          />
-                        </div>
-                        <span className="text-[11px] font-bold text-muted-foreground tracking-widest">
-                          {user.active ? "ACTIVO" : "INACTIVO"}
-                        </span>
-                      </label>
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 text-right">
-                      <Button
-                        size="xs"
-                        onClick={() => void saveUser(user)}
-                        className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-full px-5"
-                      >
-                        Guardar
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {!users.length && (
+        {users.length === 0 ? (
+          <Card className="p-0 overflow-hidden">
             <Empty className="border-0 py-16">
               <EmptyHeader>
                 <EmptyMedia variant="icon">
@@ -397,8 +307,91 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
-          )}
-        </Card>
+          </Card>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {users.map((user) => (
+              <div
+                key={user.id}
+                className="group flex items-center gap-3 sm:gap-4 rounded-xl bg-card border border-border px-4 py-3 transition-colors hover:bg-muted/30"
+              >
+                {/* Avatar */}
+                <div
+                  className={cn(
+                    "size-10 rounded-full flex items-center justify-center shrink-0",
+                    user.active ? "bg-primary/10" : "bg-muted"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "text-xs font-bold",
+                      user.active ? "text-primary" : "text-muted-foreground"
+                    )}
+                  >
+                    {getInitials(user.full_name || "?")}
+                  </span>
+                </div>
+
+                {/* Name + email */}
+                <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                  <Input
+                    value={user.full_name}
+                    onChange={(e) => updateUserLocal(user.id, { full_name: e.target.value })}
+                    className="h-auto p-0 bg-transparent border-none shadow-none text-sm font-semibold text-foreground focus-visible:ring-0 w-full"
+                  />
+                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                </div>
+
+                {/* Role */}
+                <select
+                  className="bg-muted/50 hover:bg-muted border-none rounded-full px-3 py-1.5 text-[11px] font-bold text-primary uppercase tracking-widest outline-none cursor-pointer appearance-none transition-colors focus:ring-2 focus:ring-ring shrink-0"
+                  value={user.role}
+                  onChange={(e) => updateUserLocal(user.id, { role: e.target.value as UserRole })}
+                >
+                  <option value="ADMIN">ADMIN</option>
+                  <option value="OPERATOR">OPERATOR</option>
+                  <option value="VIEWER">VIEWER</option>
+                </select>
+
+                {/* Toggle */}
+                <label className="flex items-center gap-2 cursor-pointer shrink-0">
+                  <div
+                    className={cn(
+                      "w-9 h-5 rounded-full p-0.5 transition-all duration-300 flex items-center",
+                      user.active ? "bg-primary" : "bg-muted-foreground/20"
+                    )}
+                  >
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={user.active}
+                      onChange={(e) => updateUserLocal(user.id, { active: e.target.checked })}
+                    />
+                    <div
+                      className={cn(
+                        "size-4 rounded-full bg-white shadow-sm transition-transform duration-300",
+                        user.active ? "translate-x-4" : "translate-x-0"
+                      )}
+                    />
+                  </div>
+                  <span className="hidden sm:block text-[11px] font-bold text-muted-foreground tracking-widest">
+                    {user.active ? "ACTIVO" : "INACTIVO"}
+                  </span>
+                </label>
+
+                {/* Save */}
+                <Button
+                  size="xs"
+                  onClick={() => void saveUser(user)}
+                  className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-full px-4 shrink-0"
+                >
+                  Guardar
+                </Button>
+              </div>
+            ))}
+
+          </div>
+        )}
       </div>
     </div>
   )

@@ -4,13 +4,7 @@ import { getCurrentUser } from "@/lib/supabase/server"
 import { canManageUsers } from "@/lib/permissions/rbac"
 import { auditoriaService } from "@/services/auditoria/auditoria.service"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Empty,
-  EmptyHeader,
-  EmptyTitle,
-  EmptyDescription,
-  EmptyMedia
-} from "@/components/ui/empty"
+import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 import { ClipboardList } from "lucide-react"
 
 export default async function ConfiguracionPage() {
@@ -24,9 +18,9 @@ export default async function ConfiguracionPage() {
   return (
     <section className="mx-auto max-w-6xl flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Configuración</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Auditoría</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Historial de auditoría del sistema (usuarios y eventos globales).
+          Historial de auditoría del sistema — usuarios y eventos globales.
         </p>
       </div>
 
@@ -98,7 +92,9 @@ export default async function ConfiguracionPage() {
                             <ClipboardList />
                           </EmptyMedia>
                           <EmptyTitle>Sin eventos</EmptyTitle>
-                          <EmptyDescription>No hay eventos de auditoría registrados.</EmptyDescription>
+                          <EmptyDescription>
+                            No hay eventos de auditoría registrados.
+                          </EmptyDescription>
                         </EmptyHeader>
                       </Empty>
                     </td>
