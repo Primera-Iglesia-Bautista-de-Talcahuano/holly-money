@@ -15,6 +15,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
+import { Item, ItemGroup, ItemContent, ItemTitle, ItemDescription, ItemHeader } from "@/components/ui/item"
 import { format } from "date-fns"
 import { formatDate } from "@/lib/utils"
 import { Plus, CalendarDays } from "lucide-react"
@@ -174,23 +175,25 @@ export default function EventosPage() {
             </Empty>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <ItemGroup>
             {eventos.map((evento) => (
-              <Card key={evento.id} className="p-6 transition-colors hover:bg-muted/30">
-                <div className="flex flex-col gap-2">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-primary">
-                    {formatDate(evento.fecha)}
-                  </p>
-                  <h3 className="text-base font-bold text-foreground">{evento.titulo}</h3>
-                  {evento.descripcion && (
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {evento.descripcion}
+              <Item key={evento.id} variant="outline">
+                <ItemContent>
+                  <ItemHeader>
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-primary">
+                      {formatDate(evento.fecha)}
                     </p>
+                  </ItemHeader>
+                  <ItemTitle className="text-base font-bold text-foreground">
+                    {evento.titulo}
+                  </ItemTitle>
+                  {evento.descripcion && (
+                    <ItemDescription>{evento.descripcion}</ItemDescription>
                   )}
-                </div>
-              </Card>
+                </ItemContent>
+              </Item>
             ))}
-          </div>
+          </ItemGroup>
         )}
       </div>
     </section>

@@ -16,6 +16,15 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
+import {
+  Item,
+  ItemGroup,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+  ItemActions,
+  ItemHeader
+} from "@/components/ui/item"
 import { format } from "date-fns"
 import { Plus, Receipt } from "lucide-react"
 
@@ -279,9 +288,9 @@ export default function RendicionBoletasPage() {
         </Dialog>
       </div>
 
-      {/* Table */}
-      <Card className="p-0 overflow-hidden">
-        {boletas.length === 0 ? (
+      {/* List */}
+      {boletas.length === 0 ? (
+        <Card className="p-0 overflow-hidden">
           <Empty className="border-0 py-16">
             <EmptyHeader>
               <EmptyMedia variant="icon">
@@ -293,90 +302,56 @@ export default function RendicionBoletasPage() {
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[900px]">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                    Número
-                  </th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                    Fecha
-                  </th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                    Monto
-                  </th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                    Descripción
-                  </th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                    Adjunto
-                  </th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                    Estado
-                  </th>
-                  <th className="px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground text-right">
-                    Acción
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {boletas.map((boleta) => (
-                  <tr key={boleta.id} className="group transition-colors hover:bg-muted/40">
-                    <td className="px-6 py-4 font-bold text-foreground text-sm">{boleta.numero}</td>
-                    <td className="px-6 py-4 text-muted-foreground font-medium text-sm whitespace-nowrap tabular-nums">
-                      {formatDate(boleta.fecha)}
-                    </td>
-                    <td className="px-6 py-4 font-bold text-foreground tabular-nums text-sm">
-                      {clp.format(boleta.monto)}
-                    </td>
-                    <td
-                      className="px-6 py-4 text-muted-foreground text-sm max-w-[200px] truncate"
-                      title={boleta.descripcion}
-                    >
-                      {boleta.descripcion || "—"}
-                    </td>
-                    <td className="px-6 py-4">
-                      {boleta.archivo ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary uppercase tracking-wide">
-                          {boleta.archivo.name.split(".").pop()}
-                        </span>
-                      ) : (
-                        <span className="text-[11px] text-muted-foreground/50 italic">
-                          Sin adjunto
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={cn(
-                          "inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
-                          boleta.rendida
-                            ? "bg-primary/10 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        )}
-                      >
-                        {boleta.rendida ? "Rendida" : "Pendiente"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Button
-                        variant={boleta.rendida ? "outline" : "default"}
-                        size="xs"
-                        onClick={() => toggleRendida(boleta.id)}
-                        className="rounded-full px-5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
-                      >
-                        {boleta.rendida ? "Reabrir" : "Rendir"}
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+        </Card>
+      ) : (
+        <ItemGroup>
+          {boletas.map((boleta) => (
+            <Item key={boleta.id} variant="outline">
+              <ItemContent>
+                <ItemHeader>
+                  <ItemTitle className="font-bold text-foreground">{boleta.numero}</ItemTitle>
+                  <span
+                    className={cn(
+                      "inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
+                      boleta.rendida
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {boleta.rendida ? "Rendida" : "Pendiente"}
+                  </span>
+                </ItemHeader>
+                <ItemDescription>
+                  {formatDate(boleta.fecha)} ·{" "}
+                  <span className="font-bold text-foreground tabular-nums">
+                    {clp.format(boleta.monto)}
+                  </span>
+                  {boleta.descripcion && ` · ${boleta.descripcion}`}
+                </ItemDescription>
+              </ItemContent>
+              <ItemActions>
+                {boleta.archivo ? (
+                  <span className="hidden sm:inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary uppercase tracking-wide">
+                    {boleta.archivo.name.split(".").pop()}
+                  </span>
+                ) : (
+                  <span className="hidden sm:inline text-[11px] text-muted-foreground/50 italic">
+                    Sin adjunto
+                  </span>
+                )}
+                <Button
+                  variant={boleta.rendida ? "outline" : "default"}
+                  size="xs"
+                  onClick={() => toggleRendida(boleta.id)}
+                  className="rounded-full px-5"
+                >
+                  {boleta.rendida ? "Reabrir" : "Rendir"}
+                </Button>
+              </ItemActions>
+            </Item>
+          ))}
+        </ItemGroup>
+      )}
     </section>
   )
 }

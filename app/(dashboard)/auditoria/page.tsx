@@ -5,6 +5,7 @@ import { canManageUsers } from "@/lib/permissions/rbac"
 import { auditoriaService } from "@/services/auditoria/auditoria.service"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
+import { Item, ItemGroup, ItemContent, ItemTitle, ItemDescription, ItemHeader } from "@/components/ui/item"
 import { ClipboardList } from "lucide-react"
 
 function entityClass(entity: string) {
@@ -102,37 +103,39 @@ export default async function AuditoriaPage() {
             </table>
           </div>
 
-          {/* ── Mobile card list ── */}
-          <div className="sm:hidden divide-y divide-border">
-            {events.map((event) => (
-              <div key={event.id} className="px-4 py-3 flex flex-col gap-1.5">
-                <div className="flex items-center justify-between gap-2">
-                  <span
-                    className={cn(
-                      "inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest",
-                      entityClass(event.entity)
-                    )}
-                  >
-                    {event.entity}
-                  </span>
-                  <span className="text-[11px] text-muted-foreground tabular-nums">
-                    {new Date(event.event_date).toLocaleString("es-CL", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit"
-                    })}
-                  </span>
-                </div>
-                <p className="text-sm font-bold text-foreground uppercase tracking-tight">
-                  {event.action}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {event.users?.full_name ?? "—"}
-                  {event.note && <span className="italic"> · {event.note}</span>}
-                </p>
-              </div>
-            ))}
+          {/* ── Mobile list ── */}
+          <div className="sm:hidden px-4 pb-4">
+            <ItemGroup>
+              {events.map((event) => (
+                <Item key={event.id} variant="muted" size="sm">
+                  <ItemContent>
+                    <ItemHeader>
+                      <span
+                        className={cn(
+                          "inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest",
+                          entityClass(event.entity)
+                        )}
+                      >
+                        {event.entity}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground tabular-nums">
+                        {new Date(event.event_date).toLocaleString("es-CL", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })}
+                      </span>
+                    </ItemHeader>
+                    <ItemTitle className="uppercase tracking-tight">{event.action}</ItemTitle>
+                    <ItemDescription>
+                      {event.users?.full_name ?? "—"}
+                      {event.note && <span className="italic"> · {event.note}</span>}
+                    </ItemDescription>
+                  </ItemContent>
+                </Item>
+              ))}
+            </ItemGroup>
           </div>
 
           {/* ── Empty state ── */}

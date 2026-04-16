@@ -16,13 +16,15 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { Plus, Users, Search } from "lucide-react"
+import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 import {
-  Empty,
-  EmptyHeader,
-  EmptyTitle,
-  EmptyDescription,
-  EmptyMedia
-} from "@/components/ui/empty"
+  Item,
+  ItemGroup,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+  ItemActions
+} from "@/components/ui/item"
 
 type UsuarioRow = {
   id: string
@@ -84,16 +86,17 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
   // Edit dialog
   const [editOpen, setEditOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<UsuarioRow | null>(null)
-  const [editDraft, setEditDraft] = useState<{ full_name: string; role: UserRole; active: boolean }>(
-    { full_name: "", role: "OPERATOR", active: true }
-  )
+  const [editDraft, setEditDraft] = useState<{
+    full_name: string
+    role: UserRole
+    active: boolean
+  }>({ full_name: "", role: "OPERATOR", active: true })
 
   const filtered = useMemo(() => {
     if (!search.trim()) return users
     const q = search.toLowerCase()
     return users.filter(
-      (u) =>
-        u.full_name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+      (u) => u.full_name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
     )
   }, [users, search])
 
@@ -146,9 +149,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
       return
     }
 
-    setUsers((prev) =>
-      prev.map((u) => (u.id === editingUser.id ? { ...u, ...editDraft } : u))
-    )
+    setUsers((prev) => prev.map((u) => (u.id === editingUser.id ? { ...u, ...editDraft } : u)))
     setEditOpen(false)
   }
 
@@ -454,16 +455,13 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
           </EmptyHeader>
         </Empty>
       ) : (
-        <div className="flex flex-col gap-2">
+        <ItemGroup>
           {filtered.map((user) => (
-            <div
+            <Item
               key={user.id}
-              className={cn(
-                "group flex items-center gap-3 sm:gap-4 rounded-xl bg-card border border-border px-4 py-3 transition-colors hover:bg-muted/30",
-                !user.active && "opacity-55"
-              )}
+              variant="outline"
+              className={cn(!user.active && "opacity-55")}
             >
-              {/* Avatar */}
               <div
                 className={cn(
                   "size-10 rounded-full flex items-center justify-center shrink-0",
@@ -479,43 +477,37 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                   {getInitials(user.full_name || "?")}
                 </span>
               </div>
-
-              {/* Name + email */}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">{user.full_name}</p>
-                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-              </div>
-
-              {/* Role badge */}
-              <span
-                className={cn(
-                  "hidden sm:inline-flex rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest shrink-0",
-                  roleBadgeClass(user.role)
-                )}
-              >
-                {roleLabel(user.role)}
-              </span>
-
-              {/* Active dot */}
-              <div
-                className={cn(
-                  "size-2 rounded-full shrink-0",
-                  user.active ? "bg-primary" : "bg-muted-foreground/30"
-                )}
-              />
-
-              {/* Edit */}
-              <Button
-                size="xs"
-                variant="outline"
-                onClick={() => openEdit(user)}
-                className="shrink-0 rounded-full px-4 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
-              >
-                Editar
-              </Button>
-            </div>
+              <ItemContent>
+                <ItemTitle>{user.full_name}</ItemTitle>
+                <ItemDescription>{user.email}</ItemDescription>
+              </ItemContent>
+              <ItemActions>
+                <span
+                  className={cn(
+                    "hidden sm:inline-flex rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest",
+                    roleBadgeClass(user.role)
+                  )}
+                >
+                  {roleLabel(user.role)}
+                </span>
+                <div
+                  className={cn(
+                    "size-2 rounded-full shrink-0",
+                    user.active ? "bg-primary" : "bg-muted-foreground/30"
+                  )}
+                />
+                <Button
+                  size="xs"
+                  variant="outline"
+                  onClick={() => openEdit(user)}
+                  className="rounded-full px-4"
+                >
+                  Editar
+                </Button>
+              </ItemActions>
+            </Item>
           ))}
-        </div>
+        </ItemGroup>
       )}
     </div>
   )
