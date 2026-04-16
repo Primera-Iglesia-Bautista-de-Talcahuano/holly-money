@@ -69,6 +69,7 @@
   --color-expense: #e85040;
   --color-expense-surface: #fde8e6;
   --color-expense-border: #f0b0a8;
+  --color-on-expense: #5a0a00;
 
   /* Role badge tokens */
   --color-role-purple: #6010a0;
@@ -140,7 +141,7 @@
   }
   .badge-expense {
     background-color: var(--color-expense-surface);
-    color: var(--color-expense);
+    color: var(--color-on-expense);
     border: 1px solid var(--color-expense-border);
   }
   .text-income {
