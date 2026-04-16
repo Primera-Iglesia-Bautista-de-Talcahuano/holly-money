@@ -38,7 +38,11 @@ export default async function MovimientosPage({ searchParams }: Props) {
           <p className="text-sm text-muted-foreground">Registro de ingresos y egresos</p>
         </div>
         {canWrite && (
-          <Button render={<Link href="/movimientos/nuevo" />} className="gap-2">
+          <Button
+            render={<Link href="/movimientos/nuevo" />}
+            nativeButton={false}
+            className="gap-2"
+          >
             <Plus data-icon="inline-start" />
             Nuevo Movimiento
           </Button>

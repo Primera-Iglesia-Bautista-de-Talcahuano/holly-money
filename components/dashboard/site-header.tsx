@@ -81,7 +81,12 @@ export function SiteHeader() {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ml-auto">
-          <Button render={<Link href="/movimientos/nuevo" />} size="sm" className="gap-2">
+          <Button
+            render={<Link href="/movimientos/nuevo" />}
+            nativeButton={false}
+            size="sm"
+            className="gap-2"
+          >
             <Plus data-icon="inline-start" />
             Nuevo Movimiento
           </Button>

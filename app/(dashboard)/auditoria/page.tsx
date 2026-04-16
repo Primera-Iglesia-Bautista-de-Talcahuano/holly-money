@@ -35,7 +35,9 @@ export default async function AuditoriaPage() {
   return (
     <section className="mx-auto max-w-6xl flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Auditoría</h1>
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">
+          Auditoría
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Historial de auditoría del sistema — usuarios y eventos globales.
         </p>
@@ -119,7 +121,7 @@ export default async function AuditoriaPage() {
                     <ItemHeader>
                       <span
                         className={cn(
-                          "inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest",
+                          "inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest",
                           entityClass(event.entity)
                         )}
                       >
