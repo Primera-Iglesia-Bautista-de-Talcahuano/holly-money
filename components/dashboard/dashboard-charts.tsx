@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   Bar,
@@ -10,39 +10,43 @@ import {
   PieChart,
   ResponsiveContainer,
   XAxis,
-  YAxis,
-} from "recharts";
+  YAxis
+} from "recharts"
 
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+  ChartTooltipContent
+} from "@/components/ui/chart"
 
-const clp = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
+const clp = new Intl.NumberFormat("es-CL", {
+  style: "currency",
+  currency: "CLP",
+  maximumFractionDigits: 0
+})
 
-type SerieItem = { name: string; ingresos: number; egresos: number };
-type CategoriaItem = { categoria: string; total: number };
+type SerieItem = { name: string; ingresos: number; egresos: number }
+type CategoriaItem = { categoria: string; total: number }
 
 const COLORS = [
   "var(--color-chart-1)",
   "var(--color-chart-2)",
   "var(--color-chart-3)",
   "var(--color-chart-4)",
-  "var(--color-chart-5)",
-];
+  "var(--color-chart-5)"
+]
 
 const ingresosEgresosConfig = {
   ingresos: {
     label: "Ingresos",
-    color: "var(--color-primary)",
+    color: "var(--color-primary)"
   },
   egresos: {
     label: "Egresos",
-    color: "var(--color-tertiary)",
-  },
-} satisfies ChartConfig;
+    color: "var(--color-expense)"
+  }
+} satisfies ChartConfig
 
 export function IngresosEgresosChart({ data }: { data: SerieItem[] }) {
   return (
@@ -50,70 +54,87 @@ export function IngresosEgresosChart({ data }: { data: SerieItem[] }) {
       <ChartContainer config={ingresosEgresosConfig} className="h-full w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--outline-variant) / 0.3)" />
-            <XAxis 
-              dataKey="name" 
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="hsl(var(--outline-variant) / 0.3)"
+            />
+            <XAxis
+              dataKey="name"
               tickLine={false}
               axisLine={false}
               tickMargin={10}
-              fontSize={10} 
-              stroke="hsl(var(--on-surface-variant))" 
+              fontSize={11}
+              stroke="var(--color-muted-foreground)"
             />
-            <YAxis 
+            <YAxis
               tickLine={false}
               axisLine={false}
               tickMargin={5}
-              fontSize={10}
+              fontSize={11}
               width={40}
-              stroke="hsl(var(--on-surface-variant))"
+              stroke="var(--color-muted-foreground)"
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
             />
-            <ChartTooltip cursor={{ fill: 'hsl(var(--on-surface-variant) / 0.05)' }} content={<ChartTooltipContent indicator="dashed" />} />
-            <Legend 
-              verticalAlign="top" 
-              align="right" 
-              iconType="circle" 
+            <ChartTooltip
+              cursor={{ fill: "hsl(var(--on-surface-variant) / 0.05)" }}
+              content={<ChartTooltipContent indicator="dashed" />}
+            />
+            <Legend
+              verticalAlign="top"
+              align="right"
+              iconType="circle"
               content={({ payload }) => (
                 <div className="flex justify-end gap-4 sm:gap-6 mb-6">
                   {payload?.map((entry, index) => (
                     <div key={index} className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
-                      <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-on-surface-variant/70">{entry.value}</span>
+                      <div
+                        className="size-2.5 rounded-full"
+                        style={{ backgroundColor: entry.color }}
+                      />
+                      <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                        {entry.value}
+                      </span>
                     </div>
                   ))}
                 </div>
               )}
             />
-            <Bar dataKey="ingresos" fill="var(--color-ingresos)" radius={[4, 4, 0, 0]} barSize={20} />
+            <Bar
+              dataKey="ingresos"
+              fill="var(--color-ingresos)"
+              radius={[4, 4, 0, 0]}
+              barSize={20}
+            />
             <Bar dataKey="egresos" fill="var(--color-egresos)" radius={[4, 4, 0, 0]} barSize={20} />
           </BarChart>
         </ResponsiveContainer>
       </ChartContainer>
     </div>
-  );
+  )
 }
 
 const getCategoriaConfig = (data: CategoriaItem[]) => {
   const config: ChartConfig = {
     total: {
-      label: "Total Registrado",
-    },
-  };
+      label: "Total Registrado"
+    }
+  }
   data.forEach((item, index) => {
     config[item.categoria] = {
       label: item.categoria,
-      color: COLORS[index % COLORS.length],
-    };
-  });
-  return config;
-};
+      color: COLORS[index % COLORS.length]
+    }
+  })
+  return config
+}
 
 export function CategoriaChart({ data }: { data: CategoriaItem[] }) {
   const finalData = data.map((item, index) => ({
     ...item,
-    fill: COLORS[index % COLORS.length],
-  }));
-  const config = getCategoriaConfig(data);
+    fill: COLORS[index % COLORS.length]
+  }))
+  const config = getCategoriaConfig(data)
 
   return (
     <div className="flex flex-col gap-4 w-full min-w-0">
@@ -135,7 +156,11 @@ export function CategoriaChart({ data }: { data: CategoriaItem[] }) {
                 cy="50%"
               >
                 {finalData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} className="hover:opacity-80 transition-opacity outline-none" />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.fill}
+                    className="hover:opacity-80 transition-opacity outline-none"
+                  />
                 ))}
               </Pie>
             </PieChart>
@@ -147,12 +172,16 @@ export function CategoriaChart({ data }: { data: CategoriaItem[] }) {
       <div className="grid grid-cols-2 gap-x-6 gap-y-2 w-full">
         {finalData.map((entry, index) => (
           <div key={index} className="flex items-center gap-2 min-w-0">
-            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: entry.fill }} />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/80 truncate">{entry.categoria}</span>
-            <span className="text-[10px] font-black text-on-surface ml-auto shrink-0">{clp.format(entry.total)}</span>
+            <div className="size-2 rounded-full shrink-0" style={{ backgroundColor: entry.fill }} />
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">
+              {entry.categoria}
+            </span>
+            <span className="text-xs font-black text-foreground ml-auto shrink-0">
+              {clp.format(entry.total)}
+            </span>
           </div>
         ))}
       </div>
     </div>
-  );
+  )
 }
