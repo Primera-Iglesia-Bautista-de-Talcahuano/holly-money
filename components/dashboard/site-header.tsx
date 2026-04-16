@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Plus, PanelLeft } from "lucide-react"
+import { PanelLeft } from "lucide-react"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -80,17 +80,6 @@ export function SiteHeader() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="ml-auto">
-          <Button
-            render={<Link href="/movimientos/nuevo" />}
-            nativeButton={false}
-            size="sm"
-            className="gap-2"
-          >
-            <Plus data-icon="inline-start" />
-            Nuevo Movimiento
-          </Button>
-        </div>
       </div>
     </header>
   )
