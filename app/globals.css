@@ -194,6 +194,33 @@
 }
 
 .dark {
+  /* @theme inline token overrides — surfaces and text change in dark mode */
+  --color-background: #0d1829;
+  --color-surface: #132040;
+  --color-surface-bright: #132040;
+  --color-surface-container-lowest: #0d1829;
+  --color-surface-container-low: #132040;
+  --color-surface-container: #132040;
+  --color-surface-container-high: #1e3a68;
+  --color-surface-container-highest: #1e3a68;
+  --color-surface-dim: #0d1829;
+  --color-surface-variant: #132040;
+  --color-on-background: #c8dff8;
+  --color-on-surface: #c8dff8;
+  --color-on-surface-variant: #5a8abf;
+  --color-inverse-surface: #c8dff8;
+  --color-inverse-on-surface: #132040;
+  --color-outline: #5a8abf;
+  --color-outline-variant: #1e3a68;
+  --color-primary-container: #1e3a68;
+  --color-primary-surface: #132040;
+  --color-primary-border: #1e3a68;
+  --color-secondary: #1e3a68;
+  --color-secondary-container: #1e3a68;
+  --color-on-secondary: #c8dff8;
+  --color-on-secondary-container: #c8dff8;
+
+  /* shadcn vars */
   --background: #0d1829;
   --foreground: #c8dff8;
   --card: #132040;

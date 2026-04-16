@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Roboto, Roboto_Slab } from "next/font/google"
+import Script from "next/script"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -29,15 +30,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={cn(roboto.variable, robotoSlab.variable)}>
-      <head>
-        <script
+    <html lang="es" suppressHydrationWarning className={cn(roboto.variable, robotoSlab.variable)}>
+      <body className="antialiased min-h-screen font-sans bg-background text-on-surface">
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('pibt-theme');if(t==='dark')document.documentElement.classList.add('dark')}catch(e){}})();`
           }}
         />
-      </head>
-      <body className="antialiased min-h-screen font-sans bg-background text-on-surface">
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>
