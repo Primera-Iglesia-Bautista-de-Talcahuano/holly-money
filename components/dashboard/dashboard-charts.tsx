@@ -19,6 +19,14 @@ import {
   ChartTooltip,
   ChartTooltipContent
 } from "@/components/ui/chart"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia
+} from "@/components/ui/empty"
+import { BarChart2, PieChart as PieChartIcon } from "lucide-react"
 
 const clp = new Intl.NumberFormat("es-CL", {
   style: "currency",
@@ -49,6 +57,20 @@ const ingresosEgresosConfig = {
 } satisfies ChartConfig
 
 export function IngresosEgresosChart({ data }: { data: SerieItem[] }) {
+  if (!data.length) {
+    return (
+      <Empty className="border-dashed h-[300px] sm:h-72">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <BarChart2 />
+          </EmptyMedia>
+          <EmptyTitle>Sin datos</EmptyTitle>
+          <EmptyDescription>No hay movimientos en el período seleccionado.</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    )
+  }
+
   return (
     <div className="h-[300px] sm:h-72 w-full">
       <ChartContainer config={ingresosEgresosConfig} className="h-full w-full">
@@ -130,6 +152,20 @@ const getCategoriaConfig = (data: CategoriaItem[]) => {
 }
 
 export function CategoriaChart({ data }: { data: CategoriaItem[] }) {
+  if (!data.length) {
+    return (
+      <Empty className="border-dashed h-[200px]">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <PieChartIcon />
+          </EmptyMedia>
+          <EmptyTitle>Sin categorías</EmptyTitle>
+          <EmptyDescription>No hay datos para el período seleccionado.</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    )
+  }
+
   const finalData = data.map((item, index) => ({
     ...item,
     fill: COLORS[index % COLORS.length]

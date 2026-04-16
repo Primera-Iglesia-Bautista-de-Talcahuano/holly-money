@@ -1,122 +1,159 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { AnularButton } from "./anular-button";
-import { Button } from "@/components/ui/button";
+import { useState } from "react"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
+import { AnularButton } from "./anular-button"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+  DialogDescription
+} from "@/components/ui/dialog"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia
+} from "@/components/ui/empty"
+import { FileSearch } from "lucide-react"
 
 export type SerializedMovimiento = {
-  id: string;
-  folio_display: string;
-  movement_date: string;
-  movement_type: string;
-  amount: string;
-  category: string;
-  concept: string;
-  reference_person: string | null;
-  received_by: string | null;
-  delivered_by: string | null;
-  beneficiary: string | null;
-  payment_method: string | null;
-  support_number: string | null;
-  notes: string | null;
-  cancellation_reason: string | null;
-  status: string;
-  created_by: { full_name: string };
-};
+  id: string
+  folio_display: string
+  movement_date: string
+  movement_type: string
+  amount: string
+  category: string
+  concept: string
+  reference_person: string | null
+  received_by: string | null
+  delivered_by: string | null
+  beneficiary: string | null
+  payment_method: string | null
+  support_number: string | null
+  notes: string | null
+  cancellation_reason: string | null
+  status: string
+  created_by: { full_name: string }
+}
 
-const clp = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
+const clp = new Intl.NumberFormat("es-CL", {
+  style: "currency",
+  currency: "CLP",
+  maximumFractionDigits: 0
+})
 
 function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("es-CL", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return new Date(value).toLocaleDateString("es-CL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  })
 }
 
 function Field({ label, value }: { label: string; value?: string | null }) {
   return (
-    <div className="space-y-1">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/50">{label}</p>
-      <p className="text-sm font-semibold text-on-surface">{value || "—"}</p>
+    <div className="flex flex-col gap-1">
+      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </p>
+      <p className="text-sm font-semibold text-foreground">{value || "—"}</p>
     </div>
-  );
+  )
 }
 
 const MOVEMENT_TYPE_LABEL: Record<string, string> = {
   INCOME: "Ingreso",
-  EXPENSE: "Egreso",
-};
+  EXPENSE: "Egreso"
+}
 
 const STATUS_LABEL: Record<string, string> = {
   ACTIVE: "Activo",
-  CANCELLED: "Anulado",
-};
+  CANCELLED: "Anulado"
+}
 
 export function MovimientosTable({
   rows,
-  canWrite,
+  canWrite
 }: {
-  rows: SerializedMovimiento[];
-  canWrite: boolean;
+  rows: SerializedMovimiento[]
+  canWrite: boolean
 }) {
-  const [selected, setSelected] = useState<SerializedMovimiento | null>(null);
+  const [selected, setSelected] = useState<SerializedMovimiento | null>(null)
 
   return (
     <>
-      <div className="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0px_4px_24px_-4px_rgba(25,28,30,0.06)] border border-outline/10">
+      <div className="bg-card rounded-xl overflow-hidden border border-border">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[640px]">
             <thead>
-              <tr className="text-on-surface-variant/40 border-none">
-                <th className="px-4 sm:px-8 py-4 sm:py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Folio</th>
-                <th className="px-4 sm:px-8 py-4 sm:py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Fecha</th>
-                <th className="px-4 sm:px-8 py-4 sm:py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Tipo</th>
-                <th className="px-8 py-6 font-bold text-[10px] uppercase tracking-[0.2em] text-right">Monto</th>
-                <th className="px-4 sm:px-8 py-4 sm:py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Categoría</th>
-                <th className="px-4 sm:px-8 py-4 sm:py-6 font-bold text-[10px] uppercase tracking-[0.2em]">Estado</th>
+              <tr className="border-b border-border">
+                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                  Folio
+                </th>
+                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                  Fecha
+                </th>
+                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                  Tipo
+                </th>
+                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground text-right">
+                  Monto
+                </th>
+                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                  Categoría
+                </th>
+                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                  Estado
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y-0">
-              {rows.map((row, index) => (
+            <tbody className="divide-y divide-border">
+              {rows.map((row) => (
                 <tr
                   key={row.id}
                   onClick={() => setSelected(row)}
-                  className={cn(
-                    "cursor-pointer transition-all duration-200 hover:bg-primary/5",
-                    index % 2 === 0 ? "bg-transparent" : "bg-surface-container-low/20"
-                  )}
+                  className="cursor-pointer transition-colors hover:bg-muted/50"
                 >
-                  <td className="px-4 sm:px-8 py-4 sm:py-5 font-bold text-primary">#{row.folio_display}</td>
-                  <td className="px-4 sm:px-8 py-4 sm:py-5 text-on-surface-variant font-medium text-sm whitespace-nowrap tabular-nums">
+                  <td className="px-4 sm:px-6 py-4 font-bold text-primary text-sm">
+                    #{row.folio_display}
+                  </td>
+                  <td className="px-4 sm:px-6 py-4 text-muted-foreground font-medium text-sm whitespace-nowrap tabular-nums">
                     {formatDate(row.movement_date)}
                   </td>
-                  <td className="px-4 sm:px-8 py-4 sm:py-5">
-                    <span className={cn(
-                      "inline-flex rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase",
-                      row.movement_type === "INCOME" ? "bg-primary/10 text-primary" : "bg-tertiary/10 text-tertiary"
-                    )}>
+                  <td className="px-4 sm:px-6 py-4">
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide uppercase",
+                        row.movement_type === "INCOME"
+                          ? "bg-primary/10 text-primary"
+                          : "bg-destructive/10 text-destructive"
+                      )}
+                    >
                       {MOVEMENT_TYPE_LABEL[row.movement_type] ?? row.movement_type}
                     </span>
                   </td>
-                  <td className="px-4 sm:px-8 py-4 sm:py-5 text-right font-black text-on-surface tabular-nums">
+                  <td className="px-4 sm:px-6 py-4 text-right font-bold text-foreground tabular-nums text-sm">
                     {clp.format(Number(row.amount))}
                   </td>
-                  <td className="px-4 sm:px-8 py-4 sm:py-5">
-                    <span className="inline-flex rounded-full bg-secondary-container/50 px-3 py-1 text-[10px] font-bold text-on-secondary-container uppercase tracking-widest">
+                  <td className="px-4 sm:px-6 py-4">
+                    <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wide">
                       {row.category}
                     </span>
                   </td>
-                  <td className="px-4 sm:px-8 py-4 sm:py-5">
-                    <span className={cn(
-                      "inline-flex rounded-full px-2.5 py-1 text-[10px] font-black tracking-widest uppercase",
-                      row.status === "ACTIVE" ? "bg-primary/5 text-primary/70" : "bg-destructive/5 text-destructive/70"
-                    )}>
+                  <td className="px-4 sm:px-6 py-4">
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide uppercase",
+                        row.status === "ACTIVE"
+                          ? "bg-primary/5 text-primary/80"
+                          : "bg-destructive/5 text-destructive/70"
+                      )}
+                    >
                       {STATUS_LABEL[row.status] ?? row.status}
                     </span>
                   </td>
@@ -124,8 +161,18 @@ export function MovimientosTable({
               ))}
               {!rows.length && (
                 <tr>
-                  <td className="px-8 py-20 text-center text-sm font-medium text-on-surface-variant/60" colSpan={6}>
-                    No hay registros en la bitácora para los filtros seleccionados.
+                  <td colSpan={6}>
+                    <Empty className="border-0 py-16">
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <FileSearch />
+                        </EmptyMedia>
+                        <EmptyTitle>Sin resultados</EmptyTitle>
+                        <EmptyDescription>
+                          No hay registros para los filtros seleccionados.
+                        </EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
                   </td>
                 </tr>
               )}
@@ -134,39 +181,56 @@ export function MovimientosTable({
         </div>
       </div>
 
-      <Dialog open={!!selected} onOpenChange={(open) => { if (!open) setSelected(null); }}>
+      <Dialog
+        open={!!selected}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null)
+        }}
+      >
         {selected && (
-          <DialogContent className="w-[95vw] sm:max-w-lg bg-surface-container-lowest p-0 border-none shadow-[0px_40px_80px_-20px_rgba(25,28,30,0.15)] rounded-[2rem] overflow-y-auto max-h-[90vh]">
-            <div className="p-8 space-y-6">
+          <DialogContent className="w-[95vw] sm:max-w-lg bg-card p-0 border border-border rounded-xl overflow-y-auto max-h-[90vh]">
+            <div className="p-6 sm:p-8 flex flex-col gap-6">
               <DialogHeader>
                 <div className="flex items-center gap-3 flex-wrap">
-                  <DialogTitle className="text-2xl font-extrabold tracking-tight text-on-surface">
+                  <DialogTitle className="text-xl font-bold tracking-tight text-foreground">
                     #{selected.folio_display}
                   </DialogTitle>
-                  <span className={cn(
-                    "rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase",
-                    selected.movement_type === "INCOME" ? "bg-primary/10 text-primary" : "bg-tertiary/10 text-tertiary"
-                  )}>
+                  <span
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide uppercase",
+                      selected.movement_type === "INCOME"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-destructive/10 text-destructive"
+                    )}
+                  >
                     {MOVEMENT_TYPE_LABEL[selected.movement_type] ?? selected.movement_type}
                   </span>
-                  <span className={cn(
-                    "rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase",
-                    selected.status === "ACTIVE" ? "bg-primary/5 text-primary/70" : "bg-destructive/5 text-destructive/70"
-                  )}>
+                  <span
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide uppercase",
+                      selected.status === "ACTIVE"
+                        ? "bg-primary/5 text-primary/80"
+                        : "bg-destructive/5 text-destructive/70"
+                    )}
+                  >
                     {STATUS_LABEL[selected.status] ?? selected.status}
                   </span>
                 </div>
-                <DialogDescription className="sr-only">Detalle del movimiento {selected.folio_display}</DialogDescription>
+                <DialogDescription className="sr-only">
+                  Detalle del movimiento {selected.folio_display}
+                </DialogDescription>
               </DialogHeader>
 
-              {/* Monto destacado */}
-              <div className="bg-surface-container-low rounded-2xl px-6 py-5">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/50 mb-1">Monto</p>
-                <p className="text-2xl sm:text-3xl font-black tabular-nums text-primary">{clp.format(Number(selected.amount))}</p>
+              <div className="rounded-lg bg-muted px-6 py-5">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                  Monto
+                </p>
+                <p className="font-heading text-2xl sm:text-3xl font-black tabular-nums text-primary">
+                  {clp.format(Number(selected.amount))}
+                </p>
               </div>
 
-              {/* Campos en grid */}
-              <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                 <Field label="Fecha" value={formatDate(selected.movement_date)} />
                 <Field label="Categoría" value={selected.category} />
                 <div className="col-span-2">
@@ -184,33 +248,40 @@ export function MovimientosTable({
               </div>
 
               {selected.notes && (
-                <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/50">Observaciones</p>
-                  <p className="text-sm font-medium text-on-surface leading-relaxed">{selected.notes}</p>
+                <div className="flex flex-col gap-1">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                    Observaciones
+                  </p>
+                  <p className="text-sm font-medium text-foreground leading-relaxed">
+                    {selected.notes}
+                  </p>
                 </div>
               )}
 
               {selected.status === "CANCELLED" && selected.cancellation_reason && (
-                <div className="rounded-2xl bg-destructive/5 px-5 py-4 space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-destructive">Motivo de Anulación</p>
-                  <p className="text-sm font-semibold text-on-surface">{selected.cancellation_reason}</p>
+                <div className="rounded-lg bg-destructive/5 px-5 py-4 flex flex-col gap-1">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-destructive">
+                    Motivo de Anulación
+                  </p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {selected.cancellation_reason}
+                  </p>
                 </div>
               )}
 
-              {/* Footer actions */}
-              <div className="flex items-center justify-between gap-3 pt-4 border-t border-on-surface-variant/10">
+              <div className="flex items-center justify-between gap-3 pt-4 border-t border-border">
                 <Button
                   variant="outline"
-                  className="h-11 px-5 border-none bg-surface-container-low hover:bg-surface-container-high font-bold"
+                  className="h-10 px-5"
                   render={<Link href={`/movimientos/${selected.id}`} />}
                 >
-                  Ver detalles completos
+                  Ver detalles
                 </Button>
                 {canWrite && selected.status !== "CANCELLED" && (
                   <AnularButton
                     movimientoId={selected.id}
                     onSuccess={() => setSelected(null)}
-                    className="h-11 px-5 border-none bg-destructive/10 hover:bg-destructive/20 text-destructive shadow-none"
+                    className="h-10 px-5 bg-destructive/10 hover:bg-destructive/20 text-destructive border-none shadow-none"
                   />
                 )}
               </div>
@@ -219,5 +290,5 @@ export function MovimientosTable({
         )}
       </Dialog>
     </>
-  );
+  )
 }
