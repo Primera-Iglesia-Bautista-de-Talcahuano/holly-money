@@ -10,13 +10,7 @@ export type NavLink = {
   icon: React.ReactNode
 }
 
-export function DashboardNav({
-  links,
-  onSelect,
-}: {
-  links: NavLink[]
-  onSelect?: () => void
-}) {
+export function DashboardNav({ links, onSelect }: { links: NavLink[]; onSelect?: () => void }) {
   const pathname = usePathname()
 
   return (

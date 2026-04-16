@@ -33,9 +33,7 @@ export default async function MovimientosPage({ searchParams }: Props) {
           <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">
             Movimientos
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Registro de ingresos y egresos
-          </p>
+          <p className="text-sm text-muted-foreground">Registro de ingresos y egresos</p>
         </div>
         {canWrite && <NewMovimientoDialog />}
       </div>
@@ -52,12 +50,7 @@ export default async function MovimientosPage({ searchParams }: Props) {
           >
             Buscar
           </Label>
-          <Input
-            id="search"
-            name="search"
-            defaultValue={search}
-            placeholder="Folio, concepto..."
-          />
+          <Input id="search" name="search" defaultValue={search} placeholder="Folio, concepto..." />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label
@@ -121,8 +114,8 @@ export default async function MovimientosPage({ searchParams }: Props) {
           cancellation_reason: row.cancellation_reason,
           status: row.status,
           created_by: {
-            full_name: (row.users as { full_name: string } | null)?.full_name ?? "",
-          },
+            full_name: (row.users as { full_name: string } | null)?.full_name ?? ""
+          }
         }))}
       />
     </div>

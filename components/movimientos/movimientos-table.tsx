@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
+  DialogDescription
 } from "@/components/ui/dialog"
 
 export type SerializedMovimiento = {
@@ -36,21 +36,23 @@ export type SerializedMovimiento = {
 const clp = new Intl.NumberFormat("es-CL", {
   style: "currency",
   currency: "CLP",
-  maximumFractionDigits: 0,
+  maximumFractionDigits: 0
 })
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("es-CL", {
     day: "2-digit",
     month: "2-digit",
-    year: "numeric",
+    year: "numeric"
   })
 }
 
 function Field({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </p>
       <p className="text-sm font-semibold text-foreground">{value || "—"}</p>
     </div>
   )
@@ -58,17 +60,17 @@ function Field({ label, value }: { label: string; value?: string | null }) {
 
 const MOVEMENT_TYPE_LABEL: Record<string, string> = {
   INCOME: "Ingreso",
-  EXPENSE: "Egreso",
+  EXPENSE: "Egreso"
 }
 
 const STATUS_LABEL: Record<string, string> = {
   ACTIVE: "Activo",
-  CANCELLED: "Anulado",
+  CANCELLED: "Anulado"
 }
 
 export function MovimientosTable({
   rows,
-  canWrite,
+  canWrite
 }: {
   rows: SerializedMovimiento[]
   canWrite: boolean

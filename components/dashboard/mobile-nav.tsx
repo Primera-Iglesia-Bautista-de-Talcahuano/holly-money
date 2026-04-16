@@ -11,7 +11,7 @@ export function MobileNav({
   links,
   initials,
   name,
-  role,
+  role
 }: {
   links: NavLink[]
   initials: string
@@ -22,12 +22,7 @@ export function MobileNav({
 
   return (
     <>
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label="Abrir menú"
-        onClick={() => setOpen(true)}
-      >
+      <Button variant="ghost" size="icon" aria-label="Abrir menú" onClick={() => setOpen(true)}>
         <Menu className="size-5" />
       </Button>
 

@@ -16,7 +16,7 @@ function formatDate(value: string | Date) {
   return new Date(value).toLocaleDateString("es-CL", {
     day: "2-digit",
     month: "2-digit",
-    year: "numeric",
+    year: "numeric"
   })
 }
 
@@ -35,7 +35,7 @@ export default async function MovimientoDetallePage({ params }: Props) {
   const clp = new Intl.NumberFormat("es-CL", {
     style: "currency",
     currency: "CLP",
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   })
 
   const createdBy = row.created_by as { full_name: string; email: string } | null
@@ -117,7 +117,11 @@ export default async function MovimientoDetallePage({ params }: Props) {
                 />
                 <DetailItem icon={<Tag />} label="Categoría" value={row.category} />
                 <DetailItem icon={<InfoIcon />} label="Concepto / Glosa" value={row.concept} />
-                <DetailItem icon={<User />} label="Referente / Donante" value={row.reference_person} />
+                <DetailItem
+                  icon={<User />}
+                  label="Referente / Donante"
+                  value={row.reference_person}
+                />
               </div>
               <div className="flex flex-col gap-6">
                 <DetailItem
@@ -126,7 +130,11 @@ export default async function MovimientoDetallePage({ params }: Props) {
                   value={formatDate(row.movement_date)}
                 />
                 <DetailItem icon={<InfoIcon />} label="Medio de Pago" value={row.payment_method} />
-                <DetailItem icon={<FileText />} label="Número de Respaldo" value={row.support_number} />
+                <DetailItem
+                  icon={<FileText />}
+                  label="Número de Respaldo"
+                  value={row.support_number}
+                />
                 <DetailItem icon={<User />} label="Beneficiario" value={row.beneficiary} />
               </div>
             </div>
@@ -160,12 +168,24 @@ export default async function MovimientoDetallePage({ params }: Props) {
               Trazabilidad
             </h3>
             <div className="flex flex-col gap-5">
-              <AuditLogItem label="Creado por" user={createdBy?.full_name ?? "—"} date={row.created_at} />
+              <AuditLogItem
+                label="Creado por"
+                user={createdBy?.full_name ?? "—"}
+                date={row.created_at}
+              />
               {updatedBy && (
-                <AuditLogItem label="Última edición" user={updatedBy.full_name} date={row.updated_at} />
+                <AuditLogItem
+                  label="Última edición"
+                  user={updatedBy.full_name}
+                  date={row.updated_at}
+                />
               )}
               {cancelledBy && (
-                <AuditLogItem label="Anulado por" user={cancelledBy.full_name} date={row.cancelled_at} />
+                <AuditLogItem
+                  label="Anulado por"
+                  user={cancelledBy.full_name}
+                  date={row.cancelled_at}
+                />
               )}
             </div>
           </Card>
@@ -226,7 +246,7 @@ function DetailItem({
   icon,
   label,
   value,
-  valueClass,
+  valueClass
 }: {
   icon: React.ReactNode
   label: string
@@ -244,18 +264,12 @@ function DetailItem({
   )
 }
 
-function AuditLogItem({
-  label,
-  user,
-  date,
-}: {
-  label: string
-  user: string
-  date: string | null
-}) {
+function AuditLogItem({ label, user, date }: { label: string; user: string; date: string | null }) {
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </p>
       <p className="text-sm font-bold text-foreground">{user}</p>
       <p className="text-xs text-muted-foreground">
         {date ? new Date(date).toLocaleString("es-CL") : "—"}
@@ -264,13 +278,7 @@ function AuditLogItem({
   )
 }
 
-function TechnicalItem({
-  label,
-  value,
-}: {
-  label: string
-  value?: string | boolean | null
-}) {
+function TechnicalItem({ label, value }: { label: string; value?: string | boolean | null }) {
   const display = typeof value === "boolean" ? (value ? "Sí" : "No") : value
   return (
     <div className="flex items-center justify-between text-xs border-b border-border pb-2 last:border-0 last:pb-0">

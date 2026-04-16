@@ -48,7 +48,7 @@ export default async function EditarMovimientoPage({ params }: Props) {
             beneficiary: row.beneficiary ?? "",
             payment_method: row.payment_method ?? "",
             support_number: row.support_number ?? "",
-            notes: row.notes ?? "",
+            notes: row.notes ?? ""
           }}
         />
       </div>

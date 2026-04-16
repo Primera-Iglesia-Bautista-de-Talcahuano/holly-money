@@ -44,8 +44,8 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
       beneficiary: initialValues?.beneficiary ?? "",
       payment_method: initialValues?.payment_method ?? "",
       support_number: initialValues?.support_number ?? "",
-      notes: initialValues?.notes ?? "",
-    },
+      notes: initialValues?.notes ?? ""
+    }
   })
 
   const tipo = useWatch({ control: form.control, name: "movement_type" })
@@ -61,7 +61,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
     const res = await fetch(endpoint, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+      body: JSON.stringify(values)
     })
 
     if (!res.ok) {
@@ -200,19 +200,31 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
             <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
               Referente / Entidad
             </Label>
-            <Input className="h-12 sm:h-14" placeholder="Opcional" {...form.register("reference_person")} />
+            <Input
+              className="h-12 sm:h-14"
+              placeholder="Opcional"
+              {...form.register("reference_person")}
+            />
           </div>
           <div className="flex flex-col gap-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
               Recibido por
             </Label>
-            <Input className="h-12 sm:h-14" placeholder="Opcional" {...form.register("received_by")} />
+            <Input
+              className="h-12 sm:h-14"
+              placeholder="Opcional"
+              {...form.register("received_by")}
+            />
           </div>
           <div className="flex flex-col gap-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
               Entregado por
             </Label>
-            <Input className="h-12 sm:h-14" placeholder="Opcional" {...form.register("delivered_by")} />
+            <Input
+              className="h-12 sm:h-14"
+              placeholder="Opcional"
+              {...form.register("delivered_by")}
+            />
           </div>
         </div>
       </div>
@@ -232,7 +244,11 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
             <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
               Beneficiario
             </Label>
-            <Input className="h-12 sm:h-14" placeholder="Opcional" {...form.register("beneficiary")} />
+            <Input
+              className="h-12 sm:h-14"
+              placeholder="Opcional"
+              {...form.register("beneficiary")}
+            />
           </div>
           <div className="flex flex-col gap-2">
             <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">

@@ -13,7 +13,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
 
@@ -39,7 +39,7 @@ const defaultNewUser: NewUserForm = {
   email: "",
   password: "",
   role: "OPERATOR",
-  active: true,
+  active: true
 }
 
 export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }) {
@@ -57,7 +57,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
     const res = await fetch("/api/usuarios", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newUser),
+      body: JSON.stringify(newUser)
     })
 
     setSubmitting(false)
@@ -81,8 +81,8 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
       body: JSON.stringify({
         full_name: user.full_name,
         role: user.role,
-        active: user.active,
-      }),
+        active: user.active
+      })
     })
     if (!res.ok) {
       const payload = (await res.json().catch(() => ({}))) as { message?: string }
@@ -104,8 +104,12 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
       {/* Header with Add Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">Administración de Equipo</h2>
-          <p className="text-sm text-muted-foreground">Control de accesos y roles para la gestión ministerial.</p>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">
+            Administración de Equipo
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Control de accesos y roles para la gestión ministerial.
+          </p>
         </div>
 
         <Dialog open={open} onOpenChange={setOpen}>
@@ -199,7 +203,9 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                       id="new-role"
                       className="flex h-12 w-full rounded-xl border-none bg-muted px-5 py-2 text-base font-medium text-foreground focus:ring-2 focus:ring-ring outline-none transition-all appearance-none"
                       value={newUser.role}
-                      onChange={(e) => setNewUser((s) => ({ ...s, role: e.target.value as UserRole }))}
+                      onChange={(e) =>
+                        setNewUser((s) => ({ ...s, role: e.target.value as UserRole }))
+                      }
                     >
                       <option value="ADMIN">ADMIN — Control del Sistema</option>
                       <option value="OPERATOR">OPERATOR — Ingreso de Datos</option>
@@ -235,7 +241,9 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
           </p>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-4xl font-bold tracking-tight text-primary">{activeUsers}</span>
-            <span className="text-sm font-medium text-muted-foreground">de {totalUsers} usuarios</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              de {totalUsers} usuarios
+            </span>
           </div>
         </Card>
         <Card className="p-5 sm:p-6">
@@ -268,7 +276,9 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold tracking-tight text-foreground">Usuarios Registrados</h2>
-          <span className="text-sm text-muted-foreground">Mostrando {users.length} integrantes</span>
+          <span className="text-sm text-muted-foreground">
+            Mostrando {users.length} integrantes
+          </span>
         </div>
 
         <Card className="p-0 overflow-hidden">
@@ -295,10 +305,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
               </thead>
               <tbody className="divide-y divide-border">
                 {users.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="group transition-colors hover:bg-muted/40"
-                  >
+                  <tr key={user.id} className="group transition-colors hover:bg-muted/40">
                     <td className="px-4 sm:px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div

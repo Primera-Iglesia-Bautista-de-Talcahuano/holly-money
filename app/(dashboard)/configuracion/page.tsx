@@ -62,7 +62,7 @@ export default async function ConfiguracionPage() {
                         day: "2-digit",
                         month: "2-digit",
                         hour: "2-digit",
-                        minute: "2-digit",
+                        minute: "2-digit"
                       })}
                     </td>
                     <td className="px-4 sm:px-6 py-4">

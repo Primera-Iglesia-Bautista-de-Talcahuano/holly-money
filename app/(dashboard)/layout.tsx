@@ -85,12 +85,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="flex flex-col flex-1 min-w-0">
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-20 bg-card border-b border-border px-4 h-14 flex items-center justify-between">
-          <MobileNav
-            links={links}
-            initials={initials}
-            name={user.name ?? ""}
-            role={user.role}
-          />
+          <MobileNav links={links} initials={initials} name={user.name ?? ""} role={user.role} />
 
           <span className="font-heading text-sm font-bold text-foreground">Sistema Contable</span>
 
