@@ -64,7 +64,7 @@ function getInitials(name: string) {
 
 function roleBadgeClass(role: UserRole) {
   if (role === "ADMIN") return "bg-primary/10 text-primary"
-  if (role === "OPERATOR") return "bg-[#f5f3fa] text-[#7c6fa0]"
+  if (role === "OPERATOR") return "bg-role-purple-surface text-role-purple"
   return "bg-muted text-muted-foreground"
 }
 
@@ -167,7 +167,9 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
             Personal Activo
           </p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-4xl font-bold tracking-tight text-primary">{activeUsers}</span>
+            <span className="font-heading text-4xl font-bold tracking-tight text-primary">
+              {activeUsers}
+            </span>
             <span className="text-sm font-medium text-muted-foreground">de {totalUsers}</span>
           </div>
         </Card>
@@ -176,7 +178,9 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
             Administradores
           </p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-4xl font-bold tracking-tight text-foreground">{adminUsers}</span>
+            <span className="font-heading text-4xl font-bold tracking-tight text-foreground">
+              {adminUsers}
+            </span>
             <span className="text-sm font-medium text-muted-foreground">cuentas de control</span>
           </div>
         </Card>
@@ -185,7 +189,9 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
             Auditoría de Acceso
           </p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-4xl font-bold tracking-tight text-foreground">100%</span>
+            <span className="font-heading text-4xl font-bold tracking-tight text-foreground">
+              100%
+            </span>
             <span className="text-sm font-medium text-primary">Trazabilidad</span>
           </div>
         </Card>
@@ -221,7 +227,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
           <DialogContent className="w-[95vw] sm:max-w-xl bg-card p-0 overflow-y-auto max-h-[90vh]">
             <div className="p-6 sm:p-10 flex flex-col gap-8">
               <DialogHeader>
-                <DialogTitle className="text-3xl font-bold tracking-tight text-foreground">
+                <DialogTitle className="font-heading text-3xl font-bold tracking-tight text-foreground">
                   Nuevo Usuario
                 </DialogTitle>
                 <DialogDescription className="text-muted-foreground text-base mt-2">
@@ -339,7 +345,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
         <DialogContent className="w-[95vw] sm:max-w-lg bg-card p-0">
           <div className="p-6 sm:p-10 flex flex-col gap-8">
             <DialogHeader>
-              <DialogTitle className="text-3xl font-bold tracking-tight text-foreground">
+              <DialogTitle className="font-heading text-3xl font-bold tracking-tight text-foreground">
                 Editar Usuario
               </DialogTitle>
               <DialogDescription className="text-muted-foreground text-base mt-1">

@@ -22,6 +22,7 @@ import {
   SidebarMenuItem
 } from "@/components/ui/sidebar"
 import { NavUser } from "@/components/dashboard/nav-user"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 
 const ALL_LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, adminOnly: false },
@@ -49,8 +50,8 @@ export function AppSidebar({
     <Sidebar variant="inset">
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href="/dashboard" />}>
+          <SidebarMenuItem className="flex items-center">
+            <SidebarMenuButton size="lg" render={<Link href="/dashboard" />} className="flex-1">
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <LayoutDashboard className="size-4" />
               </div>
@@ -61,6 +62,7 @@ export function AppSidebar({
                 </span>
               </div>
             </SidebarMenuButton>
+            <ThemeToggle />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

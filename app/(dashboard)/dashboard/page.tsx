@@ -70,6 +70,7 @@ export default async function DashboardPage({
             </Button>
             <Button
               render={<Link href="/dashboard" />}
+              nativeButton={false}
               variant="ghost"
               className="h-9 px-4 text-sm"
             >
@@ -107,9 +108,9 @@ export default async function DashboardPage({
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               Ingresos
             </p>
-            <TrendingUp className="size-4 text-primary" />
+            <TrendingUp className="size-4 text-income" />
           </div>
-          <p className="font-heading text-2xl font-bold tracking-tight text-primary tabular-nums">
+          <p className="font-heading text-2xl font-bold tracking-tight text-income tabular-nums">
             {clp.format(data.kpis.totalIngresos)}
           </p>
           <p className="text-xs text-muted-foreground">
@@ -136,14 +137,18 @@ export default async function DashboardPage({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl bg-card border border-border p-6 flex flex-col gap-4">
           <div className="flex flex-col gap-0.5">
-            <h2 className="text-base font-semibold text-foreground">Ingresos vs Egresos</h2>
+            <h2 className="font-heading text-lg font-semibold tracking-tight text-foreground">
+              Ingresos vs Egresos
+            </h2>
             <p className="text-xs text-muted-foreground">Tendencia por período</p>
           </div>
           <IngresosEgresosChart data={data.serieIngresosEgresos} />
         </div>
         <div className="rounded-xl bg-card border border-border p-6 flex flex-col gap-4">
           <div className="flex flex-col gap-0.5">
-            <h2 className="text-base font-semibold text-foreground">Por categoría</h2>
+            <h2 className="font-heading text-lg font-semibold tracking-tight text-foreground">
+              Por categoría
+            </h2>
             <p className="text-xs text-muted-foreground">Distribución del período</p>
           </div>
           <CategoriaChart data={data.resumenPorCategoria} />
@@ -153,7 +158,9 @@ export default async function DashboardPage({
       {/* ── Recent movements ──────────────────────────────────────── */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-foreground">Últimos movimientos</h2>
+          <h2 className="font-heading text-lg font-semibold tracking-tight text-foreground">
+            Últimos movimientos
+          </h2>
           <Link
             href="/movimientos"
             className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"

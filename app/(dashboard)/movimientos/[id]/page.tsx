@@ -89,6 +89,7 @@ export default async function MovimientoDetallePage({ params }: Props) {
                 variant="outline"
                 className="h-10 px-5"
                 render={<Link href={`/movimientos/${row.id}/editar`} />}
+                nativeButton={false}
               >
                 <Edit className="size-4 text-primary" data-icon="inline-start" />
                 Editar

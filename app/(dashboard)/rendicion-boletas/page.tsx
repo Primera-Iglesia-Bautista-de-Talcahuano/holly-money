@@ -22,8 +22,7 @@ import {
   ItemContent,
   ItemTitle,
   ItemDescription,
-  ItemActions,
-  ItemHeader
+  ItemActions
 } from "@/components/ui/item"
 import { format } from "date-fns"
 import { Plus, Receipt } from "lucide-react"
@@ -249,7 +248,7 @@ export default function RendicionBoletasPage() {
                       </span>
                     </label>
                     {archivo && archivo.type.startsWith("image/") && (
-                      <div className="flex items-center gap-3 rounded-xl bg-primary/5 border border-primary/10 px-4 py-3">
+                      <div className="flex items-center gap-3 rounded-xl bg-income-surface border border-[var(--color-income-border)] px-4 py-3">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={URL.createObjectURL(archivo)}
@@ -288,6 +287,36 @@ export default function RendicionBoletasPage() {
         </Dialog>
       </div>
 
+      {/* Summary strip */}
+      {boletas.length > 0 && (
+        <div className="grid grid-cols-3 gap-4">
+          <div className="rounded-xl bg-card border border-border p-4 sm:p-5 flex flex-col gap-1.5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+              Total boletas
+            </p>
+            <p className="font-heading text-2xl font-bold tracking-tight text-foreground tabular-nums">
+              {boletas.length}
+            </p>
+          </div>
+          <div className="rounded-xl bg-card border border-border p-4 sm:p-5 flex flex-col gap-1.5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+              Pendiente
+            </p>
+            <p className="font-heading text-2xl font-bold tracking-tight text-destructive tabular-nums">
+              {clp.format(boletas.filter((b) => !b.rendida).reduce((s, b) => s + b.monto, 0))}
+            </p>
+          </div>
+          <div className="rounded-xl bg-card border border-border p-4 sm:p-5 flex flex-col gap-1.5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+              Rendido
+            </p>
+            <p className="font-heading text-2xl font-bold tracking-tight text-income tabular-nums">
+              {clp.format(boletas.filter((b) => b.rendida).reduce((s, b) => s + b.monto, 0))}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* List */}
       {boletas.length === 0 ? (
         <Card className="p-0 overflow-hidden">
@@ -308,19 +337,7 @@ export default function RendicionBoletasPage() {
           {boletas.map((boleta) => (
             <Item key={boleta.id} variant="outline">
               <ItemContent>
-                <ItemHeader>
-                  <ItemTitle className="font-bold text-foreground">{boleta.numero}</ItemTitle>
-                  <span
-                    className={cn(
-                      "inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
-                      boleta.rendida
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {boleta.rendida ? "Rendida" : "Pendiente"}
-                  </span>
-                </ItemHeader>
+                <ItemTitle className="font-bold text-foreground">{boleta.numero}</ItemTitle>
                 <ItemDescription>
                   {formatDate(boleta.fecha)} ·{" "}
                   <span className="font-bold text-foreground tabular-nums">
@@ -330,6 +347,14 @@ export default function RendicionBoletasPage() {
                 </ItemDescription>
               </ItemContent>
               <ItemActions>
+                <span
+                  className={cn(
+                    "inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
+                    boleta.rendida ? "badge-income" : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {boleta.rendida ? "Rendida" : "Pendiente"}
+                </span>
                 {boleta.archivo ? (
                   <span className="hidden sm:inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary uppercase tracking-wide">
                     {boleta.archivo.name.split(".").pop()}

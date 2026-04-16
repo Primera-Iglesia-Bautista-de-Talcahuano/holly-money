@@ -1,14 +1,21 @@
 import type { Metadata } from "next"
-import { Manrope, Inter } from "next/font/google"
+import { Roboto, Roboto_Slab } from "next/font/google"
+import { cookies } from "next/headers"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
-
-const manrope = Manrope({
+const roboto = Roboto({
   subsets: ["latin"],
-  variable: "--font-manrope",
+  weight: ["400", "500", "700"],
+  variable: "--font-roboto",
+  display: "swap"
+})
+
+const robotoSlab = Roboto_Slab({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800", "900"],
+  variable: "--font-roboto-slab",
   display: "swap"
 })
 
@@ -17,13 +24,21 @@ export const metadata: Metadata = {
   description: "Sistema de contabilidad para iglesia"
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cookieStore = await cookies()
+  const theme = cookieStore.get("pibt-theme")?.value
+
   return (
-    <html lang="es" className={cn(inter.variable, manrope.variable)}>
+    <html
+      lang="es"
+      suppressHydrationWarning
+      className={cn(roboto.variable, robotoSlab.variable)}
+      {...(theme === "dark" ? { "data-theme": "dark" } : {})}
+    >
       <body className="antialiased min-h-screen font-sans bg-background text-on-surface">
         <TooltipProvider>{children}</TooltipProvider>
       </body>

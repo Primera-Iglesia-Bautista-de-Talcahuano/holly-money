@@ -119,7 +119,7 @@ export function MovimientosTable({
                     </span>
                     <span
                       className={cn(
-                        "inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase",
+                        "inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold tracking-wide uppercase",
                         row.movement_type === "INCOME"
                           ? "bg-primary/10 text-primary"
                           : "bg-destructive/10 text-destructive"
@@ -139,7 +139,7 @@ export function MovimientosTable({
                 <ItemActions>
                   <span
                     className={cn(
-                      "inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase",
+                      "inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold tracking-wide uppercase",
                       row.status === "ACTIVE"
                         ? "bg-primary/5 text-primary/80"
                         : "bg-destructive/5 text-destructive/70"
@@ -342,6 +342,7 @@ export function MovimientosTable({
                   variant="outline"
                   className="h-10 px-5"
                   render={<Link href={`/movimientos/${selected.id}`} />}
+                  nativeButton={false}
                 >
                   Ver detalles
                 </Button>
