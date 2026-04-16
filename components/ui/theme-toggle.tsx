@@ -3,6 +3,7 @@
 import { Moon, Sun } from "lucide-react"
 import { useSyncExternalStore } from "react"
 import { Button } from "@/components/ui/button"
+import { setTheme } from "@/app/actions/theme"
 
 function subscribe(callback: () => void) {
   if (typeof window === "undefined") return () => {}
@@ -12,8 +13,7 @@ function subscribe(callback: () => void) {
 }
 
 const getSnapshot = () =>
-  typeof document !== "undefined" &&
-  document.documentElement.getAttribute("data-theme") === "dark"
+  typeof document !== "undefined" && document.documentElement.getAttribute("data-theme") === "dark"
 
 const getServerSnapshot = () => false
 
@@ -24,11 +24,10 @@ export function ThemeToggle() {
     const next = !dark
     if (next) {
       document.documentElement.setAttribute("data-theme", "dark")
-      document.cookie = "pibt-theme=dark; path=/; max-age=31536000; SameSite=Lax"
     } else {
       document.documentElement.removeAttribute("data-theme")
-      document.cookie = "pibt-theme=; path=/; max-age=0; SameSite=Lax"
     }
+    setTheme(next)
   }
 
   return (

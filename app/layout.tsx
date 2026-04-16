@@ -35,6 +35,7 @@ export default async function RootLayout({
   return (
     <html
       lang="es"
+      suppressHydrationWarning
       className={cn(roboto.variable, robotoSlab.variable)}
       {...(theme === "dark" ? { "data-theme": "dark" } : {})}
     >
