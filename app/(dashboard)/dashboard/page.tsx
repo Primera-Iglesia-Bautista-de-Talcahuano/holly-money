@@ -108,9 +108,9 @@ export default async function DashboardPage({
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               Ingresos
             </p>
-            <TrendingUp className="size-4 text-primary" />
+            <TrendingUp className="size-4 text-income" />
           </div>
-          <p className="font-heading text-2xl font-bold tracking-tight text-primary tabular-nums">
+          <p className="font-heading text-2xl font-bold tracking-tight text-income tabular-nums">
             {clp.format(data.kpis.totalIngresos)}
           </p>
           <p className="text-xs text-muted-foreground">

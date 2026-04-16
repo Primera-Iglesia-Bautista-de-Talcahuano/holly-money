@@ -131,6 +131,32 @@
   }
 }
 
+@layer utilities {
+  /* Income / expense semantic helpers */
+  .badge-income {
+    background-color: var(--color-income-surface);
+    color: var(--color-on-income);
+    border: 1px solid var(--color-income-border);
+  }
+  .badge-expense {
+    background-color: var(--color-expense-surface);
+    color: var(--color-expense);
+    border: 1px solid var(--color-expense-border);
+  }
+  .text-income {
+    color: var(--color-income);
+  }
+  .text-expense {
+    color: var(--color-expense);
+  }
+  .bg-income-surface {
+    background-color: var(--color-income-surface);
+  }
+  .bg-expense-surface {
+    background-color: var(--color-expense-surface);
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #0a2a58;

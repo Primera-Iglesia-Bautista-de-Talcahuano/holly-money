@@ -248,7 +248,7 @@ export default function RendicionBoletasPage() {
                       </span>
                     </label>
                     {archivo && archivo.type.startsWith("image/") && (
-                      <div className="flex items-center gap-3 rounded-xl bg-primary/5 border border-primary/10 px-4 py-3">
+                      <div className="flex items-center gap-3 rounded-xl bg-income-surface border border-[--color-income-border] px-4 py-3">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={URL.createObjectURL(archivo)}
@@ -310,7 +310,7 @@ export default function RendicionBoletasPage() {
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
               Rendido
             </p>
-            <p className="font-heading text-2xl font-bold tracking-tight text-primary tabular-nums">
+            <p className="font-heading text-2xl font-bold tracking-tight text-income tabular-nums">
               {clp.format(boletas.filter((b) => b.rendida).reduce((s, b) => s + b.monto, 0))}
             </p>
           </div>
@@ -350,7 +350,7 @@ export default function RendicionBoletasPage() {
                 <span
                   className={cn(
                     "inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
-                    boleta.rendida ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                    boleta.rendida ? "badge-income" : "bg-muted text-muted-foreground"
                   )}
                 >
                   {boleta.rendida ? "Rendida" : "Pendiente"}
