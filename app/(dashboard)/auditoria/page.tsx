@@ -98,10 +98,10 @@ export default async function AuditoriaPage() {
                     <td className="px-4 py-4 align-middle font-bold text-foreground uppercase tracking-tight text-xs">
                       {event.action}
                     </td>
-                    <td className="px-4 py-4 text-muted-foreground font-medium text-sm">
+                    <td className="px-4 py-4 align-middle text-muted-foreground font-medium text-sm">
                       {event.users?.full_name ?? "—"}
                     </td>
-                    <td className="px-4 py-4 text-muted-foreground italic truncate max-w-xs text-xs">
+                    <td className="px-4 py-4 align-middle text-muted-foreground italic truncate max-w-xs text-xs">
                       {event.note ?? "—"}
                     </td>
                   </tr>
