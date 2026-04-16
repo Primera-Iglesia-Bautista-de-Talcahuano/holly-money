@@ -1,35 +1,38 @@
-type Props = { params: Promise<{ id: string }> };
-import { notFound, redirect } from "next/navigation";
-import { MovimientoForm } from "@/components/movimientos/movimiento-form";
-import { Card } from "@/components/ui/card";
-import { movimientosService } from "@/services/movimientos/movimientos.service";
-import { getCurrentUser } from "@/lib/supabase/server";
-import { canCreateOrEditMovements } from "@/lib/permissions/rbac";
+type Props = { params: Promise<{ id: string }> }
+import { notFound, redirect } from "next/navigation"
+import { MovimientoForm } from "@/components/movimientos/movimiento-form"
+import { movimientosService } from "@/services/movimientos/movimientos.service"
+import { getCurrentUser } from "@/lib/supabase/server"
+import { canCreateOrEditMovements } from "@/lib/permissions/rbac"
 
 export default async function EditarMovimientoPage({ params }: Props) {
-  const { id } = await params;
-  const user = await getCurrentUser();
+  const { id } = await params
+  const user = await getCurrentUser()
   if (!canCreateOrEditMovements(user?.role)) {
-    redirect(`/movimientos/${id}`);
+    redirect(`/movimientos/${id}`)
   }
 
-  let row: Awaited<ReturnType<typeof movimientosService.findById>>;
+  let row: Awaited<ReturnType<typeof movimientosService.findById>>
   try {
-    row = await movimientosService.findById(id);
+    row = await movimientosService.findById(id)
   } catch {
-    notFound();
+    notFound()
   }
 
-  if (row.status === "CANCELLED") redirect(`/movimientos/${id}`);
+  if (row.status === "CANCELLED") redirect(`/movimientos/${id}`)
 
   return (
-    <section className="mx-auto max-w-5xl space-y-8">
-      <Card className="bg-surface-container-lowest p-4 sm:p-8 shadow-[0px_20px_40px_-12px_rgba(25,28,30,0.08)] border-none">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-surface">Editar Movimiento</h1>
-        <p className="mt-1 text-sm text-on-surface-variant font-medium">Solo se permite editar movimientos en estado activo.</p>
-      </Card>
+    <div className="flex flex-col gap-8 max-w-5xl mx-auto">
+      <div className="flex flex-col gap-0.5">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">
+          Editar Movimiento
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Solo se permite editar movimientos en estado activo.
+        </p>
+      </div>
 
-      <Card className="bg-surface-container-lowest p-5 sm:p-10 shadow-[0px_40px_80px_-20px_rgba(25,28,30,0.15)] border-none rounded-[2rem]">
+      <div className="rounded-xl bg-card border border-border p-6 sm:p-10">
         <MovimientoForm
           mode="edit"
           movimientoId={id}
@@ -48,7 +51,7 @@ export default async function EditarMovimientoPage({ params }: Props) {
             notes: row.notes ?? "",
           }}
         />
-      </Card>
-    </section>
-  );
+      </div>
+    </div>
+  )
 }
