@@ -248,7 +248,7 @@ export default function RendicionBoletasPage() {
                       </span>
                     </label>
                     {archivo && archivo.type.startsWith("image/") && (
-                      <div className="flex items-center gap-3 rounded-xl bg-income-surface border border-[--color-income-border] px-4 py-3">
+                      <div className="flex items-center gap-3 rounded-xl bg-income-surface border border-[var(--color-income-border)] px-4 py-3">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={URL.createObjectURL(archivo)}
