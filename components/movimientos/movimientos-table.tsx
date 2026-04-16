@@ -12,6 +12,14 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia
+} from "@/components/ui/empty"
+import { FileSearch } from "lucide-react"
 
 export type SerializedMovimiento = {
   id: string
@@ -153,11 +161,18 @@ export function MovimientosTable({
               ))}
               {!rows.length && (
                 <tr>
-                  <td
-                    className="px-6 py-16 text-center text-sm font-medium text-muted-foreground"
-                    colSpan={6}
-                  >
-                    No hay registros para los filtros seleccionados.
+                  <td colSpan={6}>
+                    <Empty className="border-0 py-16">
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <FileSearch />
+                        </EmptyMedia>
+                        <EmptyTitle>Sin resultados</EmptyTitle>
+                        <EmptyDescription>
+                          No hay registros para los filtros seleccionados.
+                        </EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
                   </td>
                 </tr>
               )}

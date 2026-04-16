@@ -107,6 +107,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
                 <DatePicker
                   value={field.value ? new Date(`${field.value}T12:00:00Z`) : undefined}
                   onChange={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                  className="h-12 sm:h-14"
                 />
               )}
             />

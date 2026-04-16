@@ -1,11 +1,12 @@
+import Link from "next/link"
 import { getCurrentUser } from "@/lib/supabase/server"
 import { canCreateOrEditMovements } from "@/lib/permissions/rbac"
 import { movimientosService } from "@/services/movimientos/movimientos.service"
-import { NewMovimientoDialog } from "@/components/movimientos/new-movimiento-dialog"
 import { MovimientosTable } from "@/components/movimientos/movimientos-table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Plus } from "lucide-react"
 
 type Props = {
   searchParams: Promise<{
@@ -35,7 +36,12 @@ export default async function MovimientosPage({ searchParams }: Props) {
           </h1>
           <p className="text-sm text-muted-foreground">Registro de ingresos y egresos</p>
         </div>
-        {canWrite && <NewMovimientoDialog />}
+        {canWrite && (
+          <Button render={<Link href="/movimientos/nuevo" />} className="gap-2">
+            <Plus data-icon="inline-start" />
+            Nuevo Movimiento
+          </Button>
+        )}
       </div>
 
       {/* ── Filter form ──────────────────────────────────────────── */}

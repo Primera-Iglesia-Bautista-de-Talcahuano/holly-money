@@ -15,7 +15,14 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog"
-import { Plus } from "lucide-react"
+import { Plus, Users } from "lucide-react"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia
+} from "@/components/ui/empty"
 
 type UsuarioRow = {
   id: string
@@ -379,11 +386,17 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
           </div>
 
           {!users.length && (
-            <div className="p-16 text-center">
-              <p className="text-sm text-muted-foreground">
-                No hay usuarios registrados en el equipo ministerial.
-              </p>
-            </div>
+            <Empty className="border-0 py-16">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <Users />
+                </EmptyMedia>
+                <EmptyTitle>Sin usuarios</EmptyTitle>
+                <EmptyDescription>
+                  No hay usuarios registrados en el equipo ministerial.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
           )}
         </Card>
       </div>
