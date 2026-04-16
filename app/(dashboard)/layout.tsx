@@ -14,7 +14,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   const initials = user.name
-    ? user.name.split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase()
+    ? user.name
+        .split(" ")
+        .map((n: string) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
     : "U"
 
   const links = [
@@ -23,9 +28,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
     ...(user.role === "ADMIN"
       ? [
           { href: "/usuarios", label: "Usuarios", icon: <Users className="size-4" /> },
-          { href: "/configuracion", label: "Configuración", icon: <Settings className="size-4" /> },
+          { href: "/configuracion", label: "Configuración", icon: <Settings className="size-4" /> }
         ]
-      : []),
+      : [])
   ]
 
   return (
@@ -44,10 +49,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
         {/* New movement CTA */}
         <div className="px-4 pb-4">
-          <Button
-            render={<Link href="/movimientos/nuevo" />}
-            className="w-full gap-2 text-sm"
-          >
+          <Button render={<Link href="/movimientos/nuevo" />} className="w-full gap-2 text-sm">
             <Plus className="size-4" data-icon="inline-start" />
             Nuevo Movimiento
           </Button>
@@ -65,8 +67,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <span className="text-[11px] font-bold text-primary">{initials}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate leading-tight">{user.name}</p>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wide truncate">{user.role}</p>
+              <p className="text-sm font-semibold text-foreground truncate leading-tight">
+                {user.name}
+              </p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wide truncate">
+                {user.role}
+              </p>
             </div>
           </div>
           <div className="mt-3">
@@ -107,7 +113,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
-                      <p className="text-[11px] text-muted-foreground uppercase tracking-wide truncate">{user.role}</p>
+                      <p className="text-[11px] text-muted-foreground uppercase tracking-wide truncate">
+                        {user.role}
+                      </p>
                     </div>
                   </div>
                   <div className="mt-3">
@@ -135,9 +143,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Plus className="size-6" />
         </Link>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-h-0 overflow-x-hidden">
-          {children}
-        </main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-h-0 overflow-x-hidden">{children}</main>
       </div>
     </div>
   )

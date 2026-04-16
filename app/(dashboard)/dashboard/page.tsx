@@ -12,7 +12,7 @@ import { TrendingUp, TrendingDown } from "lucide-react"
 const clp = new Intl.NumberFormat("es-CL", {
   style: "currency",
   currency: "CLP",
-  maximumFractionDigits: 0,
+  maximumFractionDigits: 0
 })
 
 type DashboardSearchParams = {
@@ -21,7 +21,7 @@ type DashboardSearchParams = {
 }
 
 export default async function DashboardPage({
-  searchParams,
+  searchParams
 }: {
   searchParams?: Promise<DashboardSearchParams>
 }) {
@@ -29,7 +29,7 @@ export default async function DashboardPage({
   const to = (await searchParams)?.to
   const [data, user] = await Promise.all([
     dashboardService.getResumen({ from, to }),
-    getCurrentUser(),
+    getCurrentUser()
   ])
   const canWrite = canCreateOrEditMovements(user?.role)
 
@@ -38,20 +38,28 @@ export default async function DashboardPage({
       {/* ── Page header ───────────────────────────────────────────── */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-0.5">
-          <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
+          <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">
+            Dashboard
+          </h1>
           <p className="text-sm text-muted-foreground">Resumen financiero de actividades</p>
         </div>
 
         {/* Date filter */}
         <form className="flex flex-wrap items-end gap-3" method="get">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="from" className="text-[11px] uppercase tracking-[0.05em] text-muted-foreground">
+            <Label
+              htmlFor="from"
+              className="text-[11px] uppercase tracking-[0.05em] text-muted-foreground"
+            >
               Desde
             </Label>
             <DatePicker name="from" defaultValue={from} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="to" className="text-[11px] uppercase tracking-[0.05em] text-muted-foreground">
+            <Label
+              htmlFor="to"
+              className="text-[11px] uppercase tracking-[0.05em] text-muted-foreground"
+            >
               Hasta
             </Label>
             <DatePicker name="to" defaultValue={to} />
@@ -60,7 +68,11 @@ export default async function DashboardPage({
             <Button type="submit" variant="outline" className="h-9 px-4 text-sm">
               Filtrar
             </Button>
-            <Button render={<Link href="/dashboard" />} variant="ghost" className="h-9 px-4 text-sm">
+            <Button
+              render={<Link href="/dashboard" />}
+              variant="ghost"
+              className="h-9 px-4 text-sm"
+            >
               Limpiar
             </Button>
           </div>
@@ -170,9 +182,8 @@ export default async function DashboardPage({
               cancellation_reason: null,
               status: row.status,
               created_by: {
-                full_name:
-                  (row.created_by as { full_name: string } | null)?.full_name ?? "",
-              },
+                full_name: (row.created_by as { full_name: string } | null)?.full_name ?? ""
+              }
             }))}
           />
         </div>
