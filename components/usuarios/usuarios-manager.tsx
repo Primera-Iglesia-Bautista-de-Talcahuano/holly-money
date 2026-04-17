@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { cn } from "@/lib/utils"
 import type { UserRole } from "@/types/auth"
@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/item"
 import { createUsuarioSchema, updateUsuarioSchema } from "@/lib/validators/usuario"
 import type { CreateUsuarioInput, UpdateUsuarioInput } from "@/lib/validators/usuario"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { toast } from "sonner"
 
 type UserStatus = "ACTIVE" | "INACTIVE" | "PENDING_ACTIVATION" | "PENDING_RESET"
@@ -119,6 +120,8 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
     resolver: zodResolver(createUsuarioSchema),
     defaultValues: { full_name: "", email: "", role: "OPERATOR" }
   })
+
+  const selectedRole = useWatch({ control: createForm.control, name: "role" })
 
   const handleCreate = async (values: CreateUsuarioInput) => {
     const res = await fetch("/api/usuarios", {
@@ -345,6 +348,35 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     <option value="VIEWER">VIEWER — Solo Lectura</option>
                   </NativeSelect>
                 </div>
+
+                {selectedRole === "ADMIN" && (
+                  <Alert variant="warning">
+                    <AlertTitle>Acceso total al sistema</AlertTitle>
+                    <AlertDescription>
+                      Puede invitar y eliminar usuarios, ver todos los movimientos, crear y anular
+                      registros contables, y acceder a los reportes. Asigna este rol solo a
+                      personas de plena confianza.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {selectedRole === "OPERATOR" && (
+                  <Alert variant="info">
+                    <AlertTitle>Ingreso y gestión de movimientos</AlertTitle>
+                    <AlertDescription>
+                      Puede crear, editar y anular movimientos contables. No puede gestionar
+                      usuarios ni acceder a configuraciones del sistema.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {selectedRole === "VIEWER" && (
+                  <Alert variant="info">
+                    <AlertTitle>Solo lectura</AlertTitle>
+                    <AlertDescription>
+                      Puede consultar movimientos y reportes, pero no puede crear, editar ni
+                      anular ningún registro. Ideal para revisores o auditores externos.
+                    </AlertDescription>
+                  </Alert>
+                )}
 
                 <div className="flex flex-col gap-3 pt-4 border-t border-border">
                   <Button
