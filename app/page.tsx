@@ -64,8 +64,8 @@ export default async function LoginPage() {
 
           <Suspense>
             <LoginPageEffects />
+            <LoginForm />
           </Suspense>
-          <LoginForm />
 
           <p className="text-center text-xs text-muted-foreground">
             Acceso restringido a personal autorizado
