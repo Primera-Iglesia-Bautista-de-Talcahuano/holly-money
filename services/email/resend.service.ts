@@ -11,6 +11,28 @@ function formatAmount(amount: number): string {
   }).format(amount)
 }
 
+function buildEmailText(movement: MovementIntegrationPayload): string {
+  const fields: [string, string | number | undefined | null][] = [
+    ["Folio", movement.folio],
+    ["Fecha", movement.fechaMovimiento],
+    ["Tipo", movement.tipo],
+    ["Monto", formatAmount(movement.monto)],
+    ["Categoría", movement.categoria],
+    ["Concepto", movement.concepto],
+    ["Referente", movement.referente],
+    ["Recibido por", movement.recibidoPor],
+    ["Entregado por", movement.entregadoPor],
+    ["Medio de pago", movement.medioPago],
+    ["N° respaldo", movement.numeroRespaldo],
+    ["Observaciones", movement.observaciones],
+    ["Registrado por", movement.registradoPor]
+  ]
+  const lines = fields
+    .filter(([, v]) => v != null && v !== "")
+    .map(([k, v]) => `${k}: ${v}`)
+  return [`${ORG_NAME}`, ``, `Nuevo movimiento registrado:`, ``, ...lines, ``].join("\n")
+}
+
 function buildEmailHtml(movement: MovementIntegrationPayload): string {
   const rows = [
     ["Folio", movement.folio],
@@ -82,7 +104,8 @@ export async function sendMovementEmail(
     from: "Sistema contable PIBT <noreply@pibtalcahuano.com>",
     to: [process.env.NOTIFICATION_EMAIL, movement.registradoEmail].filter(Boolean) as string[],
     subject: `[${movement.tipo}] Folio ${movement.folio} - ${movement.concepto}`,
-    html: buildEmailHtml(movement)
+    html: buildEmailHtml(movement),
+    text: buildEmailText(movement)
   })
 
   if (error) return { ok: false, error: error.message }
