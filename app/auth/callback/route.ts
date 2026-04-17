@@ -11,6 +11,12 @@ export async function GET(request: Request) {
   }
 
   const supabase = await createSupabaseServerClient()
+
+  // Sign out any active session before accepting the invite/recovery code.
+  // Without this, an admin clicking an invite link would silently switch
+  // into the new user's account and end up on /activar.
+  await supabase.auth.signOut()
+
   const { error } = await supabase.auth.exchangeCodeForSession(code)
 
   if (error) {
