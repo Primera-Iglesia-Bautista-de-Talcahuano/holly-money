@@ -28,11 +28,12 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
-  const isLoginPage = pathname === "/"
+  const isPublicPath =
+    pathname === "/" || pathname.startsWith("/auth/callback") || pathname.startsWith("/activar")
 
   // Unauthenticated user trying to access a protected page → send to login
   // Authenticated users at "/" are handled by the page component (server-side redirect)
-  if (!user && !isLoginPage) {
+  if (!user && !isPublicPath) {
     const url = request.nextUrl.clone()
     url.pathname = "/"
     return NextResponse.redirect(url)

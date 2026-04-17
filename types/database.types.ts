@@ -273,30 +273,30 @@ export type Database = {
       }
       users: {
         Row: {
-          active: boolean
           created_at: string
           email: string
           full_name: string
           id: string
           role: Database["public"]["Enums"]["user_role"]
+          status: Database["public"]["Enums"]["user_status"]
           updated_at: string
         }
         Insert: {
-          active?: boolean
           created_at?: string
           email: string
           full_name: string
           id: string
           role?: Database["public"]["Enums"]["user_role"]
+          status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string
         }
         Update: {
-          active?: boolean
           created_at?: string
           email?: string
           full_name?: string
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
+          status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string
         }
         Relationships: []
@@ -331,6 +331,11 @@ export type Database = {
       notification_status: "PENDING" | "SENT" | "ERROR"
       pdf_status: "PENDING" | "GENERATED" | "ERROR"
       user_role: "ADMIN" | "OPERATOR" | "VIEWER"
+      user_status:
+        | "ACTIVE"
+        | "INACTIVE"
+        | "PENDING_ACTIVATION"
+        | "PENDING_RESET"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -466,6 +471,12 @@ export const Constants = {
       notification_status: ["PENDING", "SENT", "ERROR"],
       pdf_status: ["PENDING", "GENERATED", "ERROR"],
       user_role: ["ADMIN", "OPERATOR", "VIEWER"],
+      user_status: [
+        "ACTIVE",
+        "INACTIVE",
+        "PENDING_ACTIVATION",
+        "PENDING_RESET",
+      ],
     },
   },
 } as const

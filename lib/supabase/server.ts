@@ -1,9 +1,9 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import type { Database } from "@/types/database.types";
+import { createServerClient } from "@supabase/ssr"
+import { cookies } from "next/headers"
+import type { Database } from "@/types/database.types"
 
 export async function createSupabaseServerClient() {
-  const cookieStore = await cookies();
+  const cookieStore = await cookies()
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,44 +11,44 @@ export async function createSupabaseServerClient() {
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          return cookieStore.getAll()
         },
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            );
+              cookieStore.set(name, value, options)
+            )
           } catch {
             // setAll called from a Server Component — cookies can't be set,
             // but middleware handles session refresh so this is safe to ignore.
           }
-        },
-      },
-    },
-  );
+        }
+      }
+    }
+  )
 }
 
 export async function getCurrentUser() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient()
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { user }
+  } = await supabase.auth.getUser()
 
-  if (!user) return null;
+  if (!user) return null
 
   const { data: profile } = await supabase
     .from("users")
-    .select("id, full_name, role, active")
+    .select("id, full_name, role, status")
     .eq("id", user.id)
-    .single();
+    .single()
 
-  if (!profile || !profile.active) return null;
+  if (!profile || profile.status !== "ACTIVE") return null
 
   return {
     id: profile.id,
     email: user.email ?? "",
     name: profile.full_name,
     role: profile.role,
-    active: profile.active,
-  };
+    status: profile.status
+  }
 }

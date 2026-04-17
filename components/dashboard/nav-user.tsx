@@ -18,7 +18,8 @@ import {
   SidebarMenuItem,
   useSidebar
 } from "@/components/ui/sidebar"
-import { ChevronsUpDown, LogOut } from "lucide-react"
+import { ChevronsUpDown, LogOut, UserCircle } from "lucide-react"
+import Link from "next/link"
 
 export function NavUser({
   user
@@ -87,6 +88,11 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <DropdownMenuItem render={<Link href="/perfil" />}>
+                <UserCircle />
+                Mi perfil
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => void handleSignOut()}>
                 <LogOut />
                 Cerrar Sesión

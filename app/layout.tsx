@@ -4,6 +4,7 @@ import { cookies } from "next/headers"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { Toaster } from "@/components/ui/sonner"
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -41,6 +42,7 @@ export default async function RootLayout({
     >
       <body className="antialiased min-h-screen font-sans bg-background text-on-surface">
         <TooltipProvider>{children}</TooltipProvider>
+        <Toaster />
       </body>
     </html>
   )
