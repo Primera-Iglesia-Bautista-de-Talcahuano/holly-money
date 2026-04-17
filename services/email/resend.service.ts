@@ -92,7 +92,8 @@ export async function sendMovementEmail(
 // ─── Auth email helpers ───────────────────────────────────────────────────────
 
 const ORG_SHORT = "Sistema Contable PIBT"
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "Sistema contable PIBT <noreply@pibtalcahuano.com>"
+const FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL ?? "Sistema contable PIBT <noreply@pibtalcahuano.com>"
 
 function buildAuthEmailHtml(opts: {
   title: string

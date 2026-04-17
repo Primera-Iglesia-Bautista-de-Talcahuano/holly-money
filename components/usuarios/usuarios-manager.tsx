@@ -354,8 +354,8 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     <AlertTitle>Acceso total al sistema</AlertTitle>
                     <AlertDescription>
                       Puede invitar y eliminar usuarios, ver todos los movimientos, crear y anular
-                      registros contables, y acceder a los reportes. Asigna este rol solo a
-                      personas de plena confianza.
+                      registros contables, y acceder a los reportes. Asigna este rol solo a personas
+                      de plena confianza.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -372,8 +372,8 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                   <Alert variant="info">
                     <AlertTitle>Solo lectura</AlertTitle>
                     <AlertDescription>
-                      Puede consultar movimientos y reportes, pero no puede crear, editar ni
-                      anular ningún registro. Ideal para revisores o auditores externos.
+                      Puede consultar movimientos y reportes, pero no puede crear, editar ni anular
+                      ningún registro. Ideal para revisores o auditores externos.
                     </AlertDescription>
                   </Alert>
                 )}
