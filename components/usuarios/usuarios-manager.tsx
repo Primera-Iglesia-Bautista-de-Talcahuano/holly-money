@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/item"
 import { createUsuarioSchema, updateUsuarioSchema } from "@/lib/validators/usuario"
 import type { CreateUsuarioInput, UpdateUsuarioInput } from "@/lib/validators/usuario"
+import { toast } from "sonner"
 
 type UserStatus = "ACTIVE" | "INACTIVE" | "PENDING_ACTIVATION" | "PENDING_RESET"
 
@@ -99,7 +100,6 @@ function statusMeta(status: UserStatus): StatusMeta {
 
 export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }) {
   const [users, setUsers] = useState<UsuarioRow[]>(initialUsers)
-  const [globalError, setGlobalError] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<UsuarioRow | null>(null)
   const [deletingUser, setDeletingUser] = useState<UsuarioRow | null>(null)
@@ -121,7 +121,6 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
   })
 
   const handleCreate = async (values: CreateUsuarioInput) => {
-    setGlobalError(null)
     const res = await fetch("/api/usuarios", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -129,13 +128,14 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
     })
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { message?: string }
-      setGlobalError(data.message ?? "No se pudo crear el usuario.")
+      toast.error(data.message ?? "No se pudo crear el usuario.")
       return
     }
     const created = (await res.json()) as UsuarioRow
     setUsers((prev) => [...prev, created])
     createForm.reset()
     setCreateOpen(false)
+    toast.success("Invitación enviada", { description: `Se envió el correo a ${created.email}` })
   }
 
   // ── Edit form ─────────────────────────────────────────────────────────────────
@@ -154,7 +154,6 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
   }
 
   const handleUpdate = async (values: UpdateUsuarioInput) => {
-    setGlobalError(null)
     const res = await fetch(`/api/usuarios/${values.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -162,43 +161,45 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
     })
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { message?: string }
-      setGlobalError(data.message ?? "No se pudo actualizar el usuario.")
+      toast.error(data.message ?? "No se pudo actualizar el usuario.")
       return
     }
     const updated = (await res.json()) as UsuarioRow
     setUsers((prev) => prev.map((u) => (u.id === updated.id ? { ...u, ...updated } : u)))
     setEditingUser(null)
+    toast.success("Usuario actualizado")
   }
 
   // ── Delete account ────────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!deletingUser) return
     setDeleteLoading(true)
-    setGlobalError(null)
     const res = await fetch(`/api/usuarios/${deletingUser.id}`, { method: "DELETE" })
     setDeleteLoading(false)
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { message?: string }
-      setGlobalError(data.message ?? "No se pudo eliminar el usuario.")
+      toast.error(data.message ?? "No se pudo eliminar el usuario.")
       setDeletingUser(null)
       return
     }
+    const name = deletingUser.full_name
     setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id))
     setDeletingUser(null)
+    toast.success("Usuario eliminado", { description: name })
   }
 
   // ── Reset account ─────────────────────────────────────────────────────────────
   const handleReset = async (userId: string) => {
-    setGlobalError(null)
     const res = await fetch(`/api/usuarios/${userId}/reset`, { method: "POST" })
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { message?: string }
-      setGlobalError(data.message ?? "No se pudo resetear la cuenta.")
+      toast.error(data.message ?? "No se pudo resetear la cuenta.")
       return
     }
     setUsers((prev) =>
       prev.map((u) => (u.id === userId ? { ...u, status: "PENDING_RESET" as UserStatus } : u))
     )
+    toast.success("Correo de restablecimiento enviado")
   }
 
   const totalUsers = users.length
@@ -243,12 +244,6 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
           </div>
         </Card>
       </div>
-
-      {globalError && (
-        <p className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm font-medium text-destructive text-center">
-          {globalError}
-        </p>
-      )}
 
       {/* Search + invite */}
       <div className="flex gap-3 items-center">
@@ -467,7 +462,12 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
       </Dialog>
 
       {/* Delete confirmation dialog */}
-      <Dialog open={!!deletingUser} onOpenChange={(o) => { if (!o) setDeletingUser(null) }}>
+      <Dialog
+        open={!!deletingUser}
+        onOpenChange={(o) => {
+          if (!o) setDeletingUser(null)
+        }}
+      >
         <DialogContent className="w-[95vw] sm:max-w-sm bg-card p-0">
           <div className="p-6 sm:p-8 flex flex-col gap-5">
             <DialogHeader>
@@ -475,8 +475,8 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                 Eliminar usuario
               </DialogTitle>
               <DialogDescription className="text-muted-foreground text-sm mt-1">
-                ¿Eliminar a <strong>{deletingUser?.full_name}</strong> ({deletingUser?.email})?
-                Esta acción no se puede deshacer. Se cancelará cualquier invitación pendiente.
+                ¿Eliminar a <strong>{deletingUser?.full_name}</strong> ({deletingUser?.email})? Esta
+                acción no se puede deshacer. Se cancelará cualquier invitación pendiente.
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-2 pt-2 border-t border-border">
@@ -488,11 +488,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
               >
                 {deleteLoading ? "Eliminando..." : "Sí, eliminar"}
               </Button>
-              <Button
-                variant="outline"
-                className="h-10"
-                onClick={() => setDeletingUser(null)}
-              >
+              <Button variant="outline" className="h-10" onClick={() => setDeletingUser(null)}>
                 Cancelar
               </Button>
             </div>
