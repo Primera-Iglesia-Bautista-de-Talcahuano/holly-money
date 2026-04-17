@@ -50,3 +50,6 @@ prisma/*.db-journal
 
 # superpowers brainstorm artifacts
 .superpowers/
+
+# git worktrees
+.worktrees/
