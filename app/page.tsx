@@ -1,6 +1,8 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { LoginForm } from "@/components/auth/login-form"
+import { LoginPageEffects } from "@/components/auth/login-page-effects"
 
 export default async function LoginPage() {
   const supabase = await createSupabaseServerClient()
@@ -23,12 +25,7 @@ export default async function LoginPage() {
         <div className="relative z-10 max-w-sm text-center flex flex-col gap-5">
           {/* Cross icon */}
           <div className="mx-auto flex size-14 items-center justify-center rounded-xl bg-white/15">
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              className="size-7"
-              fill="currentColor"
-            >
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="size-7" fill="currentColor">
               <path d="M11 2h2v7h7v2h-7v11h-2V11H4V9h7V2z" />
             </svg>
           </div>
@@ -65,6 +62,9 @@ export default async function LoginPage() {
             <p className="text-sm text-muted-foreground">Ingresa tus credenciales para continuar</p>
           </div>
 
+          <Suspense>
+            <LoginPageEffects />
+          </Suspense>
           <LoginForm />
 
           <p className="text-center text-xs text-muted-foreground">

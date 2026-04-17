@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { cn } from "@/lib/utils"
 import type { UserRole } from "@/types/auth"
 import { Card } from "@/components/ui/card"
@@ -16,7 +18,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { NativeSelect } from "@/components/ui/native-select"
-import { Plus, Users, Search } from "lucide-react"
+import { Plus, Users, Search, RotateCcw } from "lucide-react"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 import {
   Item,
@@ -26,30 +28,18 @@ import {
   ItemDescription,
   ItemActions
 } from "@/components/ui/item"
+import { createUsuarioSchema, updateUsuarioSchema } from "@/lib/validators/usuario"
+import type { CreateUsuarioInput, UpdateUsuarioInput } from "@/lib/validators/usuario"
+
+type UserStatus = "ACTIVE" | "INACTIVE" | "PENDING_ACTIVATION" | "PENDING_RESET"
 
 type UsuarioRow = {
   id: string
   full_name: string
   email: string
   role: UserRole
-  active: boolean
+  status: UserStatus
   created_at: string | Date
-}
-
-type NewUserForm = {
-  full_name: string
-  email: string
-  password: string
-  role: UserRole
-  active: boolean
-}
-
-const defaultNewUser: NewUserForm = {
-  full_name: "",
-  email: "",
-  password: "",
-  role: "OPERATOR",
-  active: true
 }
 
 function getInitials(name: string) {
@@ -74,24 +64,31 @@ function roleLabel(role: UserRole) {
   return "Visor"
 }
 
+type StatusMeta = { label: string; dotClass: string; rowOpacity: boolean }
+
+function statusMeta(status: UserStatus): StatusMeta {
+  switch (status) {
+    case "ACTIVE":
+      return { label: "Activo", dotClass: "bg-primary", rowOpacity: false }
+    case "INACTIVE":
+      return { label: "Inactivo", dotClass: "bg-muted-foreground/30", rowOpacity: true }
+    case "PENDING_ACTIVATION":
+      return {
+        label: "Pendiente activación",
+        dotClass: "bg-yellow-400",
+        rowOpacity: false
+      }
+    case "PENDING_RESET":
+      return { label: "Pendiente reset", dotClass: "bg-orange-400", rowOpacity: false }
+  }
+}
+
 export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }) {
   const [users, setUsers] = useState<UsuarioRow[]>(initialUsers)
-  const [error, setError] = useState<string | null>(null)
-  const [newUser, setNewUser] = useState<NewUserForm>(defaultNewUser)
-  const [submitting, setSubmitting] = useState(false)
-  const [inviteOpen, setInviteOpen] = useState(false)
-
-  // Search
-  const [search, setSearch] = useState("")
-
-  // Edit dialog
-  const [editOpen, setEditOpen] = useState(false)
+  const [globalError, setGlobalError] = useState<string | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<UsuarioRow | null>(null)
-  const [editDraft, setEditDraft] = useState<{
-    full_name: string
-    role: UserRole
-    active: boolean
-  }>({ full_name: "", role: "OPERATOR", active: true })
+  const [search, setSearch] = useState("")
 
   const filtered = useMemo(() => {
     if (!search.trim()) return users
@@ -101,61 +98,78 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
     )
   }, [users, search])
 
-  function openEdit(user: UsuarioRow) {
-    setEditDraft({ full_name: user.full_name, role: user.role, active: user.active })
-    setEditingUser(user)
-    setEditOpen(true)
-  }
+  // ── Create form ──────────────────────────────────────────────────────────────
+  const createForm = useForm<CreateUsuarioInput>({
+    resolver: zodResolver(createUsuarioSchema),
+    defaultValues: { full_name: "", email: "", role: "OPERATOR" }
+  })
 
-  async function createUser(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setSubmitting(true)
-    setError(null)
-
+  const handleCreate = async (values: CreateUsuarioInput) => {
+    setGlobalError(null)
     const res = await fetch("/api/usuarios", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newUser)
+      body: JSON.stringify(values)
     })
-
-    setSubmitting(false)
     if (!res.ok) {
-      const payload = (await res.json().catch(() => ({}))) as { message?: string }
-      setError(payload.message ?? "No se pudo crear usuario.")
+      const data = (await res.json().catch(() => ({}))) as { message?: string }
+      setGlobalError(data.message ?? "No se pudo crear el usuario.")
       return
     }
-
     const created = (await res.json()) as UsuarioRow
     setUsers((prev) => [...prev, created])
-    setNewUser(defaultNewUser)
-    setInviteOpen(false)
+    createForm.reset()
+    setCreateOpen(false)
   }
 
-  async function saveEdit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (!editingUser) return
-    setSubmitting(true)
-    setError(null)
+  // ── Edit form ─────────────────────────────────────────────────────────────────
+  const editForm = useForm<UpdateUsuarioInput>({
+    resolver: zodResolver(updateUsuarioSchema)
+  })
 
-    const res = await fetch(`/api/usuarios/${editingUser.id}`, {
+  function openEdit(user: UsuarioRow) {
+    setEditingUser(user)
+    editForm.reset({
+      id: user.id,
+      full_name: user.full_name,
+      role: user.role,
+      status: user.status
+    })
+  }
+
+  const handleUpdate = async (values: UpdateUsuarioInput) => {
+    setGlobalError(null)
+    const res = await fetch(`/api/usuarios/${values.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editDraft)
+      body: JSON.stringify(values)
     })
-
-    setSubmitting(false)
     if (!res.ok) {
-      const payload = (await res.json().catch(() => ({}))) as { message?: string }
-      setError(payload.message ?? `No se pudo actualizar ${editingUser.email}.`)
+      const data = (await res.json().catch(() => ({}))) as { message?: string }
+      setGlobalError(data.message ?? "No se pudo actualizar el usuario.")
       return
     }
+    const updated = (await res.json()) as UsuarioRow
+    setUsers((prev) => prev.map((u) => (u.id === updated.id ? { ...u, ...updated } : u)))
+    setEditingUser(null)
+  }
 
-    setUsers((prev) => prev.map((u) => (u.id === editingUser.id ? { ...u, ...editDraft } : u)))
-    setEditOpen(false)
+  // ── Reset account ─────────────────────────────────────────────────────────────
+  const handleReset = async (userId: string) => {
+    setGlobalError(null)
+    const res = await fetch(`/api/usuarios/${userId}/reset`, { method: "POST" })
+    if (!res.ok) {
+      const data = (await res.json().catch(() => ({}))) as { message?: string }
+      setGlobalError(data.message ?? "No se pudo resetear la cuenta.")
+      return
+    }
+    setUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, status: "PENDING_RESET" as UserStatus } : u))
+    )
   }
 
   const totalUsers = users.length
-  const activeUsers = users.filter((u) => u.active).length
+  const activeUsers = users.filter((u) => u.status === "ACTIVE").length
   const adminUsers = users.filter((u) => u.role === "ADMIN").length
 
   return (
@@ -197,9 +211,9 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
         </Card>
       </div>
 
-      {error && (
+      {globalError && (
         <p className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm font-medium text-destructive text-center">
-          {error}
+          {globalError}
         </p>
       )}
 
@@ -215,7 +229,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
           />
         </div>
 
-        <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger
             render={
               <Button className="h-11 px-5 shrink-0">
@@ -228,14 +242,17 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
             <div className="p-6 sm:p-10 flex flex-col gap-8">
               <DialogHeader>
                 <DialogTitle className="font-heading text-3xl font-bold tracking-tight text-foreground">
-                  Nuevo Usuario
+                  Invitar Usuario
                 </DialogTitle>
                 <DialogDescription className="text-muted-foreground text-base mt-2">
-                  Ingrese las credenciales para invitar a un nuevo colaborador al sistema.
+                  Se enviará un correo de activación. El usuario establecerá su propia contraseña.
                 </DialogDescription>
               </DialogHeader>
 
-              <form onSubmit={createUser} className="flex flex-col gap-6">
+              <form
+                onSubmit={createForm.handleSubmit(handleCreate)}
+                className="flex flex-col gap-6"
+              >
                 <div className="flex items-center gap-4">
                   <div className="h-px flex-1 bg-border" />
                   <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-muted-foreground">
@@ -254,10 +271,15 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                   <Input
                     id="new-full_name"
                     placeholder="Ej: Juan Pérez"
-                    value={newUser.full_name}
-                    onChange={(e) => setNewUser((s) => ({ ...s, full_name: e.target.value }))}
+                    aria-invalid={!!createForm.formState.errors.full_name}
                     className="h-12 bg-muted border-none shadow-none rounded-xl px-5 text-base font-medium"
+                    {...createForm.register("full_name")}
                   />
+                  {createForm.formState.errors.full_name && (
+                    <p className="text-xs text-destructive ml-1">
+                      {createForm.formState.errors.full_name.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -271,27 +293,15 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     id="new-email"
                     type="email"
                     placeholder="usuario@ejemplo.com"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser((s) => ({ ...s, email: e.target.value }))}
+                    aria-invalid={!!createForm.formState.errors.email}
                     className="h-12 bg-muted border-none shadow-none rounded-xl px-5 text-base font-medium"
+                    {...createForm.register("email")}
                   />
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <Label
-                    htmlFor="new-password"
-                    className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
-                  >
-                    Contraseña de Activación
-                  </Label>
-                  <Input
-                    id="new-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={newUser.password}
-                    onChange={(e) => setNewUser((s) => ({ ...s, password: e.target.value }))}
-                    className="h-12 bg-muted border-none shadow-none rounded-xl px-5 text-base font-medium"
-                  />
+                  {createForm.formState.errors.email && (
+                    <p className="text-xs text-destructive ml-1">
+                      {createForm.formState.errors.email.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -301,14 +311,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                   >
                     Nivel de Acceso
                   </Label>
-                  <NativeSelect
-                    id="new-role"
-                    className="w-full"
-                    value={newUser.role}
-                    onChange={(e) =>
-                      setNewUser((s) => ({ ...s, role: e.target.value as UserRole }))
-                    }
-                  >
+                  <NativeSelect id="new-role" className="w-full" {...createForm.register("role")}>
                     <option value="ADMIN">ADMIN — Control del Sistema</option>
                     <option value="OPERATOR">OPERATOR — Ingreso de Datos</option>
                     <option value="VIEWER">VIEWER — Solo Lectura</option>
@@ -316,13 +319,19 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                 </div>
 
                 <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                  <Button type="submit" disabled={submitting} className="h-11 text-sm">
-                    {submitting ? "Procesando..." : "Confirmar & Registrar Usuario"}
+                  <Button
+                    type="submit"
+                    disabled={createForm.formState.isSubmitting}
+                    className="h-11 text-sm"
+                  >
+                    {createForm.formState.isSubmitting
+                      ? "Enviando invitación..."
+                      : "Enviar Invitación"}
                   </Button>
                   <Button
                     variant="outline"
                     type="button"
-                    onClick={() => setInviteOpen(false)}
+                    onClick={() => setCreateOpen(false)}
                     className="h-11"
                   >
                     Cancelar
@@ -341,7 +350,12 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
       </p>
 
       {/* Edit dialog */}
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+      <Dialog
+        open={!!editingUser}
+        onOpenChange={(o) => {
+          if (!o) setEditingUser(null)
+        }}
+      >
         <DialogContent className="w-[95vw] sm:max-w-lg bg-card p-0">
           <div className="p-6 sm:p-10 flex flex-col gap-8">
             <DialogHeader>
@@ -353,7 +367,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
               </DialogDescription>
             </DialogHeader>
 
-            <form onSubmit={saveEdit} className="flex flex-col gap-5">
+            <form onSubmit={editForm.handleSubmit(handleUpdate)} className="flex flex-col gap-5">
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="edit-full_name"
@@ -363,10 +377,15 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                 </Label>
                 <Input
                   id="edit-full_name"
-                  value={editDraft.full_name}
-                  onChange={(e) => setEditDraft((s) => ({ ...s, full_name: e.target.value }))}
+                  aria-invalid={!!editForm.formState.errors.full_name}
                   className="h-12 bg-muted border-none rounded-xl px-5 text-base font-medium"
+                  {...editForm.register("full_name")}
                 />
+                {editForm.formState.errors.full_name && (
+                  <p className="text-xs text-destructive ml-1">
+                    {editForm.formState.errors.full_name.message}
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-col gap-2">
@@ -376,56 +395,34 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                 >
                   Nivel de Acceso
                 </Label>
-                <NativeSelect
-                  id="edit-role"
-                  className="w-full"
-                  value={editDraft.role}
-                  onChange={(e) =>
-                    setEditDraft((s) => ({ ...s, role: e.target.value as UserRole }))
-                  }
-                >
+                <NativeSelect id="edit-role" className="w-full" {...editForm.register("role")}>
                   <option value="ADMIN">ADMIN — Control del Sistema</option>
                   <option value="OPERATOR">OPERATOR — Ingreso de Datos</option>
                   <option value="VIEWER">VIEWER — Solo Lectura</option>
                 </NativeSelect>
               </div>
 
-              <label className="flex items-center justify-between rounded-xl bg-muted px-5 h-12 cursor-pointer">
-                <span className="text-sm font-medium text-foreground">Cuenta activa</span>
-                <div className="flex items-center gap-3">
-                  <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-                    {editDraft.active ? "Activo" : "Inactivo"}
-                  </span>
-                  <div
-                    className={cn(
-                      "w-10 h-5 rounded-full p-0.5 transition-all duration-300 flex items-center",
-                      editDraft.active ? "bg-primary" : "bg-muted-foreground/20"
-                    )}
-                  >
-                    <input
-                      type="checkbox"
-                      className="sr-only"
-                      checked={editDraft.active}
-                      onChange={(e) => setEditDraft((s) => ({ ...s, active: e.target.checked }))}
-                    />
-                    <div
-                      className={cn(
-                        "size-4 rounded-full bg-white shadow-sm transition-transform duration-300",
-                        editDraft.active ? "translate-x-5" : "translate-x-0"
-                      )}
-                    />
-                  </div>
-                </div>
-              </label>
+              <div className="flex flex-col gap-2">
+                <Label
+                  htmlFor="edit-status"
+                  className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
+                >
+                  Estado de Cuenta
+                </Label>
+                <NativeSelect id="edit-status" className="w-full" {...editForm.register("status")}>
+                  <option value="ACTIVE">Activo</option>
+                  <option value="INACTIVE">Inactivo</option>
+                </NativeSelect>
+              </div>
 
               <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                <Button type="submit" disabled={submitting} className="h-11">
-                  {submitting ? "Guardando..." : "Guardar Cambios"}
+                <Button type="submit" disabled={editForm.formState.isSubmitting} className="h-11">
+                  {editForm.formState.isSubmitting ? "Guardando..." : "Guardar Cambios"}
                 </Button>
                 <Button
                   variant="outline"
                   type="button"
-                  onClick={() => setEditOpen(false)}
+                  onClick={() => setEditingUser(null)}
                   className="h-11"
                 >
                   Cancelar
@@ -463,53 +460,64 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
         </Empty>
       ) : (
         <ItemGroup>
-          {filtered.map((user) => (
-            <Item key={user.id} variant="outline" className={cn(!user.active && "opacity-55")}>
-              <div
-                className={cn(
-                  "size-10 rounded-full flex items-center justify-center shrink-0",
-                  user.active ? "bg-primary/10" : "bg-muted"
-                )}
-              >
-                <span
-                  className={cn(
-                    "text-xs font-bold",
-                    user.active ? "text-primary" : "text-muted-foreground"
-                  )}
-                >
-                  {getInitials(user.full_name || "?")}
-                </span>
-              </div>
-              <ItemContent>
-                <ItemTitle>{user.full_name}</ItemTitle>
-                <ItemDescription>{user.email}</ItemDescription>
-              </ItemContent>
-              <ItemActions>
-                <span
-                  className={cn(
-                    "hidden sm:inline-flex rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest",
-                    roleBadgeClass(user.role)
-                  )}
-                >
-                  {roleLabel(user.role)}
-                </span>
+          {filtered.map((user) => {
+            const meta = statusMeta(user.status)
+            const isActive = user.status === "ACTIVE"
+            return (
+              <Item key={user.id} variant="outline" className={cn(meta.rowOpacity && "opacity-55")}>
                 <div
                   className={cn(
-                    "size-2 rounded-full shrink-0",
-                    user.active ? "bg-primary" : "bg-muted-foreground/30"
+                    "size-10 rounded-full flex items-center justify-center shrink-0",
+                    isActive ? "bg-primary/10" : "bg-muted"
                   )}
-                />
-                <Button
-                  size="xs"
-                  variant="outline"
-                  onClick={() => openEdit(user)}
-                  className="rounded-full px-4"
                 >
-                  Editar
-                </Button>
-              </ItemActions>
-            </Item>
-          ))}
+                  <span
+                    className={cn(
+                      "text-xs font-bold",
+                      isActive ? "text-primary" : "text-muted-foreground"
+                    )}
+                  >
+                    {getInitials(user.full_name || "?")}
+                  </span>
+                </div>
+                <ItemContent>
+                  <ItemTitle>{user.full_name}</ItemTitle>
+                  <ItemDescription>{user.email}</ItemDescription>
+                </ItemContent>
+                <ItemActions>
+                  <span
+                    className={cn(
+                      "hidden sm:inline-flex rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest",
+                      roleBadgeClass(user.role)
+                    )}
+                  >
+                    {roleLabel(user.role)}
+                  </span>
+                  <div
+                    className={cn("size-2 rounded-full shrink-0", meta.dotClass)}
+                    title={meta.label}
+                  />
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    onClick={() => void handleReset(user.id)}
+                    title="Resetear contraseña"
+                    className="rounded-full px-2"
+                  >
+                    <RotateCcw className="size-3.5" />
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    onClick={() => openEdit(user)}
+                    className="rounded-full px-4"
+                  >
+                    Editar
+                  </Button>
+                </ItemActions>
+              </Item>
+            )
+          })}
         </ItemGroup>
       )}
     </div>
