@@ -6,6 +6,22 @@ import { updateUsuarioSchema } from "@/lib/validators/usuario"
 
 type Params = { params: Promise<{ id: string }> }
 
+export async function DELETE(_req: Request, { params }: Params) {
+  const user = await getCurrentUser()
+  if (!user || !canManageUsers(user.role)) {
+    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+  }
+
+  try {
+    const { id } = await params
+    await usuariosService.delete(id, user.id)
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error inesperado"
+    return NextResponse.json({ message }, { status: 400 })
+  }
+}
+
 export async function PUT(request: Request, { params }: Params) {
   const user = await getCurrentUser()
   if (!user || !canManageUsers(user.role)) {

@@ -18,7 +18,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { NativeSelect } from "@/components/ui/native-select"
-import { Plus, Users, Search, RotateCcw } from "lucide-react"
+import { Plus, Users, Search, RotateCcw, Trash2 } from "lucide-react"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 import {
   Item,
@@ -102,6 +102,8 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
   const [globalError, setGlobalError] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<UsuarioRow | null>(null)
+  const [deletingUser, setDeletingUser] = useState<UsuarioRow | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const [search, setSearch] = useState("")
 
   const filtered = useMemo(() => {
@@ -166,6 +168,23 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
     const updated = (await res.json()) as UsuarioRow
     setUsers((prev) => prev.map((u) => (u.id === updated.id ? { ...u, ...updated } : u)))
     setEditingUser(null)
+  }
+
+  // ── Delete account ────────────────────────────────────────────────────────────
+  const handleDelete = async () => {
+    if (!deletingUser) return
+    setDeleteLoading(true)
+    setGlobalError(null)
+    const res = await fetch(`/api/usuarios/${deletingUser.id}`, { method: "DELETE" })
+    setDeleteLoading(false)
+    if (!res.ok) {
+      const data = (await res.json().catch(() => ({}))) as { message?: string }
+      setGlobalError(data.message ?? "No se pudo eliminar el usuario.")
+      setDeletingUser(null)
+      return
+    }
+    setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id))
+    setDeletingUser(null)
   }
 
   // ── Reset account ─────────────────────────────────────────────────────────────
@@ -447,6 +466,40 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
         </DialogContent>
       </Dialog>
 
+      {/* Delete confirmation dialog */}
+      <Dialog open={!!deletingUser} onOpenChange={(o) => { if (!o) setDeletingUser(null) }}>
+        <DialogContent className="w-[95vw] sm:max-w-sm bg-card p-0">
+          <div className="p-6 sm:p-8 flex flex-col gap-5">
+            <DialogHeader>
+              <DialogTitle className="font-heading text-xl font-bold text-foreground">
+                Eliminar usuario
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground text-sm mt-1">
+                ¿Eliminar a <strong>{deletingUser?.full_name}</strong> ({deletingUser?.email})?
+                Esta acción no se puede deshacer. Se cancelará cualquier invitación pendiente.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-2 pt-2 border-t border-border">
+              <Button
+                variant="destructive"
+                className="h-10"
+                disabled={deleteLoading}
+                onClick={() => void handleDelete()}
+              >
+                {deleteLoading ? "Eliminando..." : "Sí, eliminar"}
+              </Button>
+              <Button
+                variant="outline"
+                className="h-10"
+                onClick={() => setDeletingUser(null)}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* User list */}
       {users.length === 0 ? (
         <Card className="p-0 overflow-hidden">
@@ -525,6 +578,15 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     className="rounded-full px-2"
                   >
                     <RotateCcw className="size-3.5" />
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    onClick={() => setDeletingUser(user)}
+                    title="Eliminar usuario"
+                    className="rounded-full px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="size-3.5" />
                   </Button>
                   <Button
                     size="xs"

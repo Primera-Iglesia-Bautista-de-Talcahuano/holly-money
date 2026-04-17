@@ -127,6 +127,33 @@ export const usuariosService = {
     })
   },
 
+  async delete(userId: string, actingUserId: string) {
+    if (userId === actingUserId) throw new Error("No puedes eliminar tu propia cuenta")
+
+    const admin = createSupabaseAdminClient()
+
+    const { data: user, error: fetchError } = await admin
+      .from("users")
+      .select("full_name, email, role, status")
+      .eq("id", userId)
+      .single()
+
+    if (fetchError || !user) throw new Error("Usuario no encontrado")
+
+    // Deleting from auth.users cascades to public.users
+    const { error } = await admin.auth.admin.deleteUser(userId)
+    if (error) throw error
+
+    await auditoriaService.logSystem({
+      entity: "users",
+      action: "DELETED",
+      entity_id: userId,
+      user_id: actingUserId,
+      previous_value: user,
+      note: "User deleted by admin"
+    })
+  },
+
   async update(input: UpdateUsuarioInput, actingUserId: string) {
     const admin = createSupabaseAdminClient()
 
