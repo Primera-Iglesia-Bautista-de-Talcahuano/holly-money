@@ -3,6 +3,9 @@ import { Resend } from "resend"
 import type { AppsScriptResponse, MovementIntegrationPayload } from "@/services/google/types"
 
 const ORG_NAME = "Primera Iglesia Bautista de Talcahuano"
+const ORG_SHORT = "Sistema Contable PIBT"
+const FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL ?? "Sistema contable PIBT <noreply@pibtalcahuano.com>"
 
 function formatAmount(amount: number): string {
   return new Intl.NumberFormat("es-CL", {
@@ -99,8 +102,9 @@ export async function sendMovementEmail(
 ): Promise<AppsScriptResponse> {
   const resend = new Resend(process.env.RESEND_API_KEY)
   const { error } = await resend.emails.send({
-    from: "Sistema contable PIBT <noreply@pibtalcahuano.com>",
+    from: FROM_EMAIL,
     to: [process.env.NOTIFICATION_EMAIL, movement.registradoEmail].filter(Boolean) as string[],
+    replyTo: process.env.NOTIFICATION_EMAIL,
     subject: `[${movement.tipo}] Folio ${movement.folio} - ${movement.concepto}`,
     html: buildEmailHtml(movement),
     text: buildEmailText(movement)
@@ -111,10 +115,6 @@ export async function sendMovementEmail(
 }
 
 // ─── Auth email helpers ───────────────────────────────────────────────────────
-
-const ORG_SHORT = "Sistema Contable PIBT"
-const FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL ?? "Sistema contable PIBT <noreply@pibtalcahuano.com>"
 
 function buildAuthEmailText(opts: {
   title: string
