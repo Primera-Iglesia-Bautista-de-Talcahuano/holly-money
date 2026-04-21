@@ -12,7 +12,7 @@ type LogSystemInput = {
 
 type LogMovementInput = {
   movement_id: string;
-  action: "CREATED" | "EDITED" | "CANCELLED" | "PDF_REGENERATED" | "NOTIFICATION_SENT" | "NOTIFICATION_ERROR";
+  action: string;
   user_id: string;
   previous_value?: unknown;
   new_value?: unknown;

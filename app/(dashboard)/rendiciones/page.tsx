@@ -32,8 +32,9 @@ import {
   SheetDescription
 } from "@/components/ui/sheet"
 import { format } from "date-fns"
-import { Plus, Receipt, Calendar, Hash, Banknote, FileText, Paperclip } from "lucide-react"
+import { Plus, Receipt, Calendar, Hash, Banknote, FileText, Paperclip, ExternalLink } from "lucide-react"
 import type { Database } from "@/types/database.types"
+import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
 type Invoice = Database["public"]["Tables"]["invoices"]["Row"]
 
@@ -47,7 +48,7 @@ export default function RendicionesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
   const [number, setNumber] = useState("")
-  const [date, setDate] = useState<Date | undefined>(undefined)
+  const [date, setDate] = useState<Date | undefined>(new Date())
   const [amount, setAmount] = useState("")
   const [description, setDescription] = useState("")
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
@@ -76,6 +77,22 @@ export default function RendicionesPage() {
     if (!number || !date || !amount) return
     setSubmitting(true)
     try {
+      let attachment_url: string | null = null
+
+      if (attachedFile) {
+        const supabase = createSupabaseBrowserClient()
+        const ext = attachedFile.name.split(".").pop() ?? "bin"
+        const path = `${crypto.randomUUID()}.${ext}`
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("invoice-attachments")
+          .upload(path, attachedFile, { upsert: false })
+        if (uploadError) throw uploadError
+        const { data: urlData } = supabase.storage
+          .from("invoice-attachments")
+          .getPublicUrl(uploadData.path)
+        attachment_url = urlData.publicUrl
+      }
+
       const res = await fetch("/api/invoices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -83,14 +100,15 @@ export default function RendicionesPage() {
           number,
           date: format(date, "yyyy-MM-dd"),
           amount: parseFloat(amount),
-          description: description || null
+          description: description || null,
+          attachment_url
         })
       })
       if (!res.ok) throw new Error()
       const created: Invoice = await res.json()
       setInvoices((prev) => [created, ...prev])
       setNumber("")
-      setDate(undefined)
+      setDate(new Date())
       setAmount("")
       setDescription("")
       setAttachedFile(null)
@@ -474,6 +492,27 @@ export default function RendicionesPage() {
                     >
                       {selectedInvoice.status === "SETTLED" ? "Rendida" : "Pendiente"}
                     </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 rounded-xl bg-muted/50 px-4 py-3">
+                  <Paperclip className="size-4 shrink-0 text-muted-foreground" />
+                  <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                      Comprobante
+                    </p>
+                    {selectedInvoice.attachment_url ? (
+                      <a
+                        href={selectedInvoice.attachment_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline truncate"
+                      >
+                        Ver archivo <ExternalLink className="size-3 shrink-0" />
+                      </a>
+                    ) : (
+                      <p className="text-sm italic text-muted-foreground/60">Sin comprobante</p>
+                    )}
                   </div>
                 </div>
               </div>

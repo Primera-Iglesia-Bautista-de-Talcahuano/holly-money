@@ -4,7 +4,8 @@ export const createInvoiceSchema = z.object({
   number: z.string().min(1, "El número de boleta es requerido"),
   date: z.string().min(1, "La fecha es requerida"),
   amount: z.coerce.number().positive("El monto debe ser mayor a 0"),
-  description: z.string().optional().nullable()
+  description: z.string().optional().nullable(),
+  attachment_url: z.string().url().optional().nullable()
 })
 
 export const updateInvoiceSchema = z.object({

@@ -97,9 +97,9 @@ export const movimientosService = {
     await auditoriaService.logMovement({
       movement_id: movement.id,
       user_id: userId,
-      action: "CREATED",
+      action: "Movimiento creado",
       new_value: movement,
-      note: "Movement created",
+      note: "Movimiento registrado exitosamente",
     });
 
     return movement;
@@ -145,10 +145,10 @@ export const movimientosService = {
     await auditoriaService.logMovement({
       movement_id: id,
       user_id: userId,
-      action: "EDITED",
+      action: "Movimiento editado",
       previous_value: previous,
       new_value: updated,
-      note: "Movement edited",
+      note: "Información del movimiento actualizada",
     });
 
     return updated;
@@ -187,7 +187,7 @@ export const movimientosService = {
     await auditoriaService.logMovement({
       movement_id: id,
       user_id: userId,
-      action: "CANCELLED",
+      action: "Movimiento anulado",
       previous_value: previous,
       new_value: cancelled,
       note: input.cancellation_reason.trim(),

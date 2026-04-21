@@ -55,6 +55,7 @@ export type Database = {
       invoices: {
         Row: {
           amount: number
+          attachment_url: string | null
           created_at: string
           created_by_id: string
           date: string
@@ -66,6 +67,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          attachment_url?: string | null
           created_at?: string
           created_by_id: string
           date: string
@@ -77,6 +79,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          attachment_url?: string | null
           created_at?: string
           created_by_id?: string
           date?: string

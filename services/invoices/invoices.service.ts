@@ -21,6 +21,7 @@ export const invoicesService = {
         date: input.date,
         amount: input.amount,
         description: input.description ?? null,
+        attachment_url: input.attachment_url ?? null,
         created_by_id: userId
       })
       .select()
