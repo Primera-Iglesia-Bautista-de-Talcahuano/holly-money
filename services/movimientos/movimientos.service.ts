@@ -1,52 +1,52 @@
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { auditoriaService } from "@/services/auditoria/auditoria.service";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin"
+import { auditoriaService } from "@/services/auditoria/auditoria.service"
 import type {
   AnularMovimientoInput,
   CreateMovimientoInput,
-  UpdateMovimientoInput,
-} from "@/lib/validators/movimiento";
+  UpdateMovimientoInput
+} from "@/lib/validators/movimiento"
 
 function normalizeOptional(value?: string | null) {
-  if (!value) return null;
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : null;
+  if (!value) return null
+  const trimmed = value.trim()
+  return trimmed.length ? trimmed : null
 }
 
 type ListFilters = {
-  search?: string;
-  movement_type?: "INCOME" | "EXPENSE" | "ALL";
-  status?: "ACTIVE" | "CANCELLED" | "ALL";
-};
+  search?: string
+  movement_type?: "INCOME" | "EXPENSE" | "ALL"
+  status?: "ACTIVE" | "CANCELLED" | "ALL"
+}
 
 export const movimientosService = {
   async list(filters: ListFilters = {}) {
-    const admin = createSupabaseAdminClient();
+    const admin = createSupabaseAdminClient()
     let query = admin
       .from("movements")
       .select("*, users!created_by_id(id, full_name, email)")
       .order("movement_date", { ascending: false })
-      .order("folio", { ascending: false });
+      .order("folio", { ascending: false })
 
     if (filters.movement_type && filters.movement_type !== "ALL") {
-      query = query.eq("movement_type", filters.movement_type);
+      query = query.eq("movement_type", filters.movement_type)
     }
     if (filters.status && filters.status !== "ALL") {
-      query = query.eq("status", filters.status);
+      query = query.eq("status", filters.status)
     }
     if (filters.search?.trim()) {
-      const s = filters.search.trim();
+      const s = filters.search.trim()
       query = query.or(
-        `folio_display.ilike.%${s}%,concept.ilike.%${s}%,category.ilike.%${s}%,reference_person.ilike.%${s}%,beneficiary.ilike.%${s}%`,
-      );
+        `folio_display.ilike.%${s}%,concept.ilike.%${s}%,category.ilike.%${s}%,reference_person.ilike.%${s}%,beneficiary.ilike.%${s}%`
+      )
     }
 
-    const { data, error } = await query;
-    if (error) throw error;
-    return data;
+    const { data, error } = await query
+    if (error) throw error
+    return data
   },
 
   async findById(id: string) {
-    const admin = createSupabaseAdminClient();
+    const admin = createSupabaseAdminClient()
     const { data, error } = await admin
       .from("movements")
       .select(
@@ -54,22 +54,22 @@ export const movimientosService = {
         created_by:users!created_by_id(id, full_name, email),
         updated_by:users!updated_by_id(id, full_name, email),
         cancelled_by:users!cancelled_by_id(id, full_name, email),
-        movement_audit_log(*, users(id, full_name, email))`,
+        movement_audit_log(*, users(id, full_name, email))`
       )
       .eq("id", id)
       .order("event_date", { referencedTable: "movement_audit_log", ascending: false })
-      .single();
+      .single()
 
-    if (error) throw error;
-    return data;
+    if (error) throw error
+    return data
   },
 
   async create(input: CreateMovimientoInput, userId: string) {
-    const admin = createSupabaseAdminClient();
+    const admin = createSupabaseAdminClient()
 
-    const { data: folioData, error: folioError } = await admin.rpc("increment_and_get_folio");
-    if (folioError) throw folioError;
-    const folio = folioData as number;
+    const { data: folioData, error: folioError } = await admin.rpc("increment_and_get_folio")
+    if (folioError) throw folioError
+    const folio = folioData as number
 
     const { data: movement, error } = await admin
       .from("movements")
@@ -87,36 +87,37 @@ export const movimientosService = {
         payment_method: normalizeOptional(input.payment_method),
         support_number: normalizeOptional(input.support_number),
         notes: normalizeOptional(input.notes),
-        created_by_id: userId,
+        attachment_url: input.attachment_url ?? null,
+        created_by_id: userId
       })
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
+    if (error) throw error
 
     await auditoriaService.logMovement({
       movement_id: movement.id,
       user_id: userId,
       action: "Movimiento creado",
       new_value: movement,
-      note: "Movimiento registrado exitosamente",
-    });
+      note: "Movimiento registrado exitosamente"
+    })
 
-    return movement;
+    return movement
   },
 
   async update(id: string, input: UpdateMovimientoInput, userId: string) {
-    const admin = createSupabaseAdminClient();
+    const admin = createSupabaseAdminClient()
 
     const { data: previous, error: fetchError } = await admin
       .from("movements")
       .select()
       .eq("id", id)
-      .single();
+      .single()
 
-    if (fetchError) throw fetchError;
-    if (!previous) throw new Error("Movimiento no encontrado");
-    if (previous.status === "CANCELLED") throw new Error("No se puede editar un movimiento anulado");
+    if (fetchError) throw fetchError
+    if (!previous) throw new Error("Movimiento no encontrado")
+    if (previous.status === "CANCELLED") throw new Error("No se puede editar un movimiento anulado")
 
     const { data: updated, error } = await admin
       .from("movements")
@@ -133,14 +134,15 @@ export const movimientosService = {
         payment_method: normalizeOptional(input.payment_method),
         support_number: normalizeOptional(input.support_number),
         notes: normalizeOptional(input.notes),
+        attachment_url: input.attachment_url ?? null,
         updated_by_id: userId,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       })
       .eq("id", id)
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
+    if (error) throw error
 
     await auditoriaService.logMovement({
       movement_id: id,
@@ -148,26 +150,26 @@ export const movimientosService = {
       action: "Movimiento editado",
       previous_value: previous,
       new_value: updated,
-      note: "Información del movimiento actualizada",
-    });
+      note: "Información del movimiento actualizada"
+    })
 
-    return updated;
+    return updated
   },
 
   async cancel(id: string, input: AnularMovimientoInput, userId: string) {
-    const admin = createSupabaseAdminClient();
+    const admin = createSupabaseAdminClient()
 
     const { data: previous, error: fetchError } = await admin
       .from("movements")
       .select()
       .eq("id", id)
-      .single();
+      .single()
 
-    if (fetchError) throw fetchError;
-    if (!previous) throw new Error("Movimiento no encontrado");
-    if (previous.status === "CANCELLED") return previous;
+    if (fetchError) throw fetchError
+    if (!previous) throw new Error("Movimiento no encontrado")
+    if (previous.status === "CANCELLED") return previous
 
-    const now = new Date().toISOString();
+    const now = new Date().toISOString()
     const { data: cancelled, error } = await admin
       .from("movements")
       .update({
@@ -176,13 +178,13 @@ export const movimientosService = {
         cancelled_by_id: userId,
         cancelled_at: now,
         updated_by_id: userId,
-        updated_at: now,
+        updated_at: now
       })
       .eq("id", id)
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
+    if (error) throw error
 
     await auditoriaService.logMovement({
       movement_id: id,
@@ -190,9 +192,9 @@ export const movimientosService = {
       action: "Movimiento anulado",
       previous_value: previous,
       new_value: cancelled,
-      note: input.cancellation_reason.trim(),
-    });
+      note: input.cancellation_reason.trim()
+    })
 
-    return cancelled;
-  },
-};
+    return cancelled
+  }
+}

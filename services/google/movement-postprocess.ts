@@ -79,7 +79,9 @@ export async function processMovimientoIntegrations(movimientoId: string, userId
     movement_id: movimientoId,
     user_id: userId,
     action: "PDF regenerado",
-    note: pdfResult.ok ? "PDF generado exitosamente" : `Error al generar PDF: ${pdfResult.error ?? ""}`
+    note: pdfResult.ok
+      ? "PDF generado exitosamente"
+      : `Error al generar PDF: ${pdfResult.error ?? ""}`
   })
 
   // Sheets sync

@@ -32,7 +32,16 @@ import {
   SheetDescription
 } from "@/components/ui/sheet"
 import { format } from "date-fns"
-import { Plus, Receipt, Calendar, Hash, Banknote, FileText, Paperclip, ExternalLink } from "lucide-react"
+import {
+  Plus,
+  Receipt,
+  Calendar,
+  Hash,
+  Banknote,
+  FileText,
+  Paperclip,
+  ExternalLink
+} from "lucide-react"
 import type { Database } from "@/types/database.types"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
@@ -259,9 +268,7 @@ export default function RendicionesPage() {
                       />
                       <Paperclip className="size-4 text-muted-foreground/60" />
                       <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
-                        {attachedFile
-                          ? attachedFile.name
-                          : "Seleccionar archivo o tomar foto"}
+                        {attachedFile ? attachedFile.name : "Seleccionar archivo o tomar foto"}
                       </span>
                     </label>
                     {attachedFile && attachedFile.type.startsWith("image/") && (
@@ -386,9 +393,7 @@ export default function RendicionesPage() {
                 <span
                   className={cn(
                     "inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
-                    invoice.status === "SETTLED"
-                      ? "badge-income"
-                      : "bg-muted text-muted-foreground"
+                    invoice.status === "SETTLED" ? "badge-income" : "bg-muted text-muted-foreground"
                   )}
                 >
                   {invoice.status === "SETTLED" ? "Rendida" : "Pendiente"}

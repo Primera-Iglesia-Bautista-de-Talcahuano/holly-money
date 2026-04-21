@@ -150,6 +150,7 @@ export type Database = {
       movements: {
         Row: {
           amount: number
+          attachment_url: string | null
           beneficiary: string | null
           cancellation_reason: string | null
           cancelled_at: string | null
@@ -184,6 +185,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          attachment_url?: string | null
           beneficiary?: string | null
           cancellation_reason?: string | null
           cancelled_at?: string | null
@@ -218,6 +220,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          attachment_url?: string | null
           beneficiary?: string | null
           cancellation_reason?: string | null
           cancelled_at?: string | null

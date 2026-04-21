@@ -8,7 +8,16 @@ import { RegenerarPdfButton } from "@/components/movimientos/regenerar-pdf-butto
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { ChevronLeft, Edit, FileText, User, Calendar, Tag, Info as InfoIcon, ExternalLink } from "lucide-react"
+import {
+  ChevronLeft,
+  Edit,
+  FileText,
+  User,
+  Calendar,
+  Tag,
+  Info as InfoIcon,
+  ExternalLink
+} from "lucide-react"
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -209,7 +218,10 @@ export default async function MovimientoDetallePage({ params }: Props) {
             <div className="flex flex-col gap-3">
               <TechnicalItem
                 label="Estado PDF"
-                value={{ PENDING: "Pendiente", GENERATED: "Generado", ERROR: "Error" }[row.pdf_status] ?? row.pdf_status}
+                value={
+                  { PENDING: "Pendiente", GENERATED: "Generado", ERROR: "Error" }[row.pdf_status] ??
+                  row.pdf_status
+                }
               />
               <div className="flex items-center justify-between text-xs border-b border-border pb-2">
                 <span className="font-bold text-muted-foreground">Archivo PDF</span>
@@ -232,7 +244,11 @@ export default async function MovimientoDetallePage({ params }: Props) {
               />
               <TechnicalItem
                 label="Notificación"
-                value={{ PENDING: "Pendiente", SENT: "Enviada", ERROR: "Error" }[row.notification_status] ?? row.notification_status}
+                value={
+                  { PENDING: "Pendiente", SENT: "Enviada", ERROR: "Error" }[
+                    row.notification_status
+                  ] ?? row.notification_status
+                }
               />
             </div>
           </Card>

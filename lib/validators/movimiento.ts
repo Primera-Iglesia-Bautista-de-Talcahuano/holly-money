@@ -13,6 +13,7 @@ export const movimientoBaseSchema = z.object({
   payment_method: z.string().optional().nullable(),
   support_number: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
+  attachment_url: z.string().url().optional().nullable(),
 });
 
 export const createMovimientoSchema = movimientoBaseSchema;

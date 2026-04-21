@@ -4,8 +4,7 @@ import type { AppsScriptResponse, MovementIntegrationPayload } from "@/services/
 
 const ORG_NAME = "Primera Iglesia Bautista de Talcahuano"
 const ORG_SHORT = "Sistema Contable PIBT"
-const FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL ?? "Sistema contable PIBT <hola@pibtalcahuano.com>"
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "Sistema contable PIBT <hola@pibtalcahuano.com>"
 
 const UNSUBSCRIBE_EMAIL = "hola@pibtalcahuano.com"
 const TRANSACTIONAL_HEADERS = {
@@ -204,7 +203,7 @@ export async function sendInviteEmail(opts: {
     buttonUrl: opts.action_link,
     expiry: "24 horas"
   }
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: opts.to,
     subject: `Activa tu cuenta — ${ORG_SHORT}`,
@@ -212,6 +211,7 @@ export async function sendInviteEmail(opts: {
     text: buildAuthEmailText(emailOpts),
     headers: TRANSACTIONAL_HEADERS
   })
+  if (error) throw new Error(`Resend error (invite): ${error.message}`)
 }
 
 export async function sendResetEmail(opts: {
@@ -228,7 +228,7 @@ export async function sendResetEmail(opts: {
     buttonUrl: opts.action_link,
     expiry: "1 hora"
   }
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: opts.to,
     subject: `Restablece tu contraseña — ${ORG_SHORT}`,
@@ -236,6 +236,7 @@ export async function sendResetEmail(opts: {
     text: buildAuthEmailText(emailOpts),
     headers: TRANSACTIONAL_HEADERS
   })
+  if (error) throw new Error(`Resend error (reset): ${error.message}`)
 }
 
 export async function sendForgotPasswordEmail(opts: {
@@ -251,7 +252,7 @@ export async function sendForgotPasswordEmail(opts: {
     buttonUrl: opts.action_link,
     expiry: "1 hora"
   }
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: opts.to,
     subject: `Recupera tu contraseña — ${ORG_SHORT}`,
@@ -259,4 +260,5 @@ export async function sendForgotPasswordEmail(opts: {
     text: buildAuthEmailText(emailOpts),
     headers: TRANSACTIONAL_HEADERS
   })
+  if (error) throw new Error(`Resend error (forgot-password): ${error.message}`)
 }
