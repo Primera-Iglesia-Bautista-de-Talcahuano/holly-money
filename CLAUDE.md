@@ -16,7 +16,7 @@ pnpm lint
 pnpm lint:fix
 
 # CI (lint + typecheck)
-pnpm ci
+pnpm run ci
 
 # Tests (jest, passWithNoTests — allowed to fail)
 pnpm test
@@ -27,14 +27,14 @@ pnpm supabase <sub command>
 
 Always use `pnpm`, never `npm`.
 
-`pnpm ci` runs lint + typecheck. There are no mandatory automated tests yet — jest is configured with `--passWithNoTests`.
+`pnpm run ci` runs lint + typecheck. There are no mandatory automated tests yet — jest is configured with `--passWithNoTests`.
 
 ## Architecture
 
 **Stack:** Next.js 16 App Router · TypeScript strict · Tailwind CSS v4 · Supabase (Postgres + Auth) · `@supabase/ssr` · React Hook Form + Zod · Recharts · Base UI
 
 **Layer separation:**
-- `app/` — Route handlers and page components. Split into `(auth)` and `(dashboard)` route groups.
+- `app/` — Route handlers and page components. Split into `(auth)` and `(dashboard)` route groups. Dashboard pages: `dashboard`, `movimientos`, `eventos`, `invoices` (Rendición de Boletas), `usuarios`, `auditoria`.
 - `components/` — UI (`components/ui/`) and domain components (`components/movimientos/`, `components/dashboard/`, etc.)
 - `services/` — All business logic. Never call the Supabase client directly from API routes; use the service layer.
 - `lib/supabase/` — Supabase client helpers:
@@ -58,11 +58,14 @@ Sequential numeric ID stored in the `folio_counter` table (singleton row `id: 'm
 **User creation:**
 Admins call the `create_user_with_role(email, password, full_name, role)` Postgres RPC via the service role client. Password hashing is handled inside the RPC via `pgcrypto` — no bcrypt in app code. First-deploy bootstrap: call `create_initial_admin(email, password, full_name)` once from Supabase Studio SQL editor.
 
+**Invoice settlement (Rendición de Boletas):**
+`invoices` table stores receipts submitted by operators for monthly settlement. Status enum: `PENDING` | `SETTLED`. No physical deletion. API: `GET /api/invoices`, `POST /api/invoices`, `PATCH /api/invoices/[id]`. Service: `services/invoices/invoices.service.ts`. Validator: `lib/validators/invoice.ts`. Page: `app/(dashboard)/invoices/page.tsx`. ADMIN and OPERATOR can create/update; all roles can view.
+
 **Google integrations:**
 Three outbound webhooks via Google Apps Script (configured via env vars): PDF generation + Drive storage, email notification, Google Sheets sync. All triggered in `services/google/movement-postprocess.ts` after a movement is created/edited. Integration state tracked on `movements` (`pdf_status`, `synced_to_sheet`, `notification_status`, etc.).
 
 **Database schema:**
-Migrations live in `supabase/migrations/`. Key tables: `users`, `movements`, `movement_audit_log`, `system_audit_log`, `folio_counter`. All tables have RLS enabled. Run `pnpm supabase:reset` to wipe and re-apply from scratch locally.
+Migrations live in `supabase/migrations/`. Key tables: `users`, `movements`, `movement_audit_log`, `system_audit_log`, `folio_counter`, `invoices`. All tables have RLS enabled. Run `pnpm supabase:reset` to wipe and re-apply from scratch locally.
 
 Always use `pnpm supabase migration new ...` for new migrations
 
@@ -76,7 +79,8 @@ Always make sure that types with `pnpm types:generate` are up to date
 - Tailwind uses Material Design-inspired semantic tokens (`surface`, `on-surface`, `primary`, `surface-container-*`, etc.) — stick to these rather than raw color values.
 - No deletions: `movements` records are logically cancelled (`status: 'CANCELLED'`) with `cancellation_reason`. Physical deletion is not supported.
 - Every mutation on a movement must insert a `movement_audit_log` entry via `auditoriaService`. Use the service role client for audit inserts (bypasses RLS).
-- DB field names are English snake_case matching the Postgres schema. Spanish is used only in UI display labels (e.g. `INCOME` → "Ingreso", `OPERATOR` → "Operador").
+- **Language rule:** All code identifiers, DB column names, table names, enum values, file/folder names, API routes, variable names, and service layer are strictly English. Spanish appears only in UI text, Zod validation messages, and toast notifications shown to the user.
+- DB field names are English snake_case matching the Postgres schema (e.g. `INCOME` → "Ingreso" in UI, `OPERATOR` → "Operador" in UI).
 - `types/database.types.ts` is generated — never edit it manually. Regenerate with `pnpm supabase:gen-types`.
 - Code style: `.prettierrc` and `.editorconfig` are present — no semicolons, double quotes, `printWidth` 100, trailing commas off.
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { cn, formatDate } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -32,106 +32,93 @@ import {
   SheetDescription
 } from "@/components/ui/sheet"
 import { format } from "date-fns"
-import { Plus, Receipt, Calendar, Hash, Banknote, FileText, Paperclip } from "lucide-react"
+import { Plus, Receipt, Calendar, Hash, Banknote, FileText } from "lucide-react"
+import type { Database } from "@/types/database.types"
 
-type Boleta = {
-  id: string
-  numero: string
-  fecha: string
-  monto: number
-  descripcion: string
-  rendida: boolean
-  archivo?: File
-}
+type Invoice = Database["public"]["Tables"]["invoices"]["Row"]
 
-export default function RendicionBoletasPage() {
-  const [boletas, setBoletas] = useState<Boleta[]>([
-    {
-      id: "1",
-      numero: "BOL-001",
-      fecha: "2026-03-01",
-      monto: 15000,
-      descripcion: "Boleta de luz - Marzo",
-      rendida: false
-    },
-    {
-      id: "2",
-      numero: "BOL-002",
-      fecha: "2026-03-05",
-      monto: 25000,
-      descripcion: "Boleta de agua - Marzo",
-      rendida: true
-    },
-    {
-      id: "3",
-      numero: "BOL-003",
-      fecha: "2026-03-10",
-      monto: 12000,
-      descripcion: "Boleta de gas - Marzo",
-      rendida: false
-    },
-    {
-      id: "4",
-      numero: "BOL-004",
-      fecha: "2026-03-15",
-      monto: 35000,
-      descripcion: "Boleta de teléfono - Marzo",
-      rendida: true
-    },
-    {
-      id: "5",
-      numero: "BOL-005",
-      fecha: "2026-03-20",
-      monto: 18000,
-      descripcion: "Boleta de internet - Marzo",
-      rendida: false
-    }
-  ])
-  const [numero, setNumero] = useState("")
-  const [fecha, setFecha] = useState<Date | undefined>(undefined)
-  const [monto, setMonto] = useState("")
-  const [descripcion, setDescripcion] = useState("")
-  const [archivo, setArchivo] = useState<File | null>(null)
+const clp = new Intl.NumberFormat("es-CL", {
+  style: "currency",
+  currency: "CLP",
+  maximumFractionDigits: 0
+})
+
+export default function InvoicesPage() {
+  const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [loading, setLoading] = useState(true)
+  const [number, setNumber] = useState("")
+  const [date, setDate] = useState<Date | undefined>(undefined)
+  const [amount, setAmount] = useState("")
+  const [description, setDescription] = useState("")
+  const [submitting, setSubmitting] = useState(false)
   const [open, setOpen] = useState(false)
-  const [selectedBoleta, setSelectedBoleta] = useState<Boleta | null>(null)
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const fetchInvoices = useCallback(async () => {
+    try {
+      const res = await fetch("/api/invoices")
+      if (!res.ok) throw new Error()
+      setInvoices(await res.json())
+    } catch {
+      // silently fail — list stays empty
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchInvoices()
+  }, [fetchInvoices])
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!numero || !fecha || !monto) return
-
-    setBoletas((prev) => [
-      {
-        id: crypto.randomUUID(),
-        numero,
-        fecha: format(fecha, "yyyy-MM-dd"),
-        monto: parseFloat(monto),
-        descripcion,
-        rendida: false,
-        archivo: archivo ?? undefined
-      },
-      ...prev
-    ])
-    setNumero("")
-    setFecha(undefined)
-    setMonto("")
-    setDescripcion("")
-    setArchivo(null)
-    setOpen(false)
+    if (!number || !date || !amount) return
+    setSubmitting(true)
+    try {
+      const res = await fetch("/api/invoices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          number,
+          date: format(date, "yyyy-MM-dd"),
+          amount: parseFloat(amount),
+          description: description || null
+        })
+      })
+      if (!res.ok) throw new Error()
+      const created: Invoice = await res.json()
+      setInvoices((prev) => [created, ...prev])
+      setNumber("")
+      setDate(undefined)
+      setAmount("")
+      setDescription("")
+      setOpen(false)
+    } catch {
+      // keep dialog open on error
+    } finally {
+      setSubmitting(false)
+    }
   }
 
-  const toggleRendida = (id: string) => {
-    setBoletas((prev) => prev.map((b) => (b.id === id ? { ...b, rendida: !b.rendida } : b)))
+  const toggleStatus = async (invoice: Invoice) => {
+    const nextStatus = invoice.status === "SETTLED" ? "PENDING" : "SETTLED"
+    try {
+      const res = await fetch(`/api/invoices/${invoice.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus })
+      })
+      if (!res.ok) throw new Error()
+      const updated: Invoice = await res.json()
+      setInvoices((prev) => prev.map((i) => (i.id === updated.id ? updated : i)))
+      setSelectedInvoice((prev) => (prev?.id === updated.id ? updated : prev))
+    } catch {
+      // silently fail
+    }
   }
-
-  const clp = new Intl.NumberFormat("es-CL", {
-    style: "currency",
-    currency: "CLP",
-    maximumFractionDigits: 0
-  })
 
   return (
     <section className="mx-auto max-w-6xl flex flex-col gap-8">
-      {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-0.5">
           <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">
@@ -175,110 +162,67 @@ export default function RendicionBoletasPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
                     <Label
-                      htmlFor="boleta-numero"
+                      htmlFor="invoice-number"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Número de Boleta
                     </Label>
                     <Input
-                      id="boleta-numero"
+                      id="invoice-number"
                       placeholder="Ej: BOL-001"
-                      value={numero}
-                      onChange={(e) => setNumero(e.target.value)}
+                      value={number}
+                      onChange={(e) => setNumber(e.target.value)}
                       className="h-12 bg-muted border-none rounded-xl px-5 text-base font-medium"
                     />
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <Label
-                      htmlFor="boleta-fecha"
+                      htmlFor="invoice-date"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Fecha de Emisión
                     </Label>
-                    <DatePicker value={fecha} onChange={setFecha} className="h-12" />
+                    <DatePicker value={date} onChange={setDate} className="h-12" />
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <Label
-                      htmlFor="boleta-monto"
+                      htmlFor="invoice-amount"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Monto Total
                     </Label>
                     <Input
-                      id="boleta-monto"
+                      id="invoice-amount"
                       type="number"
                       placeholder="0"
-                      value={monto}
-                      onChange={(e) => setMonto(e.target.value)}
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
                       className="h-12 bg-muted border-none rounded-xl px-5 text-lg font-bold"
                     />
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <Label
-                      htmlFor="boleta-descripcion"
+                      htmlFor="invoice-description"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Descripción
                     </Label>
                     <Input
-                      id="boleta-descripcion"
+                      id="invoice-description"
                       placeholder="Descripción de la boleta..."
-                      value={descripcion}
-                      onChange={(e) => setDescripcion(e.target.value)}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
                       className="h-12 bg-muted border-none rounded-xl px-5 text-base font-medium"
                     />
-                  </div>
-
-                  <div className="sm:col-span-2 flex flex-col gap-2">
-                    <Label
-                      htmlFor="boleta-archivo"
-                      className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
-                    >
-                      Adjuntar Comprobante
-                    </Label>
-                    <label
-                      htmlFor="boleta-archivo"
-                      className="flex h-20 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50 transition-colors hover:border-primary/40 hover:bg-muted"
-                    >
-                      <input
-                        id="boleta-archivo"
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        onChange={(e) => setArchivo(e.target.files?.[0] ?? null)}
-                        className="sr-only"
-                      />
-                      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
-                        {archivo ? archivo.name : "Click para subir o capturar foto"}
-                      </span>
-                    </label>
-                    {archivo && archivo.type.startsWith("image/") && (
-                      <div className="flex items-center gap-3 rounded-xl bg-income-surface border border-[var(--color-income-border)] px-4 py-3">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={URL.createObjectURL(archivo)}
-                          alt="Vista previa"
-                          className="size-10 object-cover rounded-lg border border-border"
-                        />
-                        <div className="flex flex-col gap-0.5 min-w-0">
-                          <p className="text-xs font-bold text-foreground truncate">
-                            {archivo.name}
-                          </p>
-                          <p className="text-[11px] text-muted-foreground">
-                            {(archivo.size / 1024).toFixed(1)} KB
-                          </p>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                  <Button type="submit" className="h-11">
-                    Registrar Boleta
+                  <Button type="submit" className="h-11" disabled={submitting}>
+                    {submitting ? "Registrando..." : "Registrar Boleta"}
                   </Button>
                   <Button
                     variant="outline"
@@ -295,15 +239,14 @@ export default function RendicionBoletasPage() {
         </Dialog>
       </div>
 
-      {/* Summary strip */}
-      {boletas.length > 0 && (
+      {invoices.length > 0 && (
         <div className="grid grid-cols-3 gap-4">
           <div className="rounded-xl bg-card border border-border p-4 sm:p-5 flex flex-col gap-1.5">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
               Total boletas
             </p>
             <p className="font-heading text-2xl font-bold tracking-tight text-foreground tabular-nums">
-              {boletas.length}
+              {invoices.length}
             </p>
           </div>
           <div className="rounded-xl bg-card border border-border p-4 sm:p-5 flex flex-col gap-1.5">
@@ -311,7 +254,11 @@ export default function RendicionBoletasPage() {
               Pendiente
             </p>
             <p className="font-heading text-2xl font-bold tracking-tight text-destructive tabular-nums">
-              {clp.format(boletas.filter((b) => !b.rendida).reduce((s, b) => s + b.monto, 0))}
+              {clp.format(
+                invoices
+                  .filter((i) => i.status === "PENDING")
+                  .reduce((s, i) => s + Number(i.amount), 0)
+              )}
             </p>
           </div>
           <div className="rounded-xl bg-card border border-border p-4 sm:p-5 flex flex-col gap-1.5">
@@ -319,14 +266,25 @@ export default function RendicionBoletasPage() {
               Rendido
             </p>
             <p className="font-heading text-2xl font-bold tracking-tight text-income tabular-nums">
-              {clp.format(boletas.filter((b) => b.rendida).reduce((s, b) => s + b.monto, 0))}
+              {clp.format(
+                invoices
+                  .filter((i) => i.status === "SETTLED")
+                  .reduce((s, i) => s + Number(i.amount), 0)
+              )}
             </p>
           </div>
         </div>
       )}
 
-      {/* List */}
-      {boletas.length === 0 ? (
+      {loading ? (
+        <Card className="p-0 overflow-hidden">
+          <Empty className="border-0 py-16">
+            <EmptyHeader>
+              <EmptyTitle>Cargando...</EmptyTitle>
+            </EmptyHeader>
+          </Empty>
+        </Card>
+      ) : invoices.length === 0 ? (
         <Card className="p-0 overflow-hidden">
           <Empty className="border-0 py-16">
             <EmptyHeader>
@@ -342,57 +300,52 @@ export default function RendicionBoletasPage() {
         </Card>
       ) : (
         <ItemGroup>
-          {boletas.map((boleta) => (
+          {invoices.map((invoice) => (
             <Item
-              key={boleta.id}
+              key={invoice.id}
               variant="outline"
-              onClick={() => setSelectedBoleta(boleta)}
+              onClick={() => setSelectedInvoice(invoice)}
               className="cursor-pointer hover:bg-muted/50 transition-colors"
             >
               <ItemContent>
-                <ItemTitle className="font-bold text-foreground">{boleta.numero}</ItemTitle>
+                <ItemTitle className="font-bold text-foreground">{invoice.number}</ItemTitle>
                 <ItemDescription>
-                  {formatDate(boleta.fecha)} ·{" "}
+                  {formatDate(invoice.date)} ·{" "}
                   <span className="font-bold text-foreground tabular-nums">
-                    {clp.format(boleta.monto)}
+                    {clp.format(Number(invoice.amount))}
                   </span>
-                  {boleta.descripcion && ` · ${boleta.descripcion}`}
+                  {invoice.description && ` · ${invoice.description}`}
                 </ItemDescription>
               </ItemContent>
               <ItemActions>
                 <span
                   className={cn(
                     "inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
-                    boleta.rendida ? "badge-income" : "bg-muted text-muted-foreground"
+                    invoice.status === "SETTLED" ? "badge-income" : "bg-muted text-muted-foreground"
                   )}
                 >
-                  {boleta.rendida ? "Rendida" : "Pendiente"}
+                  {invoice.status === "SETTLED" ? "Rendida" : "Pendiente"}
                 </span>
-                {boleta.archivo ? (
-                  <span className="hidden sm:inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary uppercase tracking-wide">
-                    {boleta.archivo.name.split(".").pop()}
-                  </span>
-                ) : (
-                  <span className="hidden sm:inline text-[11px] text-muted-foreground/50 italic">
-                    Sin adjunto
-                  </span>
-                )}
                 <Button
-                  variant={boleta.rendida ? "outline" : "default"}
+                  variant={invoice.status === "SETTLED" ? "outline" : "default"}
                   size="xs"
-                  onClick={(e) => { e.stopPropagation(); toggleRendida(boleta.id) }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleStatus(invoice)
+                  }}
                   className="rounded-full px-5"
                 >
-                  {boleta.rendida ? "Reabrir" : "Rendir"}
+                  {invoice.status === "SETTLED" ? "Reabrir" : "Rendir"}
                 </Button>
               </ItemActions>
             </Item>
           ))}
         </ItemGroup>
       )}
-      <Sheet open={!!selectedBoleta} onOpenChange={(o) => !o && setSelectedBoleta(null)}>
+
+      <Sheet open={!!selectedInvoice} onOpenChange={(o) => !o && setSelectedInvoice(null)}>
         <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto p-0">
-          {selectedBoleta && (
+          {selectedInvoice && (
             <div className="flex flex-col gap-8 p-6 sm:p-8">
               <SheetHeader className="p-0">
                 <div className="flex items-center gap-3">
@@ -400,10 +353,8 @@ export default function RendicionBoletasPage() {
                     <Receipt className="size-5 text-primary" />
                   </div>
                   <div>
-                    <SheetTitle className="text-xl font-bold">{selectedBoleta.numero}</SheetTitle>
-                    <SheetDescription className="text-xs">
-                      Detalle de boleta
-                    </SheetDescription>
+                    <SheetTitle className="text-xl font-bold">{selectedInvoice.number}</SheetTitle>
+                    <SheetDescription className="text-xs">Detalle de boleta</SheetDescription>
                   </div>
                 </div>
               </SheetHeader>
@@ -416,7 +367,7 @@ export default function RendicionBoletasPage() {
                       Fecha de Emisión
                     </p>
                     <p className="text-sm font-semibold text-foreground">
-                      {formatDate(selectedBoleta.fecha)}
+                      {formatDate(selectedInvoice.date)}
                     </p>
                   </div>
                 </div>
@@ -428,7 +379,7 @@ export default function RendicionBoletasPage() {
                       Monto
                     </p>
                     <p className="text-lg font-bold tabular-nums text-foreground">
-                      {clp.format(selectedBoleta.monto)}
+                      {clp.format(Number(selectedInvoice.amount))}
                     </p>
                   </div>
                 </div>
@@ -439,18 +390,22 @@ export default function RendicionBoletasPage() {
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                       Número de Boleta
                     </p>
-                    <p className="text-sm font-semibold text-foreground">{selectedBoleta.numero}</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {selectedInvoice.number}
+                    </p>
                   </div>
                 </div>
 
-                {selectedBoleta.descripcion && (
+                {selectedInvoice.description && (
                   <div className="flex items-start gap-3 rounded-xl bg-muted/50 px-4 py-3">
                     <FileText className="size-4 shrink-0 translate-y-0.5 text-muted-foreground" />
                     <div className="flex flex-col gap-0.5">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                         Descripción
                       </p>
-                      <p className="text-sm font-medium text-foreground">{selectedBoleta.descripcion}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {selectedInvoice.description}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -463,58 +418,24 @@ export default function RendicionBoletasPage() {
                     <span
                       className={cn(
                         "inline-flex w-fit rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide",
-                        selectedBoleta.rendida ? "badge-income" : "bg-muted text-muted-foreground"
+                        selectedInvoice.status === "SETTLED"
+                          ? "badge-income"
+                          : "bg-muted text-muted-foreground"
                       )}
                     >
-                      {selectedBoleta.rendida ? "Rendida" : "Pendiente"}
+                      {selectedInvoice.status === "SETTLED" ? "Rendida" : "Pendiente"}
                     </span>
                   </div>
                 </div>
-
-                {selectedBoleta.archivo ? (
-                  <div className="flex items-center gap-3 rounded-xl bg-muted/50 px-4 py-3">
-                    <Paperclip className="size-4 shrink-0 text-muted-foreground" />
-                    <div className="flex flex-col gap-2 min-w-0 flex-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                        Comprobante
-                      </p>
-                      {selectedBoleta.archivo.type.startsWith("image/") ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={URL.createObjectURL(selectedBoleta.archivo)}
-                          alt="Comprobante"
-                          className="w-full rounded-xl border border-border object-cover"
-                        />
-                      ) : (
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {selectedBoleta.archivo.name}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3 rounded-xl bg-muted/50 px-4 py-3">
-                    <Paperclip className="size-4 shrink-0 text-muted-foreground/40" />
-                    <div className="flex flex-col gap-0.5">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                        Comprobante
-                      </p>
-                      <p className="text-sm italic text-muted-foreground/60">Sin adjunto</p>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="flex flex-col gap-3 pt-2 border-t border-border">
                 <Button
-                  variant={selectedBoleta.rendida ? "outline" : "default"}
+                  variant={selectedInvoice.status === "SETTLED" ? "outline" : "default"}
                   className="h-11"
-                  onClick={() => {
-                    toggleRendida(selectedBoleta.id)
-                    setSelectedBoleta((prev) => prev ? { ...prev, rendida: !prev.rendida } : null)
-                  }}
+                  onClick={() => toggleStatus(selectedInvoice)}
                 >
-                  {selectedBoleta.rendida ? "Reabrir boleta" : "Marcar como rendida"}
+                  {selectedInvoice.status === "SETTLED" ? "Reabrir boleta" : "Marcar como rendida"}
                 </Button>
               </div>
             </div>
