@@ -15,6 +15,7 @@ import { DatePicker } from "@/components/ui/date-picker"
 import { format } from "date-fns"
 import { NativeSelect } from "@/components/ui/native-select"
 import { Paperclip } from "lucide-react"
+import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
 type Props = {
   mode: "create" | "edit"
@@ -59,12 +60,33 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
 
   async function onSubmit(values: CreateMovimientoInput) {
     setError(null)
-    const endpoint = mode === "create" ? "/api/movimientos" : `/api/movimientos/${movimientoId}`
+
+    let attachment_url: string | null = null
+    if (supportFile) {
+      try {
+        const supabase = createSupabaseBrowserClient()
+        const ext = supportFile.name.split(".").pop() ?? "bin"
+        const path = `${crypto.randomUUID()}.${ext}`
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("movement-attachments")
+          .upload(path, supportFile, { upsert: false })
+        if (uploadError) throw uploadError
+        const { data: urlData } = supabase.storage
+          .from("movement-attachments")
+          .getPublicUrl(uploadData.path)
+        attachment_url = urlData.publicUrl
+      } catch {
+        setError("Error al subir el comprobante. Intente nuevamente.")
+        return
+      }
+    }
+
+    const endpoint = mode === "create" ? "/api/movements" : `/api/movements/${movimientoId}`
     const method = mode === "create" ? "POST" : "PUT"
     const res = await fetch(endpoint, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values)
+      body: JSON.stringify({ ...values, attachment_url })
     })
 
     if (!res.ok) {

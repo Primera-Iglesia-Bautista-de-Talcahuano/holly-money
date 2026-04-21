@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod"
 
 export const movimientoBaseSchema = z.object({
   movement_date: z.string().min(1, "La fecha es requerida"),
@@ -13,19 +13,19 @@ export const movimientoBaseSchema = z.object({
   payment_method: z.string().optional().nullable(),
   support_number: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
-  attachment_url: z.string().url().optional().nullable(),
-});
+  attachment_url: z.string().url().optional().nullable()
+})
 
-export const createMovimientoSchema = movimientoBaseSchema;
+export const createMovimientoSchema = movimientoBaseSchema
 
 export const updateMovimientoSchema = movimientoBaseSchema.extend({
-  id: z.string().min(1),
-});
+  id: z.string().min(1)
+})
 
 export const anularMovimientoSchema = z.object({
-  cancellation_reason: z.string().min(3, "Debes indicar un motivo de anulacion"),
-});
+  cancellation_reason: z.string().min(3, "Debes indicar un motivo de anulacion")
+})
 
-export type CreateMovimientoInput = z.infer<typeof createMovimientoSchema>;
-export type UpdateMovimientoInput = z.infer<typeof updateMovimientoSchema>;
-export type AnularMovimientoInput = z.infer<typeof anularMovimientoSchema>;
+export type CreateMovimientoInput = z.infer<typeof createMovimientoSchema>
+export type UpdateMovimientoInput = z.infer<typeof updateMovimientoSchema>
+export type AnularMovimientoInput = z.infer<typeof anularMovimientoSchema>

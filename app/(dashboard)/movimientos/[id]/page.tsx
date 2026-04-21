@@ -169,6 +169,23 @@ export default async function MovimientoDetallePage({ params }: Props) {
               </p>
             </div>
 
+            {row.attachment_url && (
+              <div className="mt-4 pt-4 border-t border-border flex flex-col gap-2">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Comprobante adjunto
+                </p>
+                <Link
+                  href={row.attachment_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+                >
+                  <ExternalLink className="size-4 shrink-0" />
+                  Ver comprobante
+                </Link>
+              </div>
+            )}
+
             {row.status === "CANCELLED" && (
               <div className="mt-6 p-5 rounded-lg bg-destructive/5 flex flex-col gap-1">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-destructive">
