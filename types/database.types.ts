@@ -52,6 +52,53 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          amount: number
+          attachment_url: string | null
+          created_at: string
+          created_by_id: string
+          date: string
+          description: string | null
+          id: string
+          number: string
+          status: Database["public"]["Enums"]["invoice_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          attachment_url?: string | null
+          created_at?: string
+          created_by_id: string
+          date: string
+          description?: string | null
+          id?: string
+          number: string
+          status?: Database["public"]["Enums"]["invoice_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          attachment_url?: string | null
+          created_at?: string
+          created_by_id?: string
+          date?: string
+          description?: string | null
+          id?: string
+          number?: string
+          status?: Database["public"]["Enums"]["invoice_status"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_created_by_id_fkey"
+            columns: ["created_by_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movement_audit_log: {
         Row: {
           action: string
@@ -103,6 +150,7 @@ export type Database = {
       movements: {
         Row: {
           amount: number
+          attachment_url: string | null
           beneficiary: string | null
           cancellation_reason: string | null
           cancelled_at: string | null
@@ -137,6 +185,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          attachment_url?: string | null
           beneficiary?: string | null
           cancellation_reason?: string | null
           cancelled_at?: string | null
@@ -171,6 +220,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          attachment_url?: string | null
           beneficiary?: string | null
           cancellation_reason?: string | null
           cancelled_at?: string | null
@@ -326,6 +376,7 @@ export type Database = {
       increment_and_get_folio: { Args: never; Returns: number }
     }
     Enums: {
+      invoice_status: "PENDING" | "SETTLED"
       movement_status: "ACTIVE" | "CANCELLED"
       movement_type: "INCOME" | "EXPENSE"
       notification_status: "PENDING" | "SENT" | "ERROR"
@@ -466,6 +517,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      invoice_status: ["PENDING", "SETTLED"],
       movement_status: ["ACTIVE", "CANCELLED"],
       movement_type: ["INCOME", "EXPENSE"],
       notification_status: ["PENDING", "SENT", "ERROR"],

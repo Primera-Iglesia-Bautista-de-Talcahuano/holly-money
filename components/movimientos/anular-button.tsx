@@ -38,7 +38,7 @@ export function AnularButton({
     if (!motivo.trim()) return
 
     setLoading(true)
-    const res = await fetch(`/api/movimientos/${movimientoId}/anular`, {
+    const res = await fetch(`/api/movements/${movimientoId}/cancel`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ cancellation_reason: motivo })

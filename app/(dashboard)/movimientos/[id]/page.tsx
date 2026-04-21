@@ -8,7 +8,16 @@ import { RegenerarPdfButton } from "@/components/movimientos/regenerar-pdf-butto
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { ChevronLeft, Edit, FileText, User, Calendar, Tag, Info as InfoIcon } from "lucide-react"
+import {
+  ChevronLeft,
+  Edit,
+  FileText,
+  User,
+  Calendar,
+  Tag,
+  Info as InfoIcon,
+  ExternalLink
+} from "lucide-react"
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -83,6 +92,17 @@ export default async function MovimientoDetallePage({ params }: Props) {
         </div>
 
         <div className="flex flex-wrap gap-3">
+          {row.pdf_url && (
+            <Button
+              variant="outline"
+              className="h-10 px-5"
+              render={<Link href={row.pdf_url} target="_blank" rel="noopener noreferrer" />}
+              nativeButton={false}
+            >
+              <ExternalLink className="size-4 text-primary" data-icon="inline-start" />
+              Ver PDF
+            </Button>
+          )}
           {canWrite && row.status !== "CANCELLED" && (
             <>
               <Button
@@ -149,6 +169,23 @@ export default async function MovimientoDetallePage({ params }: Props) {
               </p>
             </div>
 
+            {row.attachment_url && (
+              <div className="mt-4 pt-4 border-t border-border flex flex-col gap-2">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Comprobante adjunto
+                </p>
+                <Link
+                  href={row.attachment_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+                >
+                  <ExternalLink className="size-4 shrink-0" />
+                  Ver comprobante
+                </Link>
+              </div>
+            )}
+
             {row.status === "CANCELLED" && (
               <div className="mt-6 p-5 rounded-lg bg-destructive/5 flex flex-col gap-1">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-destructive">
@@ -196,13 +233,40 @@ export default async function MovimientoDetallePage({ params }: Props) {
               Historial Técnico
             </h3>
             <div className="flex flex-col gap-3">
-              <TechnicalItem label="Estado PDF" value={row.pdf_status} />
-              <TechnicalItem label="ID Drive" value={row.drive_file_id} />
+              <TechnicalItem
+                label="Estado PDF"
+                value={
+                  { PENDING: "Pendiente", GENERATED: "Generado", ERROR: "Error" }[row.pdf_status] ??
+                  row.pdf_status
+                }
+              />
+              <div className="flex items-center justify-between text-xs border-b border-border pb-2">
+                <span className="font-bold text-muted-foreground">Archivo PDF</span>
+                {row.pdf_url ? (
+                  <Link
+                    href={row.pdf_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 font-bold text-primary hover:underline"
+                  >
+                    Abrir <ExternalLink className="size-3" />
+                  </Link>
+                ) : (
+                  <span className="font-bold text-foreground">—</span>
+                )}
+              </div>
               <TechnicalItem
                 label="Sincronización"
                 value={row.synced_to_sheet ? "Completado" : "Pendiente"}
               />
-              <TechnicalItem label="Notificación" value={row.notification_status} />
+              <TechnicalItem
+                label="Notificación"
+                value={
+                  { PENDING: "Pendiente", SENT: "Enviada", ERROR: "Error" }[
+                    row.notification_status
+                  ] ?? row.notification_status
+                }
+              />
             </div>
           </Card>
         </div>

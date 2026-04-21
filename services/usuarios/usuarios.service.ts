@@ -60,11 +60,11 @@ export const usuariosService = {
 
     await auditoriaService.logSystem({
       entity: "users",
-      action: "CREATED",
+      action: "Usuario invitado",
       entity_id: userId,
       user_id: actingUserId,
       new_value: { email, full_name: input.full_name.trim(), role: input.role },
-      note: "User invited (pending activation)"
+      note: "Invitación enviada, pendiente de activación"
     })
 
     const { data: profile } = await admin
@@ -116,12 +116,12 @@ export const usuariosService = {
 
     await auditoriaService.logSystem({
       entity: "users",
-      action: "UPDATED",
+      action: "Cuenta reseteada",
       entity_id: userId,
       user_id: actingUserId,
       previous_value: { status: user.status },
       new_value: { status: "PENDING_RESET" },
-      note: "Admin-initiated account reset"
+      note: "Restablecimiento de cuenta iniciado por administrador"
     })
   },
 
@@ -144,11 +144,11 @@ export const usuariosService = {
 
     await auditoriaService.logSystem({
       entity: "users",
-      action: "DELETED",
+      action: "Usuario eliminado",
       entity_id: userId,
       user_id: actingUserId,
       previous_value: user,
-      note: "User deleted by admin"
+      note: "Usuario eliminado por administrador"
     })
   },
 
@@ -187,10 +187,10 @@ export const usuariosService = {
 
     await auditoriaService.logSystem({
       entity: "users",
-      action: "UPDATED",
+      action: "Invitación reenviada",
       entity_id: userId,
       user_id: actingUserId,
-      note: "Invite resent"
+      note: "Correo de invitación reenviado"
     })
   },
 
@@ -221,12 +221,12 @@ export const usuariosService = {
 
     await auditoriaService.logSystem({
       entity: "users",
-      action: "UPDATED",
+      action: "Usuario actualizado",
       entity_id: input.id,
       user_id: actingUserId,
       previous_value: current,
       new_value: updated,
-      note: "User updated"
+      note: "Información del usuario actualizada"
     })
 
     return updated

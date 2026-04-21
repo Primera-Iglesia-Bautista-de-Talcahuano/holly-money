@@ -124,7 +124,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
   const selectedRole = useWatch({ control: createForm.control, name: "role" })
 
   const handleCreate = async (values: CreateUsuarioInput) => {
-    const res = await fetch("/api/usuarios", {
+    const res = await fetch("/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values)
@@ -157,7 +157,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
   }
 
   const handleUpdate = async (values: UpdateUsuarioInput) => {
-    const res = await fetch(`/api/usuarios/${values.id}`, {
+    const res = await fetch(`/api/users/${values.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values)
@@ -177,7 +177,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
   const handleDelete = async () => {
     if (!deletingUser) return
     setDeleteLoading(true)
-    const res = await fetch(`/api/usuarios/${deletingUser.id}`, { method: "DELETE" })
+    const res = await fetch(`/api/users/${deletingUser.id}`, { method: "DELETE" })
     setDeleteLoading(false)
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { message?: string }
@@ -193,7 +193,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
 
   // ── Resend invite ─────────────────────────────────────────────────────────────
   const handleResendInvite = async (userId: string) => {
-    const res = await fetch(`/api/usuarios/${userId}/resend-invite`, { method: "POST" })
+    const res = await fetch(`/api/users/${userId}/resend-invite`, { method: "POST" })
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { message?: string }
       toast.error(data.message ?? "No se pudo reenviar la invitación.")
@@ -206,7 +206,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
 
   // ── Reset account ─────────────────────────────────────────────────────────────
   const handleReset = async (userId: string) => {
-    const res = await fetch(`/api/usuarios/${userId}/reset`, { method: "POST" })
+    const res = await fetch(`/api/users/${userId}/reset`, { method: "POST" })
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { message?: string }
       toast.error(data.message ?? "No se pudo resetear la cuenta.")

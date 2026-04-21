@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label"
 import { DatePicker } from "@/components/ui/date-picker"
 import { format } from "date-fns"
 import { NativeSelect } from "@/components/ui/native-select"
+import { Paperclip } from "lucide-react"
+import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
 type Props = {
   mode: "create" | "edit"
@@ -30,13 +32,14 @@ function toDateValue(value?: string) {
 export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }: Props) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
+  const [supportFile, setSupportFile] = useState<File | null>(null)
 
   const form = useForm<MovimientoFormInput, unknown, CreateMovimientoInput>({
     resolver: zodResolver(createMovimientoSchema),
     defaultValues: {
       movement_date: toDateValue(initialValues?.movement_date),
       movement_type: initialValues?.movement_type ?? "INCOME",
-      amount: initialValues?.amount ?? 0,
+      amount: initialValues?.amount ?? ("" as unknown as number),
       category: initialValues?.category ?? "",
       concept: initialValues?.concept ?? "",
       reference_person: initialValues?.reference_person ?? "",
@@ -57,12 +60,33 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
 
   async function onSubmit(values: CreateMovimientoInput) {
     setError(null)
-    const endpoint = mode === "create" ? "/api/movimientos" : `/api/movimientos/${movimientoId}`
+
+    let attachment_url: string | null = null
+    if (supportFile) {
+      try {
+        const supabase = createSupabaseBrowserClient()
+        const ext = supportFile.name.split(".").pop() ?? "bin"
+        const path = `${crypto.randomUUID()}.${ext}`
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("movement-attachments")
+          .upload(path, supportFile, { upsert: false })
+        if (uploadError) throw uploadError
+        const { data: urlData } = supabase.storage
+          .from("movement-attachments")
+          .getPublicUrl(uploadData.path)
+        attachment_url = urlData.publicUrl
+      } catch {
+        setError("Error al subir el comprobante. Intente nuevamente.")
+        return
+      }
+    }
+
+    const endpoint = mode === "create" ? "/api/movements" : `/api/movements/${movimientoId}`
     const method = mode === "create" ? "POST" : "PUT"
     const res = await fetch(endpoint, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values)
+      body: JSON.stringify({ ...values, attachment_url })
     })
 
     if (!res.ok) {
@@ -122,7 +146,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
             <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
               Tipo de Operación
             </Label>
-            <NativeSelect className="w-full" {...form.register("movement_type")}>
+            <NativeSelect className="w-full" size="lg" {...form.register("movement_type")}>
               <option value="INCOME">Ingreso (Entrada)</option>
               <option value="EXPENSE">Egreso (Gasto)</option>
             </NativeSelect>
@@ -148,7 +172,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
             <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
               Categoría
             </Label>
-            <NativeSelect className="w-full" {...form.register("category")}>
+            <NativeSelect className="w-full" size="lg" {...form.register("category")}>
               <option value="">Seleccione Categoría</option>
               {categorias.map((category) => (
                 <option key={category} value={category}>
@@ -277,6 +301,44 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
             placeholder="Algún detalle adicional relevante..."
             {...form.register("notes")}
           />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+            Comprobante (foto o archivo)
+          </Label>
+          <label
+            htmlFor="support-file"
+            className="flex h-20 w-full cursor-pointer items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/50 transition-colors hover:border-primary/40 hover:bg-muted"
+          >
+            <input
+              id="support-file"
+              type="file"
+              accept="image/*,application/pdf"
+              onChange={(e) => setSupportFile(e.target.files?.[0] ?? null)}
+              className="sr-only"
+            />
+            <Paperclip className="size-4 text-muted-foreground/60" />
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
+              {supportFile ? supportFile.name : "Seleccionar archivo o tomar foto"}
+            </span>
+          </label>
+          {supportFile && supportFile.type.startsWith("image/") && (
+            <div className="flex items-center gap-3 rounded-xl bg-muted px-4 py-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={URL.createObjectURL(supportFile)}
+                alt="Vista previa"
+                className="size-12 object-cover rounded-lg border border-border"
+              />
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <p className="text-xs font-bold text-foreground truncate">{supportFile.name}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {(supportFile.size / 1024).toFixed(1)} KB
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

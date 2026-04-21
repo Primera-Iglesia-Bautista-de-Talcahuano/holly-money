@@ -20,7 +20,7 @@ const PAGE_LABELS: Record<string, string> = {
   "/movimientos": "Movimientos",
   "/movimientos/nuevo": "Nuevo Movimiento",
   "/eventos": "Eventos",
-  "/rendicion-boletas": "Rendición de Boletas",
+  "/rendiciones": "Rendiciones",
   "/usuarios": "Usuarios",
   "/auditoria": "Auditoría"
 }

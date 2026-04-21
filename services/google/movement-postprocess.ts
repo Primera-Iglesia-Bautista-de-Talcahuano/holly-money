@@ -78,8 +78,10 @@ export async function processMovimientoIntegrations(movimientoId: string, userId
   await auditoriaService.logMovement({
     movement_id: movimientoId,
     user_id: userId,
-    action: "PDF_REGENERATED",
-    note: pdfResult.ok ? "PDF generado/regenerado" : `Error PDF: ${pdfResult.error ?? ""}`
+    action: "PDF regenerado",
+    note: pdfResult.ok
+      ? "PDF generado exitosamente"
+      : `Error al generar PDF: ${pdfResult.error ?? ""}`
   })
 
   // Sheets sync
@@ -106,9 +108,9 @@ export async function processMovimientoIntegrations(movimientoId: string, userId
   await auditoriaService.logMovement({
     movement_id: movimientoId,
     user_id: userId,
-    action: mailResult.ok ? "NOTIFICATION_SENT" : "NOTIFICATION_ERROR",
+    action: mailResult.ok ? "Notificación enviada" : "Error de notificación",
     note: mailResult.ok
-      ? "Correo enviado por Apps Script"
-      : `Error correo: ${mailResult.error ?? ""}`
+      ? "Correo de notificación enviado exitosamente"
+      : `Error al enviar correo: ${mailResult.error ?? ""}`
   })
 }
