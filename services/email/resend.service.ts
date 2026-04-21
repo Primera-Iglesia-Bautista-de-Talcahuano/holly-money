@@ -5,7 +5,14 @@ import type { AppsScriptResponse, MovementIntegrationPayload } from "@/services/
 const ORG_NAME = "Primera Iglesia Bautista de Talcahuano"
 const ORG_SHORT = "Sistema Contable PIBT"
 const FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL ?? "Sistema contable PIBT <noreply@pibtalcahuano.com>"
+  process.env.RESEND_FROM_EMAIL ?? "Sistema contable PIBT <hola@pibtalcahuano.com>"
+
+const UNSUBSCRIBE_EMAIL = "hola@pibtalcahuano.com"
+const TRANSACTIONAL_HEADERS = {
+  "List-Unsubscribe": `<mailto:${UNSUBSCRIBE_EMAIL}?subject=unsubscribe>`,
+  "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+  "X-Entity-Ref-ID": "sistema-contable-pibt"
+}
 
 function formatAmount(amount: number): string {
   return new Intl.NumberFormat("es-CL", {
@@ -107,7 +114,8 @@ export async function sendMovementEmail(
     replyTo: process.env.NOTIFICATION_EMAIL,
     subject: `[${movement.tipo}] Folio ${movement.folio} - ${movement.concepto}`,
     html: buildEmailHtml(movement),
-    text: buildEmailText(movement)
+    text: buildEmailText(movement),
+    headers: TRANSACTIONAL_HEADERS
   })
 
   if (error) return { ok: false, error: error.message }
@@ -201,7 +209,8 @@ export async function sendInviteEmail(opts: {
     to: opts.to,
     subject: `Activa tu cuenta — ${ORG_SHORT}`,
     html: buildAuthEmailHtml(emailOpts),
-    text: buildAuthEmailText(emailOpts)
+    text: buildAuthEmailText(emailOpts),
+    headers: TRANSACTIONAL_HEADERS
   })
 }
 
@@ -224,7 +233,8 @@ export async function sendResetEmail(opts: {
     to: opts.to,
     subject: `Restablece tu contraseña — ${ORG_SHORT}`,
     html: buildAuthEmailHtml(emailOpts),
-    text: buildAuthEmailText(emailOpts)
+    text: buildAuthEmailText(emailOpts),
+    headers: TRANSACTIONAL_HEADERS
   })
 }
 
@@ -246,6 +256,7 @@ export async function sendForgotPasswordEmail(opts: {
     to: opts.to,
     subject: `Recupera tu contraseña — ${ORG_SHORT}`,
     html: buildAuthEmailHtml(emailOpts),
-    text: buildAuthEmailText(emailOpts)
+    text: buildAuthEmailText(emailOpts),
+    headers: TRANSACTIONAL_HEADERS
   })
 }
