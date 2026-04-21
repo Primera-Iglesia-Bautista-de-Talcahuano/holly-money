@@ -8,8 +8,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { InputGroup, InputGroupInlineEnd } from "@/components/ui/input-group"
+import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Dialog,
   DialogContent,
@@ -80,84 +81,83 @@ export function LoginForm() {
   return (
     <>
       <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
-        {/* Email */}
-        <div className="flex flex-col gap-1.5">
-          <Label
-            htmlFor="email"
-            className="text-[11px] uppercase tracking-[0.05em] text-muted-foreground"
-          >
-            Correo electrónico
-          </Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="correo@iglesia.cl"
-            aria-invalid={!!errors.email}
-            {...register("email")}
-          />
-          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
-        </div>
-
-        {/* Password */}
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
-            <Label
-              htmlFor="password"
+        <FieldGroup>
+          <Field data-invalid={!!errors.email || undefined}>
+            <FieldLabel
+              htmlFor="email"
               className="text-[11px] uppercase tracking-[0.05em] text-muted-foreground"
             >
-              Contraseña
-            </Label>
-            <button
-              type="button"
-              onClick={() => {
-                setForgotOpen(true)
-                setForgotSent(false)
-              }}
-              className="text-xs text-primary hover:underline focus-visible:outline-none"
-            >
-              ¿Olvidaste tu contraseña?
-            </button>
-          </div>
-          <InputGroup>
+              Correo electrónico
+            </FieldLabel>
             <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              className="pr-10"
-              aria-invalid={!!errors.password}
-              {...register("password")}
+              id="email"
+              type="email"
+              placeholder="correo@iglesia.cl"
+              aria-invalid={!!errors.email}
+              {...register("email")}
             />
-            <InputGroupInlineEnd>
+            <FieldError errors={[errors.email]} />
+          </Field>
+
+          <Field data-invalid={!!errors.password || undefined}>
+            <div className="flex items-center justify-between">
+              <FieldLabel
+                htmlFor="password"
+                className="text-[11px] uppercase tracking-[0.05em] text-muted-foreground"
+              >
+                Contraseña
+              </FieldLabel>
               <button
                 type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none rounded"
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                onClick={() => {
+                  setForgotOpen(true)
+                  setForgotSent(false)
+                }}
+                className="text-xs text-primary hover:underline focus-visible:outline-none"
               >
-                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                ¿Olvidaste tu contraseña?
               </button>
-            </InputGroupInlineEnd>
-          </InputGroup>
-          {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
-        </div>
+            </div>
+            <InputGroup>
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                className="pr-10"
+                aria-invalid={!!errors.password}
+                {...register("password")}
+              />
+              <InputGroupInlineEnd>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none rounded"
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </InputGroupInlineEnd>
+            </InputGroup>
+            <FieldError errors={[errors.password]} />
+          </Field>
+        </FieldGroup>
 
-        {/* URL error (e.g. expired link) */}
         {urlError && (
-          <p className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-2.5 text-sm text-destructive text-center">
-            {urlError === "link_expired"
-              ? "El enlace ha expirado. Solicita uno nuevo."
-              : "Ocurrió un error. Intenta nuevamente."}
-          </p>
+          <Alert variant="destructive">
+            <AlertDescription>
+              {urlError === "link_expired"
+                ? "El enlace ha expirado. Solicita uno nuevo."
+                : "Ocurrió un error. Intenta nuevamente."}
+            </AlertDescription>
+          </Alert>
         )}
 
-        {/* Auth error */}
         {error && (
-          <p className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-2.5 text-sm text-destructive text-center">
-            {error}
-          </p>
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
-        {/* Submit */}
         <Button type="submit" disabled={isSubmitting} className="w-full transition-colors">
           {isSubmitting ? (
             <>
@@ -170,7 +170,6 @@ export function LoginForm() {
         </Button>
       </form>
 
-      {/* Forgot Password Dialog */}
       <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -188,26 +187,24 @@ export function LoginForm() {
               className="flex flex-col gap-4"
               onSubmit={forgotForm.handleSubmit(onForgotSubmit)}
             >
-              <div className="flex flex-col gap-1.5">
-                <Label
-                  htmlFor="forgot-email"
-                  className="text-[11px] uppercase tracking-[0.05em] text-muted-foreground"
-                >
-                  Correo electrónico
-                </Label>
-                <Input
-                  id="forgot-email"
-                  type="email"
-                  placeholder="correo@iglesia.cl"
-                  aria-invalid={!!forgotForm.formState.errors.email}
-                  {...forgotForm.register("email")}
-                />
-                {forgotForm.formState.errors.email && (
-                  <p className="text-xs text-destructive">
-                    {forgotForm.formState.errors.email.message}
-                  </p>
-                )}
-              </div>
+              <FieldGroup>
+                <Field data-invalid={!!forgotForm.formState.errors.email || undefined}>
+                  <FieldLabel
+                    htmlFor="forgot-email"
+                    className="text-[11px] uppercase tracking-[0.05em] text-muted-foreground"
+                  >
+                    Correo electrónico
+                  </FieldLabel>
+                  <Input
+                    id="forgot-email"
+                    type="email"
+                    placeholder="correo@iglesia.cl"
+                    aria-invalid={!!forgotForm.formState.errors.email}
+                    {...forgotForm.register("email")}
+                  />
+                  <FieldError errors={[forgotForm.formState.errors.email]} />
+                </Field>
+              </FieldGroup>
               <Button type="submit" className="w-full" disabled={forgotForm.formState.isSubmitting}>
                 {forgotForm.formState.isSubmitting ? (
                   <>

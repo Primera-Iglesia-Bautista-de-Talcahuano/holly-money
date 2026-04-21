@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 export function RegenerarPdfButton({ movimientoId }: { movimientoId: string }) {
   const [loading, setLoading] = useState(false)
@@ -16,7 +18,7 @@ export function RegenerarPdfButton({ movimientoId }: { movimientoId: string }) {
 
     if (!res.ok) {
       const payload = (await res.json().catch(() => ({}))) as { message?: string }
-      window.alert(payload.message ?? "No se pudo regenerar el PDF.")
+      toast.error(payload.message ?? "No se pudo regenerar el PDF.")
       return
     }
 
@@ -24,13 +26,8 @@ export function RegenerarPdfButton({ movimientoId }: { movimientoId: string }) {
   }
 
   return (
-    <button
-      type="button"
-      disabled={loading}
-      onClick={onClick}
-      className="inline-flex h-11 items-center px-5 rounded-xl border-none bg-surface-container-low hover:bg-surface-container-high text-on-surface text-sm font-bold transition-colors disabled:opacity-60"
-    >
+    <Button type="button" variant="outline" disabled={loading} onClick={onClick} className="h-11">
       {loading ? "Procesando..." : "Regenerar PDF"}
-    </button>
+    </Button>
   )
 }

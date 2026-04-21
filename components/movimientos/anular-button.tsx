@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Field, FieldLabel } from "@/components/ui/field"
+import { toast } from "sonner"
 
 export function AnularButton({
   movimientoId,
@@ -47,7 +48,7 @@ export function AnularButton({
 
     if (!res.ok) {
       const payload = (await res.json().catch(() => ({}))) as { message?: string }
-      window.alert(payload.message ?? "No se pudo anular.")
+      toast.error(payload.message ?? "No se pudo anular.")
       return
     }
 
@@ -77,9 +78,9 @@ export function AnularButton({
             Por favor ingresa un motivo para anular este movimiento.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="motivo">Motivo</Label>
+        <div className="py-2">
+          <Field>
+            <FieldLabel htmlFor="motivo">Motivo</FieldLabel>
             <Input
               id="motivo"
               autoFocus
@@ -87,7 +88,7 @@ export function AnularButton({
               onChange={(e) => setMotivo(e.target.value)}
               placeholder="Ej: Error de digitación"
             />
-          </div>
+          </Field>
         </div>
         <DialogFooter>
           <DialogClose render={<Button variant="ghost" disabled={loading} />}>Cancelar</DialogClose>

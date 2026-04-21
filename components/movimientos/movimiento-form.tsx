@@ -10,10 +10,11 @@ import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/types/movimientos"
 import { z } from "zod"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import { DatePicker } from "@/components/ui/date-picker"
 import { format } from "date-fns"
 import { NativeSelect } from "@/components/ui/native-select"
+import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Paperclip } from "lucide-react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
@@ -120,89 +121,85 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-              Fecha de Registro
-            </Label>
-            <Controller
-              name="movement_date"
-              control={form.control}
-              render={({ field }) => (
-                <DatePicker
-                  value={field.value ? new Date(`${field.value}T12:00:00Z`) : undefined}
-                  onChange={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
-                  className="h-12 sm:h-14"
-                />
-              )}
-            />
-            {form.formState.errors.movement_date && (
-              <p className="text-xs text-destructive mt-1 ml-1">
-                {form.formState.errors.movement_date.message}
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-              Tipo de Operación
-            </Label>
-            <NativeSelect className="w-full" size="lg" {...form.register("movement_type")}>
-              <option value="INCOME">Ingreso (Entrada)</option>
-              <option value="EXPENSE">Egreso (Gasto)</option>
-            </NativeSelect>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-              Monto (CLP)
-            </Label>
-            <Input
-              type="number"
-              min="1"
-              className="h-12 sm:h-14 text-lg font-bold"
-              placeholder="0"
-              {...form.register("amount", { valueAsNumber: true })}
-            />
-            {form.formState.errors.amount && (
-              <p className="text-xs text-destructive mt-1 ml-1">
-                {form.formState.errors.amount.message}
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-              Categoría
-            </Label>
-            <NativeSelect className="w-full" size="lg" {...form.register("category")}>
-              <option value="">Seleccione Categoría</option>
-              {categorias.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </NativeSelect>
-            {form.formState.errors.category && (
-              <p className="text-xs text-destructive mt-1 ml-1">
-                {form.formState.errors.category.message}
-              </p>
-            )}
-          </div>
-        </div>
+        <FieldGroup>
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <Field data-invalid={!!form.formState.errors.movement_date || undefined}>
+              <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                Fecha de Registro
+              </FieldLabel>
+              <Controller
+                name="movement_date"
+                control={form.control}
+                render={({ field }) => (
+                  <DatePicker
+                    value={field.value ? new Date(`${field.value}T12:00:00Z`) : undefined}
+                    onChange={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                    className="h-12 sm:h-14"
+                  />
+                )}
+              />
+              <FieldError errors={[form.formState.errors.movement_date]} />
+            </Field>
 
-        <div className="flex flex-col gap-2">
-          <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-            Concepto / Glosa
-          </Label>
-          <Input
-            className="h-12 sm:h-14 font-medium"
-            placeholder="Descripción breve del movimiento..."
-            {...form.register("concept")}
-          />
-          {form.formState.errors.concept && (
-            <p className="text-xs text-destructive mt-1 ml-1">
-              {form.formState.errors.concept.message}
-            </p>
-          )}
-        </div>
+            <Field>
+              <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                Tipo de Operación
+              </FieldLabel>
+              <NativeSelect className="w-full" size="lg" {...form.register("movement_type")}>
+                <option value="INCOME">Ingreso (Entrada)</option>
+                <option value="EXPENSE">Egreso (Gasto)</option>
+              </NativeSelect>
+            </Field>
+
+            <Field data-invalid={!!form.formState.errors.amount || undefined}>
+              <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                Monto (CLP)
+              </FieldLabel>
+              <Input
+                type="number"
+                min="1"
+                className="h-12 sm:h-14 text-lg font-bold"
+                placeholder="0"
+                aria-invalid={!!form.formState.errors.amount}
+                {...form.register("amount", { valueAsNumber: true })}
+              />
+              <FieldError errors={[form.formState.errors.amount]} />
+            </Field>
+
+            <Field data-invalid={!!form.formState.errors.category || undefined}>
+              <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                Categoría
+              </FieldLabel>
+              <NativeSelect
+                className="w-full"
+                size="lg"
+                aria-invalid={!!form.formState.errors.category}
+                {...form.register("category")}
+              >
+                <option value="">Seleccione Categoría</option>
+                {categorias.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </NativeSelect>
+              <FieldError errors={[form.formState.errors.category]} />
+            </Field>
+          </div>
+
+          <Field data-invalid={!!form.formState.errors.concept || undefined}>
+            <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+              Concepto / Glosa
+            </FieldLabel>
+            <Input
+              className="h-12 sm:h-14 font-medium"
+              placeholder="Descripción breve del movimiento..."
+              aria-invalid={!!form.formState.errors.concept}
+              {...form.register("concept")}
+            />
+            <FieldError errors={[form.formState.errors.concept]} />
+          </Field>
+        </FieldGroup>
       </div>
 
       {/* SECCIÓN 2: PARTICIPANTES */}
@@ -216,36 +213,38 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
         </div>
 
         <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+          <Field>
+            <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
               Referente / Entidad
-            </Label>
+            </FieldLabel>
             <Input
               className="h-12 sm:h-14"
               placeholder="Opcional"
               {...form.register("reference_person")}
             />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+          </Field>
+
+          <Field>
+            <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
               Recibido por
-            </Label>
+            </FieldLabel>
             <Input
               className="h-12 sm:h-14"
               placeholder="Opcional"
               {...form.register("received_by")}
             />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+          </Field>
+
+          <Field>
+            <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
               Entregado por
-            </Label>
+            </FieldLabel>
             <Input
               className="h-12 sm:h-14"
               placeholder="Opcional"
               {...form.register("delivered_by")}
             />
-          </div>
+          </Field>
         </div>
       </div>
 
@@ -259,93 +258,97 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-              Beneficiario
-            </Label>
-            <Input
-              className="h-12 sm:h-14"
-              placeholder="Opcional"
-              {...form.register("beneficiary")}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-              Medio de Pago
-            </Label>
-            <Input
-              className="h-12 sm:h-14"
-              placeholder="Efectivo, Transferencia, etc."
-              {...form.register("payment_method")}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-              N° Documento Respaldo
-            </Label>
-            <Input
-              className="h-12 sm:h-14"
-              placeholder="Boleta, Factura, etc."
-              {...form.register("support_number")}
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-            Observaciones Adicionales
-          </Label>
-          <textarea
-            className="flex min-h-[100px] sm:min-h-[120px] w-full rounded-lg border border-border bg-background px-4 py-3 text-base font-medium text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition-all"
-            placeholder="Algún detalle adicional relevante..."
-            {...form.register("notes")}
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-            Comprobante (foto o archivo)
-          </Label>
-          <label
-            htmlFor="support-file"
-            className="flex h-20 w-full cursor-pointer items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/50 transition-colors hover:border-primary/40 hover:bg-muted"
-          >
-            <input
-              id="support-file"
-              type="file"
-              accept="image/*,application/pdf"
-              onChange={(e) => setSupportFile(e.target.files?.[0] ?? null)}
-              className="sr-only"
-            />
-            <Paperclip className="size-4 text-muted-foreground/60" />
-            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
-              {supportFile ? supportFile.name : "Seleccionar archivo o tomar foto"}
-            </span>
-          </label>
-          {supportFile && supportFile.type.startsWith("image/") && (
-            <div className="flex items-center gap-3 rounded-xl bg-muted px-4 py-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={URL.createObjectURL(supportFile)}
-                alt="Vista previa"
-                className="size-12 object-cover rounded-lg border border-border"
+        <FieldGroup>
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <Field>
+              <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                Beneficiario
+              </FieldLabel>
+              <Input
+                className="h-12 sm:h-14"
+                placeholder="Opcional"
+                {...form.register("beneficiary")}
               />
-              <div className="flex flex-col gap-0.5 min-w-0">
-                <p className="text-xs font-bold text-foreground truncate">{supportFile.name}</p>
-                <p className="text-[11px] text-muted-foreground">
-                  {(supportFile.size / 1024).toFixed(1)} KB
-                </p>
+            </Field>
+
+            <Field>
+              <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                Medio de Pago
+              </FieldLabel>
+              <Input
+                className="h-12 sm:h-14"
+                placeholder="Efectivo, Transferencia, etc."
+                {...form.register("payment_method")}
+              />
+            </Field>
+
+            <Field>
+              <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                N° Documento Respaldo
+              </FieldLabel>
+              <Input
+                className="h-12 sm:h-14"
+                placeholder="Boleta, Factura, etc."
+                {...form.register("support_number")}
+              />
+            </Field>
+          </div>
+
+          <Field>
+            <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+              Observaciones Adicionales
+            </FieldLabel>
+            <textarea
+              className="flex min-h-[100px] sm:min-h-[120px] w-full rounded-lg border border-border bg-background px-4 py-3 text-base font-medium text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+              placeholder="Algún detalle adicional relevante..."
+              {...form.register("notes")}
+            />
+          </Field>
+
+          <Field>
+            <FieldLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+              Comprobante (foto o archivo)
+            </FieldLabel>
+            <label
+              htmlFor="support-file"
+              className="flex h-20 w-full cursor-pointer items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/50 transition-colors hover:border-primary/40 hover:bg-muted"
+            >
+              <input
+                id="support-file"
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={(e) => setSupportFile(e.target.files?.[0] ?? null)}
+                className="sr-only"
+              />
+              <Paperclip className="size-4 text-muted-foreground/60" />
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
+                {supportFile ? supportFile.name : "Seleccionar archivo o tomar foto"}
+              </span>
+            </label>
+            {supportFile && supportFile.type.startsWith("image/") && (
+              <div className="flex items-center gap-3 rounded-xl bg-muted px-4 py-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={URL.createObjectURL(supportFile)}
+                  alt="Vista previa"
+                  className="size-12 object-cover rounded-lg border border-border"
+                />
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <p className="text-xs font-bold text-foreground truncate">{supportFile.name}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {(supportFile.size / 1024).toFixed(1)} KB
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </Field>
+        </FieldGroup>
       </div>
 
       {error && (
-        <p className="rounded-lg bg-destructive/10 text-destructive px-4 py-3 text-sm font-semibold">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
       <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-border">
