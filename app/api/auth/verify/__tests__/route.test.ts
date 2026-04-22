@@ -3,9 +3,13 @@
  */
 import { GET } from "../route"
 import { NextRequest } from "next/server"
+import { createSupabaseServerClient } from "@/lib/supabase/server"
 
-const SUPABASE_URL = "http://localhost:54321"
 const ORIGIN = "https://pibtalcahuano.com"
+
+jest.mock("@/lib/supabase/server")
+
+const mockedCreateClient = jest.mocked(createSupabaseServerClient)
 
 function makeRequest(params: Record<string, string>) {
   const url = new URL(`${ORIGIN}/api/auth/verify`)
@@ -13,60 +17,76 @@ function makeRequest(params: Record<string, string>) {
   return new NextRequest(url.toString(), { headers: new Headers() })
 }
 
+let mockSignOut: jest.Mock
+let mockVerifyOtp: jest.Mock
+
 beforeEach(() => {
-  process.env.NEXT_PUBLIC_SUPABASE_URL = SUPABASE_URL
+  mockSignOut = jest.fn().mockResolvedValue({})
+  mockVerifyOtp = jest.fn().mockResolvedValue({ error: null })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  mockedCreateClient.mockResolvedValue({ auth: { signOut: mockSignOut, verifyOtp: mockVerifyOtp } } as any)
 })
 
 describe("GET /api/auth/verify", () => {
-  it("redirects to Supabase verify with token, type and redirect_to", async () => {
+  it("signs out and calls verifyOtp then redirects to /activar on success", async () => {
+    const req = makeRequest({ token: "abc123", type: "invite" })
+    const res = await GET(req)
+
+    expect(mockSignOut).toHaveBeenCalled()
+    expect(mockVerifyOtp).toHaveBeenCalledWith({ token_hash: "abc123", type: "invite" })
+    expect(res.status).toBe(307)
+    const location = new URL(res.headers.get("location")!)
+    expect(location.pathname).toBe("/activar")
+  })
+
+  it("redirects to /activar for recovery type on success", async () => {
+    const req = makeRequest({ token: "xyz789", type: "recovery" })
+    const res = await GET(req)
+
+    expect(mockVerifyOtp).toHaveBeenCalledWith({ token_hash: "xyz789", type: "recovery" })
+    const location = new URL(res.headers.get("location")!)
+    expect(location.pathname).toBe("/activar")
+  })
+
+  it("redirects to / with error=link_expired when verifyOtp fails", async () => {
+    mockVerifyOtp.mockResolvedValue({ error: new Error("Token expired") })
     const req = makeRequest({ token: "abc123", type: "invite" })
     const res = await GET(req)
 
     expect(res.status).toBe(307)
     const location = new URL(res.headers.get("location")!)
-    expect(location.origin).toBe(SUPABASE_URL)
-    expect(location.pathname).toBe("/auth/v1/verify")
-    expect(location.searchParams.get("token")).toBe("abc123")
-    expect(location.searchParams.get("type")).toBe("invite")
-    expect(location.searchParams.get("redirect_to")).toBe(`${ORIGIN}/auth/callback`)
+    expect(location.pathname).toBe("/")
+    expect(location.searchParams.get("error")).toBe("link_expired")
   })
 
-  it("redirects to Supabase for recovery type", async () => {
-    const req = makeRequest({ token: "xyz789", type: "recovery" })
-    const res = await GET(req)
-
-    expect(res.status).toBe(307)
-    const location = new URL(res.headers.get("location")!)
-    expect(location.searchParams.get("type")).toBe("recovery")
-  })
-
-  it("redirects to login when token missing", async () => {
+  it("redirects to / with error=invalid_link when token missing", async () => {
     const req = makeRequest({ type: "invite" })
     const res = await GET(req)
 
+    expect(mockVerifyOtp).not.toHaveBeenCalled()
     expect(res.status).toBe(307)
     const location = new URL(res.headers.get("location")!)
-    expect(location.pathname).toBe("/auth/login")
+    expect(location.pathname).toBe("/")
     expect(location.searchParams.get("error")).toBe("invalid_link")
   })
 
-  it("redirects to login when type missing", async () => {
+  it("redirects to / with error=invalid_link when type missing", async () => {
     const req = makeRequest({ token: "abc123" })
     const res = await GET(req)
 
-    expect(res.status).toBe(307)
+    expect(mockVerifyOtp).not.toHaveBeenCalled()
     const location = new URL(res.headers.get("location")!)
-    expect(location.pathname).toBe("/auth/login")
+    expect(location.pathname).toBe("/")
     expect(location.searchParams.get("error")).toBe("invalid_link")
   })
 
-  it("redirects to login for invalid type", async () => {
+  it("redirects to / with error=invalid_link for invalid type", async () => {
     const req = makeRequest({ token: "abc123", type: "malicious_type" })
     const res = await GET(req)
 
-    expect(res.status).toBe(307)
+    expect(mockVerifyOtp).not.toHaveBeenCalled()
     const location = new URL(res.headers.get("location")!)
-    expect(location.pathname).toBe("/auth/login")
+    expect(location.pathname).toBe("/")
     expect(location.searchParams.get("error")).toBe("invalid_link")
   })
 
@@ -76,16 +96,15 @@ describe("GET /api/auth/verify", () => {
       const req = makeRequest({ token: "tok", type })
       const res = await GET(req)
       const location = new URL(res.headers.get("location")!)
-      expect(location.hostname).toBe(new URL(SUPABASE_URL).hostname)
+      expect(location.pathname).toBe("/activar")
     }
   })
 
-  it("token passes through without double-encoding", async () => {
+  it("passes token_hash through to verifyOtp without modification", async () => {
     const token = "MIGfMA0GCSqGSIb3DQEBAQUAA4GN+/="
     const req = makeRequest({ token, type: "invite" })
-    const res = await GET(req)
+    await GET(req)
 
-    const location = new URL(res.headers.get("location")!)
-    expect(location.searchParams.get("token")).toBe(token)
+    expect(mockVerifyOtp).toHaveBeenCalledWith({ token_hash: token, type: "invite" })
   })
 })
