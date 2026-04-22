@@ -21,7 +21,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       )
     }
 
-    const updated = await invoicesService.updateStatus(id, parsed.data.status)
+    const updated = await invoicesService.updateStatus(id, parsed.data.status, user.id)
     return NextResponse.json(updated)
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected error"

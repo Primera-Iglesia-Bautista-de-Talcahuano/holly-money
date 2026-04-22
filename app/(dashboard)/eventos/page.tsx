@@ -27,36 +27,36 @@ import { format } from "date-fns"
 import { formatDate } from "@/lib/utils"
 import { Plus, CalendarDays } from "lucide-react"
 
-type Evento = {
+type CalendarEvent = {
   id: string
-  fecha: string
-  titulo: string
-  descripcion: string
+  date: string
+  title: string
+  description: string
 }
 
 export default function EventosPage() {
-  const [eventos, setEventos] = useState<Evento[]>([])
-  const [fecha, setFecha] = useState<Date | undefined>(undefined)
-  const [titulo, setTitulo] = useState("")
-  const [descripcion, setDescripcion] = useState("")
+  const [events, setEvents] = useState<CalendarEvent[]>([])
+  const [eventDate, setEventDate] = useState<Date | undefined>(undefined)
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
   const [open, setOpen] = useState(false)
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (!fecha || !titulo) return
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!eventDate || !title) return
 
-    setEventos((prev) => [
+    setEvents((prev) => [
       {
         id: crypto.randomUUID(),
-        fecha: format(fecha, "yyyy-MM-dd"),
-        titulo,
-        descripcion
+        date: format(eventDate, "yyyy-MM-dd"),
+        title,
+        description
       },
       ...prev
     ])
-    setFecha(undefined)
-    setTitulo("")
-    setDescripcion("")
+    setEventDate(undefined)
+    setTitle("")
+    setDescription("")
     setOpen(false)
   }
 
@@ -105,43 +105,43 @@ export default function EventosPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
                     <Label
-                      htmlFor="evt-fecha"
+                      htmlFor="evt-date"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Fecha del Evento
                     </Label>
-                    <DatePicker value={fecha} onChange={setFecha} className="h-12" />
+                    <DatePicker value={eventDate} onChange={setEventDate} className="h-12" />
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <Label
-                      htmlFor="evt-titulo"
+                      htmlFor="evt-title"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Título del Evento
                     </Label>
                     <Input
-                      id="evt-titulo"
+                      id="evt-title"
                       placeholder="Ej: Reunión de tesorería..."
-                      value={titulo}
-                      onChange={(e) => setTitulo(e.target.value)}
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
                       className="h-12 bg-muted border-none rounded-xl px-5 text-base font-medium"
                     />
                   </div>
 
                   <div className="sm:col-span-2 flex flex-col gap-2">
                     <Label
-                      htmlFor="evt-descripcion"
+                      htmlFor="evt-description"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Descripción <span className="text-xs font-normal opacity-50">(Opcional)</span>
                     </Label>
                     <textarea
-                      id="evt-descripcion"
+                      id="evt-description"
                       className="flex min-h-[120px] w-full rounded-xl border-none bg-muted px-5 py-4 text-base font-medium text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-ring transition-all"
                       placeholder="Agregue detalles importantes sobre el evento..."
-                      value={descripcion}
-                      onChange={(e) => setDescripcion(e.target.value)}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
                     />
                   </div>
                 </div>
@@ -169,7 +169,7 @@ export default function EventosPage() {
       <div className="flex flex-col gap-4">
         <h2 className="text-base font-semibold text-foreground">Eventos Registrados</h2>
 
-        {eventos.length === 0 ? (
+        {events.length === 0 ? (
           <Card className="p-0 overflow-hidden">
             <Empty className="border-0 py-16">
               <EmptyHeader>
@@ -183,18 +183,16 @@ export default function EventosPage() {
           </Card>
         ) : (
           <ItemGroup>
-            {eventos.map((evento) => (
-              <Item key={evento.id} variant="outline">
+            {events.map((evt) => (
+              <Item key={evt.id} variant="outline">
                 <ItemContent>
                   <ItemHeader>
                     <p className="text-[11px] font-bold uppercase tracking-widest text-primary">
-                      {formatDate(evento.fecha)}
+                      {formatDate(evt.date)}
                     </p>
                   </ItemHeader>
-                  <ItemTitle className="text-base font-bold text-foreground">
-                    {evento.titulo}
-                  </ItemTitle>
-                  {evento.descripcion && <ItemDescription>{evento.descripcion}</ItemDescription>}
+                  <ItemTitle className="text-base font-bold text-foreground">{evt.title}</ItemTitle>
+                  {evt.description && <ItemDescription>{evt.description}</ItemDescription>}
                 </ItemContent>
               </Item>
             ))}
