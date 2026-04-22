@@ -67,9 +67,19 @@ export default async function LoginPage() {
             <LoginForm />
           </Suspense>
 
-          <p className="text-center text-xs text-muted-foreground">
-            Acceso restringido a personal autorizado
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              Acceso restringido a personal autorizado
+            </p>
+            <a
+              href={`https://github.com/Primera-Iglesia-Bautista-de-Talcahuano/sistema_contable_pibt/commit/${process.env.NEXT_PUBLIC_COMMIT_SHA_FULL}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-[10px] text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors"
+            >
+              Version: {process.env.NEXT_PUBLIC_COMMIT_SHA}
+            </a>
+          </div>
         </div>
       </div>
     </main>

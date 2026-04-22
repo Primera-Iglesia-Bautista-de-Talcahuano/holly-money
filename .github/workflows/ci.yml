@@ -65,7 +65,6 @@ jobs:
 
       - name: Run tests
         run: pnpm run test
-        continue-on-error: true
 
   migrations:
     name: Supabase Migrations

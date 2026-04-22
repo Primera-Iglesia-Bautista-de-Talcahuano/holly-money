@@ -80,6 +80,16 @@ export function SiteHeader() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+        <div className="ml-auto">
+          <a
+            href={`https://github.com/Primera-Iglesia-Bautista-de-Talcahuano/sistema_contable_pibt/commit/${process.env.NEXT_PUBLIC_COMMIT_SHA_FULL}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-[10px] text-muted-foreground/50 hover:text-muted-foreground/80 transition-colors"
+          >
+            Version: {process.env.NEXT_PUBLIC_COMMIT_SHA}
+          </a>
+        </div>
       </div>
     </header>
   )

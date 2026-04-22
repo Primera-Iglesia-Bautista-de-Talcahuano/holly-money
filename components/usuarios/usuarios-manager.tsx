@@ -8,7 +8,6 @@ import type { UserRole } from "@/types/auth"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -31,6 +30,7 @@ import {
 import { createUsuarioSchema, updateUsuarioSchema } from "@/lib/validators/usuario"
 import type { CreateUsuarioInput, UpdateUsuarioInput } from "@/lib/validators/usuario"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field"
 import { toast } from "sonner"
 
 type UserStatus = "ACTIVE" | "INACTIVE" | "PENDING_ACTIVATION" | "PENDING_RESET"
@@ -305,62 +305,56 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                   <div className="h-px flex-1 bg-border" />
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <Label
-                    htmlFor="new-full_name"
-                    className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
-                  >
-                    Nombre Completo
-                  </Label>
-                  <Input
-                    id="new-full_name"
-                    placeholder="Ej: Juan Pérez"
-                    aria-invalid={!!createForm.formState.errors.full_name}
-                    className="h-12 bg-muted border-none shadow-none rounded-xl px-5 text-base font-medium"
-                    {...createForm.register("full_name")}
-                  />
-                  {createForm.formState.errors.full_name && (
-                    <p className="text-xs text-destructive ml-1">
-                      {createForm.formState.errors.full_name.message}
-                    </p>
-                  )}
-                </div>
+                <FieldGroup>
+                  <Field data-invalid={!!createForm.formState.errors.full_name || undefined}>
+                    <FieldLabel
+                      htmlFor="new-full_name"
+                      className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
+                    >
+                      Nombre Completo
+                    </FieldLabel>
+                    <Input
+                      id="new-full_name"
+                      placeholder="Ej: Juan Pérez"
+                      aria-invalid={!!createForm.formState.errors.full_name}
+                      className="h-12 bg-muted border-none shadow-none rounded-xl px-5 text-base font-medium"
+                      {...createForm.register("full_name")}
+                    />
+                    <FieldError errors={[createForm.formState.errors.full_name]} />
+                  </Field>
 
-                <div className="flex flex-col gap-2">
-                  <Label
-                    htmlFor="new-email"
-                    className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
-                  >
-                    Correo Electrónico
-                  </Label>
-                  <Input
-                    id="new-email"
-                    type="email"
-                    placeholder="usuario@ejemplo.com"
-                    aria-invalid={!!createForm.formState.errors.email}
-                    className="h-12 bg-muted border-none shadow-none rounded-xl px-5 text-base font-medium"
-                    {...createForm.register("email")}
-                  />
-                  {createForm.formState.errors.email && (
-                    <p className="text-xs text-destructive ml-1">
-                      {createForm.formState.errors.email.message}
-                    </p>
-                  )}
-                </div>
+                  <Field data-invalid={!!createForm.formState.errors.email || undefined}>
+                    <FieldLabel
+                      htmlFor="new-email"
+                      className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
+                    >
+                      Correo Electrónico
+                    </FieldLabel>
+                    <Input
+                      id="new-email"
+                      type="email"
+                      placeholder="usuario@ejemplo.com"
+                      aria-invalid={!!createForm.formState.errors.email}
+                      className="h-12 bg-muted border-none shadow-none rounded-xl px-5 text-base font-medium"
+                      {...createForm.register("email")}
+                    />
+                    <FieldError errors={[createForm.formState.errors.email]} />
+                  </Field>
 
-                <div className="flex flex-col gap-2">
-                  <Label
-                    htmlFor="new-role"
-                    className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
-                  >
-                    Nivel de Acceso
-                  </Label>
-                  <NativeSelect id="new-role" className="w-full" {...createForm.register("role")}>
-                    <option value="ADMIN">ADMIN — Control del Sistema</option>
-                    <option value="OPERATOR">OPERATOR — Ingreso de Datos</option>
-                    <option value="VIEWER">VIEWER — Solo Lectura</option>
-                  </NativeSelect>
-                </div>
+                  <Field>
+                    <FieldLabel
+                      htmlFor="new-role"
+                      className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
+                    >
+                      Nivel de Acceso
+                    </FieldLabel>
+                    <NativeSelect id="new-role" className="w-full" {...createForm.register("role")}>
+                      <option value="ADMIN">ADMIN — Control del Sistema</option>
+                      <option value="OPERATOR">OPERATOR — Ingreso de Datos</option>
+                      <option value="VIEWER">VIEWER — Solo Lectura</option>
+                    </NativeSelect>
+                  </Field>
+                </FieldGroup>
 
                 {selectedRole === "ADMIN" && (
                   <Alert variant="warning">
@@ -441,52 +435,54 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
             </DialogHeader>
 
             <form onSubmit={editForm.handleSubmit(handleUpdate)} className="flex flex-col gap-5">
-              <div className="flex flex-col gap-2">
-                <Label
-                  htmlFor="edit-full_name"
-                  className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
-                >
-                  Nombre Completo
-                </Label>
-                <Input
-                  id="edit-full_name"
-                  aria-invalid={!!editForm.formState.errors.full_name}
-                  className="h-12 bg-muted border-none rounded-xl px-5 text-base font-medium"
-                  {...editForm.register("full_name")}
-                />
-                {editForm.formState.errors.full_name && (
-                  <p className="text-xs text-destructive ml-1">
-                    {editForm.formState.errors.full_name.message}
-                  </p>
-                )}
-              </div>
+              <FieldGroup>
+                <Field data-invalid={!!editForm.formState.errors.full_name || undefined}>
+                  <FieldLabel
+                    htmlFor="edit-full_name"
+                    className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
+                  >
+                    Nombre Completo
+                  </FieldLabel>
+                  <Input
+                    id="edit-full_name"
+                    aria-invalid={!!editForm.formState.errors.full_name}
+                    className="h-12 bg-muted border-none rounded-xl px-5 text-base font-medium"
+                    {...editForm.register("full_name")}
+                  />
+                  <FieldError errors={[editForm.formState.errors.full_name]} />
+                </Field>
 
-              <div className="flex flex-col gap-2">
-                <Label
-                  htmlFor="edit-role"
-                  className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
-                >
-                  Nivel de Acceso
-                </Label>
-                <NativeSelect id="edit-role" className="w-full" {...editForm.register("role")}>
-                  <option value="ADMIN">ADMIN — Control del Sistema</option>
-                  <option value="OPERATOR">OPERATOR — Ingreso de Datos</option>
-                  <option value="VIEWER">VIEWER — Solo Lectura</option>
-                </NativeSelect>
-              </div>
+                <Field>
+                  <FieldLabel
+                    htmlFor="edit-role"
+                    className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
+                  >
+                    Nivel de Acceso
+                  </FieldLabel>
+                  <NativeSelect id="edit-role" className="w-full" {...editForm.register("role")}>
+                    <option value="ADMIN">ADMIN — Control del Sistema</option>
+                    <option value="OPERATOR">OPERATOR — Ingreso de Datos</option>
+                    <option value="VIEWER">VIEWER — Solo Lectura</option>
+                  </NativeSelect>
+                </Field>
 
-              <div className="flex flex-col gap-2">
-                <Label
-                  htmlFor="edit-status"
-                  className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
-                >
-                  Estado de Cuenta
-                </Label>
-                <NativeSelect id="edit-status" className="w-full" {...editForm.register("status")}>
-                  <option value="ACTIVE">Activo</option>
-                  <option value="INACTIVE">Inactivo</option>
-                </NativeSelect>
-              </div>
+                <Field>
+                  <FieldLabel
+                    htmlFor="edit-status"
+                    className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
+                  >
+                    Estado de Cuenta
+                  </FieldLabel>
+                  <NativeSelect
+                    id="edit-status"
+                    className="w-full"
+                    {...editForm.register("status")}
+                  >
+                    <option value="ACTIVE">Activo</option>
+                    <option value="INACTIVE">Inactivo</option>
+                  </NativeSelect>
+                </Field>
+              </FieldGroup>
 
               <div className="flex flex-col gap-3 pt-4 border-t border-border">
                 <Button type="submit" disabled={editForm.formState.isSubmitting} className="h-11">
