@@ -17,7 +17,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { NativeSelect } from "@/components/ui/native-select"
-import { Plus, Users, Search, RotateCcw, Trash2, Send } from "lucide-react"
+import { Plus, Users, Search, RotateCcw, Trash2, Send, Copy, Check, Link } from "lucide-react"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 import {
   Item,
@@ -42,6 +42,17 @@ type UsuarioRow = {
   role: UserRole
   status: UserStatus
   created_at: string | Date
+  updated_at: string | Date | null
+}
+
+function isLinkExpired(user: UsuarioRow): boolean {
+  if (user.status !== "PENDING_ACTIVATION" && user.status !== "PENDING_RESET") return false
+  const expiryMs = user.status === "PENDING_ACTIVATION" ? 24 * 60 * 60 * 1000 : 60 * 60 * 1000
+  const lastAction = Math.max(
+    new Date(user.created_at).getTime(),
+    user.updated_at ? new Date(user.updated_at).getTime() : 0
+  )
+  return Date.now() - lastAction > expiryMs
 }
 
 function getInitials(name: string) {
@@ -105,6 +116,16 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
   const [editingUser, setEditingUser] = useState<UsuarioRow | null>(null)
   const [deletingUser, setDeletingUser] = useState<UsuarioRow | null>(null)
   const [search, setSearch] = useState("")
+  const [inviteLink, setInviteLink] = useState<string | null>(null)
+  const [linkCopied, setLinkCopied] = useState(false)
+
+  function copyInviteLink() {
+    if (!inviteLink) return
+    navigator.clipboard.writeText(inviteLink).then(() => {
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 2000)
+    })
+  }
 
   const filtered = useMemo(() => {
     if (!search.trim()) return users
@@ -132,15 +153,19 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
         const data = (await res.json().catch(() => ({}))) as { message?: string }
         throw new Error(data.message ?? "No se pudo crear el usuario.")
       }
-      return res.json() as Promise<UsuarioRow>
+      return res.json() as Promise<UsuarioRow & { invite_link?: string }>
     })
 
     toast.promise(promise, {
       loading: "Enviando invitación...",
-      success: (created: UsuarioRow) => {
+      success: (created) => {
         setUsers((prev) => [...prev, created])
         createForm.reset()
         setCreateOpen(false)
+        if (created.invite_link) {
+          setLinkCopied(false)
+          setInviteLink(created.invite_link)
+        }
         return `Invitación enviada a ${created.email}`
       },
       error: (e: Error) => e.message
@@ -222,10 +247,22 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
           const data = (await res.json().catch(() => ({}))) as { message?: string }
           throw new Error(data.message ?? "No se pudo reenviar la invitación.")
         }
+        return res.json() as Promise<{ invite_link?: string }>
       }),
       {
         loading: "Reenviando invitación...",
-        success: "Invitación reenviada correctamente",
+        success: (data) => {
+          setUsers((prev) =>
+            prev.map((u) =>
+              u.id === userId ? { ...u, updated_at: new Date().toISOString() } : u
+            )
+          )
+          if (data?.invite_link) {
+            setLinkCopied(false)
+            setInviteLink(data.invite_link)
+          }
+          return "Invitación reenviada correctamente"
+        },
         error: (e: Error) => e.message
       }
     )
@@ -244,7 +281,11 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
         loading: "Enviando correo de restablecimiento...",
         success: () => {
           setUsers((prev) =>
-            prev.map((u) => (u.id === userId ? { ...u, status: "PENDING_RESET" as UserStatus } : u))
+            prev.map((u) =>
+              u.id === userId
+                ? { ...u, status: "PENDING_RESET" as UserStatus, updated_at: new Date().toISOString() }
+                : u
+            )
           )
           return "Correo de restablecimiento enviado"
         },
@@ -567,6 +608,60 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
         </DialogContent>
       </Dialog>
 
+      {/* Invite link dialog */}
+      <Dialog
+        open={!!inviteLink}
+        onOpenChange={(o) => {
+          if (!o) setInviteLink(null)
+        }}
+      >
+        <DialogContent className="w-[95vw] sm:max-w-lg bg-card p-0">
+          <div className="p-6 sm:p-8 flex flex-col gap-5">
+            <DialogHeader>
+              <DialogTitle className="font-heading text-xl font-bold text-foreground flex items-center gap-2">
+                <Link className="size-5 text-primary shrink-0" />
+                Enlace de invitación
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground text-sm mt-1">
+                Comparte este enlace con el usuario para que active su cuenta. Expira en{" "}
+                <strong>24 horas</strong>.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-2 items-center">
+              <Input
+                readOnly
+                value={inviteLink ?? ""}
+                className="h-11 bg-muted border-none rounded-xl px-4 text-sm font-mono truncate"
+                onFocus={(e) => e.target.select()}
+              />
+              <Button
+                size="sm"
+                variant={linkCopied ? "outline" : "default"}
+                onClick={copyInviteLink}
+                className="h-11 px-4 shrink-0 gap-1.5"
+              >
+                {linkCopied ? (
+                  <>
+                    <Check className="size-4" />
+                    Copiado
+                  </>
+                ) : (
+                  <>
+                    <Copy className="size-4" />
+                    Copiar
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="pt-2 border-t border-border">
+              <Button variant="outline" className="h-10 w-full" onClick={() => setInviteLink(null)}>
+                Cerrar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* User list */}
       {users.length === 0 ? (
         <Card className="p-0 overflow-hidden">
@@ -597,6 +692,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
           {filtered.map((user) => {
             const meta = statusMeta(user.status)
             const isActive = user.status === "ACTIVE"
+            const linkExpired = isLinkExpired(user)
             return (
               <Item key={user.id} variant="outline" className={cn(meta.rowOpacity && "opacity-55")}>
                 <div
@@ -617,16 +713,23 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                 <ItemContent>
                   <ItemTitle>{user.full_name}</ItemTitle>
                   <ItemDescription>{user.email}</ItemDescription>
-                  {meta.badgeClass && (
-                    <span
-                      className={cn(
-                        "sm:hidden mt-0.5 w-fit rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                        meta.badgeClass
-                      )}
-                    >
-                      {meta.label}
-                    </span>
-                  )}
+                  <div className="sm:hidden mt-0.5 flex flex-wrap gap-1">
+                    {meta.badgeClass && (
+                      <span
+                        className={cn(
+                          "w-fit rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                          meta.badgeClass
+                        )}
+                      >
+                        {meta.label}
+                      </span>
+                    )}
+                    {linkExpired && (
+                      <span className="w-fit rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-destructive/10 text-destructive border border-destructive/20">
+                        Enlace expirado
+                      </span>
+                    )}
+                  </div>
                 </ItemContent>
                 <ItemActions>
                   <span
@@ -645,6 +748,11 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                       )}
                     >
                       {meta.label}
+                    </span>
+                  )}
+                  {linkExpired && (
+                    <span className="hidden sm:inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-destructive/10 text-destructive border border-destructive/20">
+                      Enlace expirado
                     </span>
                   )}
                   {user.status === "PENDING_ACTIVATION" && (
