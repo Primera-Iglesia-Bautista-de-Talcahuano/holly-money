@@ -1,4 +1,5 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin"
+import { auditoriaService } from "@/services/auditoria/auditoria.service"
 import type { CreateInvoiceInput } from "@/lib/validators/invoice"
 
 export const invoicesService = {
@@ -30,11 +31,28 @@ export const invoicesService = {
       .select()
       .single()
     if (error) throw error
+
+    await auditoriaService.logSystem({
+      entity: "INVOICE",
+      action: "INVOICE_CREATED",
+      user_id: userId,
+      entity_id: data.id,
+      new_value: { number: data.number, amount: data.amount, date: data.date }
+    })
+
     return data
   },
 
-  async updateStatus(id: string, status: "PENDING" | "SETTLED") {
+  async updateStatus(id: string, status: "PENDING" | "SETTLED", userId: string) {
     const admin = createSupabaseAdminClient()
+
+    const { data: current, error: fetchError } = await admin
+      .from("invoices")
+      .select("status, number")
+      .eq("id", id)
+      .single()
+    if (fetchError) throw fetchError
+
     const { data, error } = await admin
       .from("invoices")
       .update({ status, updated_at: new Date().toISOString() })
@@ -42,6 +60,17 @@ export const invoicesService = {
       .select()
       .single()
     if (error) throw error
+
+    await auditoriaService.logSystem({
+      entity: "INVOICE",
+      action: "INVOICE_STATUS_CHANGED",
+      user_id: userId,
+      entity_id: id,
+      previous_value: { status: current.status },
+      new_value: { status },
+      note: `Boleta ${current.number}: ${current.status} → ${status}`
+    })
+
     return data
   }
 }

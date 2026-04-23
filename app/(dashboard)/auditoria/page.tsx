@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { cn } from "@/lib/utils"
+import { cn, formatDateTime } from "@/lib/utils"
 import { getCurrentUser } from "@/lib/supabase/server"
 import { canManageUsers } from "@/lib/permissions/rbac"
 import { auditoriaService } from "@/services/auditoria/auditoria.service"
@@ -50,22 +50,37 @@ export default async function AuditoriaPage() {
         <CardContent className="p-0">
           {/* ── Desktop table ── */}
           <div className="hidden sm:block overflow-x-auto px-6 pb-6">
-            <table className="min-w-full text-sm">
+            <table className="min-w-full text-sm" aria-label="Registro de auditoría">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left align-middle">
+                  <th
+                    scope="col"
+                    className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left align-middle"
+                  >
                     Fecha
                   </th>
-                  <th className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left align-middle">
+                  <th
+                    scope="col"
+                    className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left align-middle"
+                  >
                     Entidad
                   </th>
-                  <th className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left align-middle">
+                  <th
+                    scope="col"
+                    className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left align-middle"
+                  >
                     Acción
                   </th>
-                  <th className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left align-middle">
+                  <th
+                    scope="col"
+                    className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left align-middle"
+                  >
                     Usuario
                   </th>
-                  <th className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left align-middle">
+                  <th
+                    scope="col"
+                    className="px-4 py-4 font-bold text-[11px] uppercase tracking-[0.2em] text-muted-foreground text-left align-middle"
+                  >
                     Observación
                   </th>
                 </tr>
@@ -80,12 +95,7 @@ export default async function AuditoriaPage() {
                     )}
                   >
                     <td className="px-4 py-4 align-middle whitespace-nowrap text-muted-foreground font-medium tabular-nums text-xs">
-                      {new Date(event.event_date).toLocaleString("es-CL", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit"
-                      })}
+                      {formatDateTime(event.event_date)}
                     </td>
                     <td className="px-4 py-4 align-middle">
                       <span
@@ -128,12 +138,7 @@ export default async function AuditoriaPage() {
                         {event.entity}
                       </span>
                       <span className="text-[11px] text-muted-foreground tabular-nums">
-                        {new Date(event.event_date).toLocaleString("es-CL", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit"
-                        })}
+                        {formatDateTime(event.event_date)}
                       </span>
                     </ItemHeader>
                     <ItemTitle className="uppercase tracking-tight">{event.action}</ItemTitle>

@@ -27,7 +27,11 @@ export default async function MovimientosPage({ searchParams }: Props) {
   const status = params.status ?? "ALL"
   const page = Math.max(1, Number(params.page ?? "1") || 1)
 
-  const { data: rows, count, pageSize } = await movimientosService.list({
+  const {
+    data: rows,
+    count,
+    pageSize
+  } = await movimientosService.list({
     search,
     movement_type,
     status,
@@ -113,9 +117,19 @@ export default async function MovimientosPage({ searchParams }: Props) {
             <option value="CANCELLED">Anulado</option>
           </NativeSelect>
         </div>
-        <Button type="submit" className="h-10">
-          Aplicar filtros
-        </Button>
+        <div className="flex gap-2">
+          <Button type="submit" className="h-10 flex-1">
+            Aplicar filtros
+          </Button>
+          <Button
+            render={<Link href="/movimientos" />}
+            nativeButton={false}
+            variant="outline"
+            className="h-10 px-4"
+          >
+            Limpiar
+          </Button>
+        </div>
       </form>
 
       {/* ── Table ───────────────────────────────────────────────── */}

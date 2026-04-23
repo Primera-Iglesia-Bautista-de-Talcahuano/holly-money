@@ -8,12 +8,7 @@ import { Label } from "@/components/ui/label"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Button } from "@/components/ui/button"
 import { TrendingUp, TrendingDown } from "lucide-react"
-
-const clp = new Intl.NumberFormat("es-CL", {
-  style: "currency",
-  currency: "CLP",
-  maximumFractionDigits: 0
-})
+import { formatCLP } from "@/lib/utils"
 
 type DashboardSearchParams = {
   from?: string
@@ -88,16 +83,16 @@ export default async function DashboardPage({
             Saldo actual
           </p>
           <p className="font-heading text-3xl font-bold tracking-tight tabular-nums">
-            {clp.format(data.kpis.saldoActual)}
+            {formatCLP(data.kpis.saldoActual)}
           </p>
           <div className="flex flex-wrap gap-3 mt-1">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold">
               <TrendingUp className="size-3" />
-              {clp.format(data.kpis.totalIngresos)}
+              {formatCLP(data.kpis.totalIngresos)}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold">
               <TrendingDown className="size-3" />
-              {clp.format(data.kpis.totalEgresos)}
+              {formatCLP(data.kpis.totalEgresos)}
             </span>
           </div>
         </div>
@@ -111,7 +106,7 @@ export default async function DashboardPage({
             <TrendingUp className="size-4 text-income" />
           </div>
           <p className="font-heading text-2xl font-bold tracking-tight text-income tabular-nums">
-            {clp.format(data.kpis.totalIngresos)}
+            {formatCLP(data.kpis.totalIngresos)}
           </p>
           <p className="text-xs text-muted-foreground">
             {data.kpis.cantidadMovimientos} movimientos en el período
@@ -127,7 +122,7 @@ export default async function DashboardPage({
             <TrendingDown className="size-4 text-destructive" />
           </div>
           <p className="font-heading text-2xl font-bold tracking-tight text-destructive tabular-nums">
-            {clp.format(data.kpis.totalEgresos)}
+            {formatCLP(data.kpis.totalEgresos)}
           </p>
           <p className="text-xs text-muted-foreground">En el período seleccionado</p>
         </div>

@@ -7,7 +7,7 @@ import { AnularButton } from "@/components/movimientos/anular-button"
 import { RegenerarPdfButton } from "@/components/movimientos/regenerar-pdf-button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { cn, formatDate, formatDateTime, formatCLP } from "@/lib/utils"
 import {
   ChevronLeft,
   Edit,
@@ -21,31 +21,13 @@ import {
 
 type Props = { params: Promise<{ id: string }> }
 
-function formatDate(value: string | Date) {
-  return new Date(value).toLocaleDateString("es-CL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric"
-  })
-}
-
 export default async function MovimientoDetallePage({ params }: Props) {
   const { id } = await params
   const user = await getCurrentUser()
   const canWrite = canCreateOrEditMovements(user?.role)
 
-  let row: Awaited<ReturnType<typeof movimientosService.findById>>
-  try {
-    row = await movimientosService.findById(id)
-  } catch {
-    notFound()
-  }
-
-  const clp = new Intl.NumberFormat("es-CL", {
-    style: "currency",
-    currency: "CLP",
-    maximumFractionDigits: 0
-  })
+  const row = await movimientosService.findById(id).catch(() => null)
+  if (!row) notFound()
 
   const createdBy = row.created_by as { full_name: string; email: string } | null
   const updatedBy = row.updated_by as { full_name: string; email: string } | null
@@ -133,7 +115,7 @@ export default async function MovimientoDetallePage({ params }: Props) {
                 <DetailItem
                   icon={<FileText />}
                   label="Monto total"
-                  value={clp.format(Number(row.amount))}
+                  value={formatCLP(Number(row.amount))}
                   valueClass="font-heading text-3xl font-black text-primary"
                 />
                 <DetailItem icon={<Tag />} label="Categoría" value={row.category} />
@@ -287,7 +269,7 @@ export default async function MovimientoDetallePage({ params }: Props) {
                   <p className="text-sm font-bold text-foreground">{item.action}</p>
                   <p className="text-xs text-muted-foreground uppercase tracking-widest">
                     Por <span className="text-primary">{item.users?.full_name ?? "—"}</span> •{" "}
-                    {new Date(item.event_date).toLocaleString("es-CL")}
+                    {formatDateTime(item.event_date)}
                   </p>
                   {item.note && (
                     <p className="text-xs text-muted-foreground mt-1 max-w-lg">{item.note}</p>
@@ -336,9 +318,7 @@ function AuditLogItem({ label, user, date }: { label: string; user: string; date
         {label}
       </p>
       <p className="text-sm font-bold text-foreground">{user}</p>
-      <p className="text-xs text-muted-foreground">
-        {date ? new Date(date).toLocaleString("es-CL") : "—"}
-      </p>
+      <p className="text-xs text-muted-foreground">{date ? formatDateTime(date) : "—"}</p>
     </div>
   )
 }

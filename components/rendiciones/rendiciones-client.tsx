@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { cn, formatDate } from "@/lib/utils"
+import { cn, formatDate, formatCLP } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -47,12 +47,6 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 import { FileInput } from "@/components/ui/file-input"
 
 type Invoice = Database["public"]["Tables"]["invoices"]["Row"]
-
-const clp = new Intl.NumberFormat("es-CL", {
-  style: "currency",
-  currency: "CLP",
-  maximumFractionDigits: 0
-})
 
 export function RendicionesClient({ initialInvoices }: { initialInvoices: Invoice[] }) {
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices)
@@ -280,7 +274,7 @@ export function RendicionesClient({ initialInvoices }: { initialInvoices: Invoic
               Pendiente
             </p>
             <p className="font-heading text-2xl font-bold tracking-tight text-destructive tabular-nums">
-              {clp.format(
+              {formatCLP(
                 invoices
                   .filter((i) => i.status === "PENDING")
                   .reduce((s, i) => s + Number(i.amount), 0)
@@ -292,7 +286,7 @@ export function RendicionesClient({ initialInvoices }: { initialInvoices: Invoic
               Rendido
             </p>
             <p className="font-heading text-2xl font-bold tracking-tight text-income tabular-nums">
-              {clp.format(
+              {formatCLP(
                 invoices
                   .filter((i) => i.status === "SETTLED")
                   .reduce((s, i) => s + Number(i.amount), 0)
@@ -330,7 +324,7 @@ export function RendicionesClient({ initialInvoices }: { initialInvoices: Invoic
                 <ItemDescription>
                   {formatDate(invoice.date)} ·{" "}
                   <span className="font-bold text-foreground tabular-nums">
-                    {clp.format(Number(invoice.amount))}
+                    {formatCLP(Number(invoice.amount))}
                   </span>
                   {invoice.description && ` · ${invoice.description}`}
                 </ItemDescription>
@@ -397,7 +391,7 @@ export function RendicionesClient({ initialInvoices }: { initialInvoices: Invoic
                       Monto
                     </p>
                     <p className="text-lg font-bold tabular-nums text-foreground">
-                      {clp.format(Number(selectedInvoice.amount))}
+                      {formatCLP(Number(selectedInvoice.amount))}
                     </p>
                   </div>
                 </div>

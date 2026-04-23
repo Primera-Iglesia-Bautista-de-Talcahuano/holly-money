@@ -20,20 +20,9 @@ import {
   ChartTooltip,
   ChartTooltipContent
 } from "@/components/ui/chart"
-import {
-  Empty,
-  EmptyHeader,
-  EmptyTitle,
-  EmptyDescription,
-  EmptyMedia
-} from "@/components/ui/empty"
+import { formatCLP } from "@/lib/utils"
+import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 import { BarChart2, PieChart as PieChartIcon } from "lucide-react"
-
-const clp = new Intl.NumberFormat("es-CL", {
-  style: "currency",
-  currency: "CLP",
-  maximumFractionDigits: 0
-})
 
 type SerieItem = { name: string; ingresos: number; egresos: number }
 type CategoriaItem = { categoria: string; total: number }
@@ -57,7 +46,11 @@ const ingresosEgresosConfig = {
   }
 } satisfies ChartConfig
 
-export const IngresosEgresosChart = memo(function IngresosEgresosChart({ data }: { data: SerieItem[] }) {
+export const IngresosEgresosChart = memo(function IngresosEgresosChart({
+  data
+}: {
+  data: SerieItem[]
+}) {
   if (!data.length) {
     return (
       <Empty className="border-dashed h-[300px] sm:h-72">
@@ -214,7 +207,7 @@ export const CategoriaChart = memo(function CategoriaChart({ data }: { data: Cat
               {entry.categoria}
             </span>
             <span className="text-xs font-black text-foreground ml-auto shrink-0">
-              {clp.format(entry.total)}
+              {formatCLP(entry.total)}
             </span>
           </div>
         ))}

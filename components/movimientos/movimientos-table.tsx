@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
+import { cn, formatDate, formatCLP } from "@/lib/utils"
 import { AnularButton } from "./anular-button"
 import { Button } from "@/components/ui/button"
 import {
@@ -42,20 +42,6 @@ export type SerializedMovimiento = {
   cancellation_reason: string | null
   status: string
   created_by: { full_name: string }
-}
-
-const clp = new Intl.NumberFormat("es-CL", {
-  style: "currency",
-  currency: "CLP",
-  maximumFractionDigits: 0
-})
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("es-CL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric"
-  })
 }
 
 function Field({ label, value }: { label: string; value?: string | null }) {
@@ -109,7 +95,10 @@ export function MovimientosTable({
                 key={row.id}
                 variant="muted"
                 size="sm"
+                role="button"
+                tabIndex={0}
                 onClick={() => setSelected(row)}
+                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelected(row)}
                 className="cursor-pointer"
               >
                 <ItemContent>
@@ -132,7 +121,7 @@ export function MovimientosTable({
                   <ItemDescription>
                     {formatDate(row.movement_date)} ·{" "}
                     <span className="font-bold text-foreground tabular-nums">
-                      {clp.format(Number(row.amount))}
+                      {formatCLP(Number(row.amount))}
                     </span>
                   </ItemDescription>
                 </ItemContent>
@@ -157,25 +146,46 @@ export function MovimientosTable({
       {/* ── Desktop table ────────────────────────────────────────── */}
       <div className="hidden sm:block bg-card rounded-xl overflow-hidden border border-border">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[640px]">
+          <table
+            className="w-full text-left border-collapse min-w-[640px]"
+            aria-label="Lista de movimientos"
+          >
             <thead>
               <tr className="border-b border-border">
-                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                <th
+                  scope="col"
+                  className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground"
+                >
                   Folio
                 </th>
-                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                <th
+                  scope="col"
+                  className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground"
+                >
                   Fecha
                 </th>
-                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                <th
+                  scope="col"
+                  className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground"
+                >
                   Tipo
                 </th>
-                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground text-right">
+                <th
+                  scope="col"
+                  className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground text-right"
+                >
                   Monto
                 </th>
-                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                <th
+                  scope="col"
+                  className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground"
+                >
                   Categoría
                 </th>
-                <th className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                <th
+                  scope="col"
+                  className="px-4 sm:px-6 py-4 font-bold text-[11px] uppercase tracking-[0.15em] text-muted-foreground"
+                >
                   Estado
                 </th>
               </tr>
@@ -184,8 +194,10 @@ export function MovimientosTable({
               {rows.map((row) => (
                 <tr
                   key={row.id}
+                  tabIndex={0}
                   onClick={() => setSelected(row)}
-                  className="cursor-pointer transition-colors hover:bg-muted/50"
+                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelected(row)}
+                  className="cursor-pointer transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <td className="px-4 sm:px-6 py-4 font-bold text-primary text-sm">
                     #{row.folio_display}
@@ -206,7 +218,7 @@ export function MovimientosTable({
                     </span>
                   </td>
                   <td className="px-4 sm:px-6 py-4 text-right font-bold text-foreground tabular-nums text-sm">
-                    {clp.format(Number(row.amount))}
+                    {formatCLP(Number(row.amount))}
                   </td>
                   <td className="px-4 sm:px-6 py-4">
                     <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wide">
@@ -294,7 +306,7 @@ export function MovimientosTable({
                   Monto
                 </p>
                 <p className="font-heading text-2xl sm:text-3xl font-black tabular-nums text-primary">
-                  {clp.format(Number(selected.amount))}
+                  {formatCLP(Number(selected.amount))}
                 </p>
               </div>
 
