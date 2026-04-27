@@ -299,7 +299,7 @@ export function MovimientoForm({ mode, movimientoId, initialValues, onSuccess }:
               Observaciones Adicionales
             </FieldLabel>
             <textarea
-              className="flex min-h-[100px] sm:min-h-[120px] w-full rounded-lg border border-border bg-background px-4 py-3 text-base font-medium text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+              className="flex min-h-[100px] sm:min-h-[120px] w-full rounded-lg border border-border bg-background px-4 py-3 text-base font-medium text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
               placeholder="Algún detalle adicional relevante..."
               {...form.register("notes")}
             />

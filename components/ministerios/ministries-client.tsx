@@ -6,9 +6,22 @@ import { Plus, Users, ChevronDown, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
-import { Item, ItemGroup, ItemContent, ItemTitle, ItemDescription, ItemActions } from "@/components/ui/item"
+import {
+  Item,
+  ItemGroup,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+  ItemActions
+} from "@/components/ui/item"
 import { formatDate } from "@/lib/utils"
 
 type Ministry = {
@@ -36,9 +49,9 @@ export function MinistriesClient({ initialMinistries }: { initialMinistries: Min
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim(), description: description.trim() || undefined })
       })
-      if (!res.ok) throw new Error((await res.json()).message)
-      const created = await res.json()
-      setMinistries((prev) => [created, ...prev])
+      const createdData = (await res.json()) as { message?: string } & Ministry
+      if (!res.ok) throw new Error(createdData.message)
+      setMinistries((prev) => [createdData, ...prev])
       setName("")
       setDescription("")
       setOpen(false)
@@ -55,10 +68,19 @@ export function MinistriesClient({ initialMinistries }: { initialMinistries: Min
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Ministerios</h1>
-          <p className="text-sm text-muted-foreground">Gestiona los ministerios y sus ministros asignados</p>
+          <p className="text-sm text-muted-foreground">
+            Gestiona los ministerios y sus ministros asignados
+          </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger render={<Button size="sm"><Plus className="size-4" />Nuevo ministerio</Button>} />
+          <DialogTrigger
+            render={
+              <Button size="sm">
+                <Plus className="size-4" />
+                Nuevo ministerio
+              </Button>
+            }
+          />
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Nuevo ministerio</DialogTitle>
@@ -154,7 +176,8 @@ function MinistryItem({ ministry }: { ministry: Ministry }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId.trim() })
       })
-      if (!res.ok) throw new Error((await res.json()).message)
+      const assignData = (await res.json()) as { message?: string }
+      if (!res.ok) throw new Error(assignData.message)
       toast.success("Ministro asignado")
       setUserId("")
       loadAssignments()
@@ -171,12 +194,12 @@ function MinistryItem({ ministry }: { ministry: Ministry }) {
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <ItemTitle>{ministry.name}</ItemTitle>
-            {ministry.description && (
-              <ItemDescription>{ministry.description}</ItemDescription>
-            )}
+            {ministry.description && <ItemDescription>{ministry.description}</ItemDescription>}
           </div>
           {!ministry.is_active && (
-            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">Inactivo</span>
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+              Inactivo
+            </span>
           )}
         </div>
       </ItemContent>

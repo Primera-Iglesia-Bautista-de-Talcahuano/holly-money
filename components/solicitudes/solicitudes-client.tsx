@@ -8,9 +8,22 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
-import { Item, ItemGroup, ItemContent, ItemTitle, ItemDescription, ItemActions } from "@/components/ui/item"
+import {
+  Item,
+  ItemGroup,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+  ItemActions
+} from "@/components/ui/item"
 import { formatDate, formatCLP } from "@/lib/utils"
 import type { UserRole } from "@/types/auth"
 
@@ -86,8 +99,8 @@ export function SolicitudesClient({
           date_needed: dateNeeded || undefined
         })
       })
-      if (!res.ok) throw new Error((await res.json()).message)
-      const created = await res.json()
+      const created = (await res.json()) as Intention & { message?: string }
+      if (!res.ok) throw new Error(created.message)
       setIntentions((prev) => [created, ...prev])
       setOpen(false)
       setAmount("")
@@ -108,12 +121,21 @@ export function SolicitudesClient({
         <div>
           <h1 className="text-2xl font-semibold">Solicitudes de Presupuesto</h1>
           <p className="text-sm text-muted-foreground">
-            {isMinister ? `Ministerio: ${ministry?.name ?? "Sin asignar"}` : "Todas las solicitudes"}
+            {isMinister
+              ? `Ministerio: ${ministry?.name ?? "Sin asignar"}`
+              : "Todas las solicitudes"}
           </p>
         </div>
         {isMinister && activePeriod && (
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger render={<Button size="sm"><Plus className="size-4" />Nueva solicitud</Button>} />
+            <DialogTrigger
+              render={
+                <Button size="sm">
+                  <Plus className="size-4" />
+                  Nueva solicitud
+                </Button>
+              }
+            />
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Solicitud de intención de presupuesto</DialogTitle>
@@ -130,7 +152,9 @@ export function SolicitudesClient({
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Disponible</p>
-                    <p className={`font-semibold ${budgetSummary.remaining <= 0 ? "text-red-500" : "text-green-600"}`}>
+                    <p
+                      className={`font-semibold ${budgetSummary.remaining <= 0 ? "text-red-500" : "text-green-600"}`}
+                    >
                       {formatCLP(budgetSummary.remaining)}
                     </p>
                   </div>
@@ -139,7 +163,8 @@ export function SolicitudesClient({
               {overBudgetWarning && (
                 <div className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
                   <AlertTriangle className="size-4 shrink-0" />
-                  El monto supera tu presupuesto disponible. La solicitud quedará bajo revisión especial del equipo de tesorería.
+                  El monto supera tu presupuesto disponible. La solicitud quedará bajo revisión
+                  especial del equipo de tesorería.
                 </div>
               )}
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -198,7 +223,11 @@ export function SolicitudesClient({
           {[
             { label: "Presupuesto asignado", value: budgetSummary.allocated, color: "" },
             { label: "Utilizado", value: budgetSummary.used, color: "text-amber-600" },
-            { label: "Disponible", value: budgetSummary.remaining, color: budgetSummary.remaining <= 0 ? "text-red-500" : "text-green-600" }
+            {
+              label: "Disponible",
+              value: budgetSummary.remaining,
+              color: budgetSummary.remaining <= 0 ? "text-red-500" : "text-green-600"
+            }
           ].map(({ label, value, color }) => (
             <Card key={label} className="p-4">
               <p className="text-xs text-muted-foreground">{label}</p>
@@ -216,7 +245,9 @@ export function SolicitudesClient({
           <EmptyHeader>
             <EmptyTitle>Sin solicitudes</EmptyTitle>
             <EmptyDescription>
-              {isMinister ? "Crea tu primera solicitud de presupuesto." : "No hay solicitudes registradas."}
+              {isMinister
+                ? "Crea tu primera solicitud de presupuesto."
+                : "No hay solicitudes registradas."}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -242,7 +273,9 @@ export function SolicitudesClient({
                     </ItemTitle>
                     <ItemDescription>{intention.description}</ItemDescription>
                     {!isMinister && intention.ministries && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{intention.ministries.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {intention.ministries.name}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -250,7 +283,9 @@ export function SolicitudesClient({
               <ItemActions>
                 <div className="text-right">
                   <p className="text-xs font-medium">{STATUS_LABELS[intention.status]}</p>
-                  <p className="text-xs text-muted-foreground">{formatDate(intention.created_at)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDate(intention.created_at)}
+                  </p>
                 </div>
               </ItemActions>
             </Item>

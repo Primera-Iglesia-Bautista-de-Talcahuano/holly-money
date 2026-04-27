@@ -25,10 +25,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json()
+    const body: unknown = await request.json()
     const parsed = upsertMinistryBudgetSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ message: "Datos inválidos", errors: parsed.error.flatten() }, { status: 400 })
+      return NextResponse.json(
+        { message: "Datos inválidos", errors: parsed.error.flatten() },
+        { status: 400 }
+      )
     }
     const data = await budgetService.upsertMinistryBudget(parsed.data, user.id)
     return NextResponse.json(data, { status: 201 })

@@ -12,10 +12,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   try {
     const { id } = await params
-    const body = await request.json()
+    const body: unknown = await request.json()
     const parsed = reviewIntentionSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ message: "Datos inválidos", errors: parsed.error.flatten() }, { status: 400 })
+      return NextResponse.json(
+        { message: "Datos inválidos", errors: parsed.error.flatten() },
+        { status: 400 }
+      )
     }
 
     const result = await intentionsService.review(id, parsed.data, user.id)

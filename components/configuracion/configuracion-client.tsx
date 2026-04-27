@@ -30,7 +30,7 @@ export function ConfiguracionClient({ initialSettings }: { initialSettings: AppS
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings)
       })
-      if (!res.ok) throw new Error((await res.json()).message)
+      if (!res.ok) throw new Error(((await res.json()) as { message?: string }).message)
       toast.success("Configuración guardada")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al guardar")
@@ -43,7 +43,9 @@ export function ConfiguracionClient({ initialSettings }: { initialSettings: AppS
     <div className="max-w-xl space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Configuración</h1>
-        <p className="text-sm text-muted-foreground">Ajustes del flujo de aprobación de presupuesto</p>
+        <p className="text-sm text-muted-foreground">
+          Ajustes del flujo de aprobación de presupuesto
+        </p>
       </div>
 
       <Card className="p-5">
@@ -87,7 +89,8 @@ export function ConfiguracionClient({ initialSettings }: { initialSettings: AppS
               onChange={(e) => handleChange("reminder_interval_days", e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Si una solicitud lleva este número de días sin respuesta, se envía un recordatorio a tesorería.
+              Si una solicitud lleva este número de días sin respuesta, se envía un recordatorio a
+              tesorería.
             </p>
           </div>
 

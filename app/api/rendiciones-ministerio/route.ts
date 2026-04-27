@@ -23,14 +23,20 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ message: "No autorizado" }, { status: 401 })
 
   if (user.role !== "MINISTER") {
-    return NextResponse.json({ message: "Solo los ministros pueden enviar rendiciones" }, { status: 403 })
+    return NextResponse.json(
+      { message: "Solo los ministros pueden enviar rendiciones" },
+      { status: 403 }
+    )
   }
 
   try {
-    const body = await request.json()
+    const body: unknown = await request.json()
     const parsed = createSettlementSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ message: "Datos inválidos", errors: parsed.error.flatten() }, { status: 400 })
+      return NextResponse.json(
+        { message: "Datos inválidos", errors: parsed.error.flatten() },
+        { status: 400 }
+      )
     }
 
     const data = await settlementsService.create(parsed.data, user.id)

@@ -21,7 +21,9 @@ export function NotificationBell() {
 
   const fetchNotifications = useCallback(() => {
     fetch("/api/notificaciones")
-      .then((res) => (res.ok ? res.json() : null))
+      .then((res) =>
+        res.ok ? (res.json() as Promise<{ count?: number; items?: NotificationItem[] }>) : null
+      )
       .then((data) => {
         if (!data) return
         setCount(data.count ?? 0)
@@ -40,7 +42,12 @@ export function NotificationBell() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
-          <Button variant="ghost" size="icon" className="relative size-8" aria-label="Notificaciones">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative size-8"
+            aria-label="Notificaciones"
+          >
             <Bell className="size-4" />
             {count > 0 && (
               <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
@@ -55,9 +62,7 @@ export function NotificationBell() {
           <p className="text-sm font-semibold">Notificaciones</p>
         </div>
         {items.length === 0 ? (
-          <div className="px-3 py-4 text-center text-sm text-muted-foreground">
-            Sin pendientes
-          </div>
+          <div className="px-3 py-4 text-center text-sm text-muted-foreground">Sin pendientes</div>
         ) : (
           <ul className="divide-y">
             {items.map((item, i) => (

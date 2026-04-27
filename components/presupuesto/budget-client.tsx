@@ -7,7 +7,13 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 import { formatDate, formatCLP } from "@/lib/utils"
 
@@ -61,8 +67,8 @@ export function BudgetClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, start_date: startDate, end_date: endDate })
       })
-      if (!res.ok) throw new Error((await res.json()).message)
-      const created = await res.json()
+      const created = (await res.json()) as Period & { message?: string }
+      if (!res.ok) throw new Error(created.message)
       setPeriods((prev) => [created, ...prev])
       setOpen(false)
       setName("")
@@ -79,9 +85,9 @@ export function BudgetClient({
   async function handleRelease(id: string) {
     try {
       const res = await fetch(`/api/periodos-presupuesto/${id}/liberar`, { method: "POST" })
-      if (!res.ok) throw new Error((await res.json()).message)
-      const updated = await res.json()
-      setPeriods((prev) => prev.map((p) => (p.id === id ? updated : p)))
+      const releasedData = (await res.json()) as Period & { message?: string }
+      if (!res.ok) throw new Error(releasedData.message)
+      setPeriods((prev) => prev.map((p) => (p.id === id ? releasedData : p)))
       toast.success("Período liberado a los ministros")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al liberar período")
@@ -91,9 +97,9 @@ export function BudgetClient({
   async function handleClose(id: string) {
     try {
       const res = await fetch(`/api/periodos-presupuesto/${id}/cerrar`, { method: "POST" })
-      if (!res.ok) throw new Error((await res.json()).message)
-      const updated = await res.json()
-      setPeriods((prev) => prev.map((p) => (p.id === id ? updated : p)))
+      const closedData = (await res.json()) as Period & { message?: string }
+      if (!res.ok) throw new Error(closedData.message)
+      setPeriods((prev) => prev.map((p) => (p.id === id ? closedData : p)))
       toast.success("Período cerrado")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al cerrar período")
@@ -105,10 +111,19 @@ export function BudgetClient({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Presupuesto</h1>
-          <p className="text-sm text-muted-foreground">Define períodos presupuestarios y asigna montos por ministerio</p>
+          <p className="text-sm text-muted-foreground">
+            Define períodos presupuestarios y asigna montos por ministerio
+          </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger render={<Button size="sm"><Plus className="size-4" />Nuevo período</Button>} />
+          <DialogTrigger
+            render={
+              <Button size="sm">
+                <Plus className="size-4" />
+                Nuevo período
+              </Button>
+            }
+          />
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Nuevo período presupuestario</DialogTitle>
@@ -211,7 +226,7 @@ function PeriodCard({
     try {
       const res = await fetch(`/api/presupuestos?period_id=${period.id}`)
       if (!res.ok) return
-      const data: BudgetRow[] = await res.json()
+      const data = (await res.json()) as BudgetRow[]
       setBudgets(data)
       setAmounts(Object.fromEntries(data.map((b) => [b.ministry_id, String(b.amount)])))
     } finally {
@@ -235,8 +250,8 @@ function PeriodCard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ministry_id: ministryId, period_id: period.id, amount })
       })
-      if (!res.ok) throw new Error((await res.json()).message)
-      const saved: BudgetRow = await res.json()
+      const saved = (await res.json()) as BudgetRow & { message?: string }
+      if (!res.ok) throw new Error(saved.message)
       setBudgets((prev) => {
         if (!prev) return [saved]
         const exists = prev.find((b) => b.ministry_id === ministryId)
@@ -263,7 +278,9 @@ function PeriodCard({
               {formatDate(period.start_date)} – {formatDate(period.end_date)}
             </p>
           </div>
-          <span className={`text-xs px-2 py-0.5 rounded font-medium ${STATUS_COLORS[period.status]}`}>
+          <span
+            className={`text-xs px-2 py-0.5 rounded font-medium ${STATUS_COLORS[period.status]}`}
+          >
             {STATUS_LABELS[period.status]}
           </span>
         </div>
@@ -281,45 +298,54 @@ function PeriodCard({
             </Button>
           )}
           <Button variant="ghost" size="sm" onClick={handleToggle}>
-            <ChevronDown className={`size-4 transition-transform ${expanded ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`size-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+            />
           </Button>
         </div>
       </div>
       {expanded && (
         <div className="border-t px-4 py-3 space-y-2">
           {loading && <p className="text-xs text-muted-foreground">Cargando...</p>}
-          {!loading && ministries.filter((m) => m.is_active).map((ministry) => {
-            const existing = budgetByMinistry[ministry.id]
-            return (
-              <div key={ministry.id} className="flex items-center gap-3 py-1">
-                <span className="text-sm flex-1">{ministry.name}</span>
-                <div className="flex items-center gap-2">
-                  {existing && (
-                    <span className="text-xs text-muted-foreground">{formatCLP(existing.amount)}</span>
-                  )}
-                  <Input
-                    type="number"
-                    min={0}
-                    step={1000}
-                    className="w-36 text-sm h-8"
-                    placeholder="Monto CLP"
-                    value={amounts[ministry.id] ?? ""}
-                    onChange={(e) => setAmounts((prev) => ({ ...prev, [ministry.id]: e.target.value }))}
-                    disabled={period.status === "CLOSED"}
-                  />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8 text-xs"
-                    disabled={period.status === "CLOSED" || savingId === ministry.id}
-                    onClick={() => saveBudget(ministry.id)}
-                  >
-                    {savingId === ministry.id ? "..." : "Guardar"}
-                  </Button>
-                </div>
-              </div>
-            )
-          })}
+          {!loading &&
+            ministries
+              .filter((m) => m.is_active)
+              .map((ministry) => {
+                const existing = budgetByMinistry[ministry.id]
+                return (
+                  <div key={ministry.id} className="flex items-center gap-3 py-1">
+                    <span className="text-sm flex-1">{ministry.name}</span>
+                    <div className="flex items-center gap-2">
+                      {existing && (
+                        <span className="text-xs text-muted-foreground">
+                          {formatCLP(existing.amount)}
+                        </span>
+                      )}
+                      <Input
+                        type="number"
+                        min={0}
+                        step={1000}
+                        className="w-36 text-sm h-8"
+                        placeholder="Monto CLP"
+                        value={amounts[ministry.id] ?? ""}
+                        onChange={(e) =>
+                          setAmounts((prev) => ({ ...prev, [ministry.id]: e.target.value }))
+                        }
+                        disabled={period.status === "CLOSED"}
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 text-xs"
+                        disabled={period.status === "CLOSED" || savingId === ministry.id}
+                        onClick={() => saveBudget(ministry.id)}
+                      >
+                        {savingId === ministry.id ? "..." : "Guardar"}
+                      </Button>
+                    </div>
+                  </div>
+                )
+              })}
         </div>
       )}
     </Card>

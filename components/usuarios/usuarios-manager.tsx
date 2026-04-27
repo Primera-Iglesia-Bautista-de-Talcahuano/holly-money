@@ -68,12 +68,14 @@ function getInitials(name: string) {
 function roleBadgeClass(role: UserRole) {
   if (role === "ADMIN") return "bg-primary/10 text-primary"
   if (role === "OPERATOR") return "bg-role-purple-surface text-role-purple"
+  if (role === "MINISTER") return "bg-amber-100 text-amber-700"
   return "bg-muted text-muted-foreground"
 }
 
 function roleLabel(role: UserRole) {
   if (role === "ADMIN") return "Admin"
   if (role === "OPERATOR") return "Operador"
+  if (role === "MINISTER") return "Ministro"
   return "Visor"
 }
 
@@ -253,9 +255,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
         loading: "Reenviando invitación...",
         success: (data) => {
           setUsers((prev) =>
-            prev.map((u) =>
-              u.id === userId ? { ...u, updated_at: new Date().toISOString() } : u
-            )
+            prev.map((u) => (u.id === userId ? { ...u, updated_at: new Date().toISOString() } : u))
           )
           if (data?.invite_link) {
             setLinkCopied(false)
@@ -283,7 +283,11 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
           setUsers((prev) =>
             prev.map((u) =>
               u.id === userId
-                ? { ...u, status: "PENDING_RESET" as UserStatus, updated_at: new Date().toISOString() }
+                ? {
+                    ...u,
+                    status: "PENDING_RESET" as UserStatus,
+                    updated_at: new Date().toISOString()
+                  }
                 : u
             )
           )
@@ -428,6 +432,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                       <option value="ADMIN">ADMIN — Control del Sistema</option>
                       <option value="OPERATOR">OPERATOR — Ingreso de Datos</option>
                       <option value="VIEWER">VIEWER — Solo Lectura</option>
+                      <option value="MINISTER">MINISTER — Solicitudes de Fondos</option>
                     </NativeSelect>
                   </Field>
                 </FieldGroup>
@@ -457,6 +462,15 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     <AlertDescription>
                       Puede consultar movimientos y reportes, pero no puede crear, editar ni anular
                       ningún registro. Ideal para revisores o auditores externos.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {selectedRole === "MINISTER" && (
+                  <Alert variant="info">
+                    <AlertTitle>Solicitudes de fondos</AlertTitle>
+                    <AlertDescription>
+                      Puede enviar solicitudes de fondos para su ministerio y rendir los gastos
+                      correspondientes. No tiene acceso a movimientos contables ni configuración.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -539,6 +553,7 @@ export function UsuariosManager({ initialUsers }: { initialUsers: UsuarioRow[] }
                     <option value="ADMIN">ADMIN — Control del Sistema</option>
                     <option value="OPERATOR">OPERATOR — Ingreso de Datos</option>
                     <option value="VIEWER">VIEWER — Solo Lectura</option>
+                    <option value="MINISTER">MINISTER — Solicitudes de Fondos</option>
                   </NativeSelect>
                 </Field>
 

@@ -93,7 +93,7 @@ export function RendicionesClient({ initialInvoices }: { initialInvoices: Invoic
           })
         })
         if (!res.ok) throw new Error()
-        const created: Invoice = await res.json()
+        const created = (await res.json()) as Invoice
         setInvoices((prev) => [created, ...prev])
         setNumber("")
         setDate(new Date())
@@ -119,7 +119,7 @@ export function RendicionesClient({ initialInvoices }: { initialInvoices: Invoic
         body: JSON.stringify({ status: nextStatus })
       })
       if (!res.ok) throw new Error()
-      const updated: Invoice = await res.json()
+      const updated = (await res.json()) as Invoice
       setInvoices((prev) => prev.map((i) => (i.id === updated.id ? updated : i)))
       setSelectedInvoice((prev) => (prev?.id === updated.id ? updated : prev))
     } catch {

@@ -18,7 +18,13 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
 import { formatDate, formatDateTime, formatCLP } from "@/lib/utils"
 import type { UserRole } from "@/types/auth"
@@ -128,7 +134,7 @@ export function IntentionDetailClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: reviewAction, message: reviewMessage })
       })
-      const data = await res.json()
+      const data = (await res.json()) as { message?: string }
       if (res.status === 409) {
         toast.info(data.message)
         setReviewOpen(false)
@@ -159,9 +165,9 @@ export function IntentionDetailClient({
           notes: transferNotes || undefined
         })
       })
-      if (!res.ok) throw new Error((await res.json()).message)
-      const data = await res.json()
-      setCurrentTransfer(data)
+      const transferData = (await res.json()) as Transfer & { message?: string }
+      if (!res.ok) throw new Error(transferData.message)
+      setCurrentTransfer(transferData)
       setTransferOpen(false)
       toast.success("Transferencia registrada")
     } catch (err) {
@@ -181,9 +187,9 @@ export function IntentionDetailClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: commentMsg.trim() })
       })
-      if (!res.ok) throw new Error((await res.json()).message)
-      const data = await res.json()
-      setComments((prev) => [...prev, data])
+      const commentData = (await res.json()) as Comment & { message?: string }
+      if (!res.ok) throw new Error(commentData.message)
+      setComments((prev) => [...prev, commentData])
       setCommentMsg("")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al comentar")
@@ -206,9 +212,9 @@ export function IntentionDetailClient({
           expense_date: settlDate
         })
       })
-      if (!res.ok) throw new Error((await res.json()).message)
-      const data = await res.json()
-      setSettlements((prev) => [...prev, data])
+      const settlData = (await res.json()) as Settlement & { message?: string }
+      if (!res.ok) throw new Error(settlData.message)
+      setSettlements((prev) => [...prev, settlData])
       setSettlementOpen(false)
       setSettlAmount("")
       setSettlDesc("")
@@ -294,11 +300,21 @@ export function IntentionDetailClient({
             <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
               <DialogTrigger
                 onClick={() => setReviewAction("APPROVED")}
-                render={<Button size="sm"><CheckCircle className="size-4" />Aprobar</Button>}
+                render={
+                  <Button size="sm">
+                    <CheckCircle className="size-4" />
+                    Aprobar
+                  </Button>
+                }
               />
               <DialogTrigger
                 onClick={() => setReviewAction("REJECTED")}
-                render={<Button size="sm" variant="outline"><XCircle className="size-4" />Rechazar</Button>}
+                render={
+                  <Button size="sm" variant="outline">
+                    <XCircle className="size-4" />
+                    Rechazar
+                  </Button>
+                }
               />
               <DialogContent>
                 <DialogHeader>
@@ -323,7 +339,11 @@ export function IntentionDetailClient({
                     disabled={reviewing}
                     variant={reviewAction === "APPROVED" ? "default" : "destructive"}
                   >
-                    {reviewing ? "Procesando..." : reviewAction === "APPROVED" ? "Confirmar aprobación" : "Confirmar rechazo"}
+                    {reviewing
+                      ? "Procesando..."
+                      : reviewAction === "APPROVED"
+                        ? "Confirmar aprobación"
+                        : "Confirmar rechazo"}
                   </Button>
                 </form>
               </DialogContent>
@@ -393,13 +413,25 @@ export function IntentionDetailClient({
           </div>
           {currentTransfer ? (
             <div className="grid gap-1.5 text-sm bg-green-50 dark:bg-green-900/20 rounded-md p-3">
-              <div><span className="text-muted-foreground">Monto: </span>{formatCLP(currentTransfer.amount)}</div>
-              <div><span className="text-muted-foreground">Fecha: </span>{formatDate(currentTransfer.transfer_date)}</div>
+              <div>
+                <span className="text-muted-foreground">Monto: </span>
+                {formatCLP(currentTransfer.amount)}
+              </div>
+              <div>
+                <span className="text-muted-foreground">Fecha: </span>
+                {formatDate(currentTransfer.transfer_date)}
+              </div>
               {currentTransfer.reference && (
-                <div><span className="text-muted-foreground">Referencia: </span>{currentTransfer.reference}</div>
+                <div>
+                  <span className="text-muted-foreground">Referencia: </span>
+                  {currentTransfer.reference}
+                </div>
               )}
               {currentTransfer.notes && (
-                <div><span className="text-muted-foreground">Notas: </span>{currentTransfer.notes}</div>
+                <div>
+                  <span className="text-muted-foreground">Notas: </span>
+                  {currentTransfer.notes}
+                </div>
               )}
             </div>
           ) : (
@@ -421,7 +453,14 @@ export function IntentionDetailClient({
             </h2>
             {isMinister && (
               <Dialog open={settlementOpen} onOpenChange={setSettlementOpen}>
-                <DialogTrigger render={<Button size="sm"><Plus className="size-4" />Nueva rendición</Button>} />
+                <DialogTrigger
+                  render={
+                    <Button size="sm">
+                      <Plus className="size-4" />
+                      Nueva rendición
+                    </Button>
+                  }
+                />
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Rendición de gastos</DialogTitle>
@@ -429,7 +468,8 @@ export function IntentionDetailClient({
                   {lateExpiry && (
                     <div className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
                       <AlertTriangle className="size-4 shrink-0" />
-                      La fecha del gasto supera los 30 días. Esta rendición podría ser rechazada por el equipo de tesorería.
+                      La fecha del gasto supera los 30 días. Esta rendición podría ser rechazada por
+                      el equipo de tesorería.
                     </div>
                   )}
                   <form onSubmit={handleSubmitSettlement} className="space-y-4">
@@ -477,15 +517,26 @@ export function IntentionDetailClient({
                 <div key={s.id} className="rounded-md border p-3 text-sm space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-medium">{formatCLP(s.amount)}</span>
-                    <span className={`text-xs font-medium ${
-                      s.status === "APPROVED" ? "text-green-600" :
-                      s.status === "REJECTED" ? "text-red-500" : "text-amber-500"
-                    }`}>
-                      {s.status === "APPROVED" ? "Aprobada" : s.status === "REJECTED" ? "Rechazada" : "En revisión"}
+                    <span
+                      className={`text-xs font-medium ${
+                        s.status === "APPROVED"
+                          ? "text-green-600"
+                          : s.status === "REJECTED"
+                            ? "text-red-500"
+                            : "text-amber-500"
+                      }`}
+                    >
+                      {s.status === "APPROVED"
+                        ? "Aprobada"
+                        : s.status === "REJECTED"
+                          ? "Rechazada"
+                          : "En revisión"}
                     </span>
                   </div>
                   <p className="text-muted-foreground">{s.description}</p>
-                  <p className="text-xs text-muted-foreground">Gasto: {formatDate(s.expense_date)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Gasto: {formatDate(s.expense_date)}
+                  </p>
                   {s.is_late && (
                     <p className="text-xs text-amber-600 flex items-center gap-1">
                       <AlertTriangle className="size-3" />
@@ -494,7 +545,8 @@ export function IntentionDetailClient({
                   )}
                   {s.review_message && (
                     <p className="text-xs bg-muted/50 rounded px-2 py-1">
-                      <span className="font-medium">Revisor: </span>{s.review_message}
+                      <span className="font-medium">Revisor: </span>
+                      {s.review_message}
                     </p>
                   )}
                 </div>

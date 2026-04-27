@@ -30,8 +30,8 @@ export async function PUT(request: Request, { params }: Params) {
 
   try {
     const { id } = await params
-    const body = await request.json()
-    const parsed = updateUsuarioSchema.safeParse({ ...body, id })
+    const body: unknown = await request.json()
+    const parsed = updateUsuarioSchema.safeParse({ ...(body as Record<string, unknown>), id })
     if (!parsed.success) {
       return NextResponse.json(
         { message: "Datos inválidos", errors: parsed.error.flatten() },
