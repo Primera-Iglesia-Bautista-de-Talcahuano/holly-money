@@ -1,25 +1,22 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin"
 import { auditoriaService } from "@/services/auditoria/auditoria.service"
-import type { CreateMinistryInput, UpdateMinistryInput, AssignMinisterInput } from "@/lib/validators/ministry"
+import type {
+  CreateMinistryInput,
+  UpdateMinistryInput,
+  AssignMinisterInput
+} from "@/lib/validators/ministry"
 
 export const ministriesService = {
   async list() {
     const admin = createSupabaseAdminClient()
-    const { data, error } = await admin
-      .from("ministries")
-      .select("*")
-      .order("name")
+    const { data, error } = await admin.from("ministries").select("*").order("name")
     if (error) throw error
     return data
   },
 
   async getById(id: string) {
     const admin = createSupabaseAdminClient()
-    const { data, error } = await admin
-      .from("ministries")
-      .select("*")
-      .eq("id", id)
-      .single()
+    const { data, error } = await admin.from("ministries").select("*").eq("id", id).single()
     if (error) throw error
     return data
   },

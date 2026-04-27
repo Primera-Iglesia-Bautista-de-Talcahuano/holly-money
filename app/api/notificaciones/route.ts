@@ -51,13 +51,28 @@ export async function GET() {
     count,
     items: [
       intentionCount > 0
-        ? { type: "INTENTIONS_PENDING", count: intentionCount, message: `${intentionCount} solicitud(es) pendiente(s)`, href: "/solicitudes?status=PENDING" }
+        ? {
+            type: "INTENTIONS_PENDING",
+            count: intentionCount,
+            message: `${intentionCount} solicitud(es) pendiente(s)`,
+            href: "/solicitudes?status=PENDING"
+          }
         : null,
       settlementCount > 0
-        ? { type: "SETTLEMENTS_PENDING", count: settlementCount, message: `${settlementCount} rendición(es) pendiente(s)`, href: "/solicitudes?tab=rendiciones&status=PENDING" }
+        ? {
+            type: "SETTLEMENTS_PENDING",
+            count: settlementCount,
+            message: `${settlementCount} rendición(es) pendiente(s)`,
+            href: "/solicitudes?tab=rendiciones&status=PENDING"
+          }
         : null,
       missingTransfers > 0
-        ? { type: "MISSING_TRANSFERS", count: missingTransfers, message: `${missingTransfers} transferencia(s) sin registrar`, href: "/solicitudes?tab=transferencias" }
+        ? {
+            type: "MISSING_TRANSFERS",
+            count: missingTransfers,
+            message: `${missingTransfers} transferencia(s) sin registrar`,
+            href: "/solicitudes?tab=transferencias"
+          }
         : null
     ].filter(Boolean)
   })

@@ -71,17 +71,31 @@ export async function processMovimientoIntegrations(movimientoId: string, userId
     sendMovementEmail(payload)
   ])
 
-  const pdf = pdfResult.status === "fulfilled" ? pdfResult.value : { ok: false, error: String(pdfResult.reason) }
-  const sheet = sheetResult.status === "fulfilled" ? sheetResult.value : { ok: false, error: String(sheetResult.reason) }
-  const mail = mailResult.status === "fulfilled" ? mailResult.value : { ok: false, error: String(mailResult.reason) }
+  const pdf =
+    pdfResult.status === "fulfilled"
+      ? pdfResult.value
+      : { ok: false, error: String(pdfResult.reason) }
+  const sheet =
+    sheetResult.status === "fulfilled"
+      ? sheetResult.value
+      : { ok: false, error: String(sheetResult.reason) }
+  const mail =
+    mailResult.status === "fulfilled"
+      ? mailResult.value
+      : { ok: false, error: String(mailResult.reason) }
 
   // Persist all three integration states in a single update
   await admin
     .from("movements")
     .update({
       pdf_status: pdf.ok ? "GENERATED" : "ERROR",
-      pdf_url: pdf.ok ? (pdf as { ok: true; pdfUrl?: string; driveFileId?: string }).pdfUrl ?? movement.pdf_url : movement.pdf_url,
-      drive_file_id: pdf.ok ? (pdf as { ok: true; pdfUrl?: string; driveFileId?: string }).driveFileId ?? movement.drive_file_id : movement.drive_file_id,
+      pdf_url: pdf.ok
+        ? ((pdf as { ok: true; pdfUrl?: string; driveFileId?: string }).pdfUrl ?? movement.pdf_url)
+        : movement.pdf_url,
+      drive_file_id: pdf.ok
+        ? ((pdf as { ok: true; pdfUrl?: string; driveFileId?: string }).driveFileId ??
+          movement.drive_file_id)
+        : movement.drive_file_id,
       pdf_error: pdf.ok ? null : (pdf.error ?? "Fallo generación PDF"),
       synced_to_sheet: Boolean(sheet.ok),
       sync_error: sheet.ok ? null : (sheet.error ?? "Fallo sync Sheet"),
@@ -97,9 +111,7 @@ export async function processMovimientoIntegrations(movimientoId: string, userId
       movement_id: movimientoId,
       user_id: userId,
       action: "PDF regenerado",
-      note: pdf.ok
-        ? "PDF generado exitosamente"
-        : `Error al generar PDF: ${pdf.error ?? ""}`
+      note: pdf.ok ? "PDF generado exitosamente" : `Error al generar PDF: ${pdf.error ?? ""}`
     }),
     auditoriaService.logMovement({
       movement_id: movimientoId,

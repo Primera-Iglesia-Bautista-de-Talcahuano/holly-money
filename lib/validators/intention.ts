@@ -5,7 +5,10 @@ export const createIntentionSchema = z.object({
   amount: z.number().positive("El monto debe ser mayor a 0"),
   description: z.string().min(5, "La descripción debe tener al menos 5 caracteres"),
   purpose: z.string().optional(),
-  date_needed: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha inválido").optional()
+  date_needed: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha inválido")
+    .optional()
 })
 
 export const reviewIntentionSchema = z.object({

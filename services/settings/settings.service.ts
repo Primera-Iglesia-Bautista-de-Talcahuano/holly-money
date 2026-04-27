@@ -28,7 +28,10 @@ export const settingsService = {
     const admin = createSupabaseAdminClient()
     const now = new Date().toISOString()
 
-    const entries = Object.entries(input).filter(([, v]) => v !== undefined) as [string, string | number][]
+    const entries = Object.entries(input).filter(([, v]) => v !== undefined) as [
+      string,
+      string | number
+    ][]
 
     for (const [key, value] of entries) {
       await admin

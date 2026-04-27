@@ -21,11 +21,7 @@ export const budgetService = {
 
   async getPeriodById(id: string) {
     const admin = createSupabaseAdminClient()
-    const { data, error } = await admin
-      .from("budget_periods")
-      .select("*")
-      .eq("id", id)
-      .single()
+    const { data, error } = await admin.from("budget_periods").select("*").eq("id", id).single()
     if (error) throw error
     return data
   },
@@ -169,7 +165,11 @@ export const budgetService = {
       action: "BUDGET_UPSERTED",
       user_id: userId,
       entity_id: data.id,
-      new_value: { ministry_id: input.ministry_id, period_id: input.period_id, amount: input.amount }
+      new_value: {
+        ministry_id: input.ministry_id,
+        period_id: input.period_id,
+        amount: input.amount
+      }
     })
 
     return data

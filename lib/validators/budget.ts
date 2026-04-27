@@ -8,8 +8,14 @@ export const createBudgetPeriodSchema = z.object({
 
 export const updateBudgetPeriodSchema = z.object({
   name: z.string().min(2).optional(),
-  start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional()
+  start_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  end_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
 })
 
 export const upsertMinistryBudgetSchema = z.object({

@@ -9,11 +9,7 @@ import type { ComponentProps } from "react"
 
 type DetailProps = ComponentProps<typeof IntentionDetailClient>
 
-export default async function SolicitudDetailPage({
-  params
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function SolicitudDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
   if (!user || !canViewWorkflow(user.role)) redirect("/dashboard")
 

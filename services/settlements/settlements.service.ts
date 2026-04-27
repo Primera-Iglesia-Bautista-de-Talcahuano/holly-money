@@ -16,7 +16,8 @@ export const settlementsService = {
       .order("created_at", { ascending: false })
 
     if (filters?.intentionId) query = query.eq("intention_id", filters.intentionId)
-    if (filters?.status) query = query.eq("status", filters.status as "PENDING" | "APPROVED" | "REJECTED")
+    if (filters?.status)
+      query = query.eq("status", filters.status as "PENDING" | "APPROVED" | "REJECTED")
 
     const { data, error } = await query
     if (error) throw error
@@ -87,7 +88,11 @@ export const settlementsService = {
 
     if (input.action === "APPROVED") {
       const settlement = await this.getById(id)
-      const intention = settlement.budget_intentions as unknown as { ministry_id: string; amount: number; ministries: { name: string } }
+      const intention = settlement.budget_intentions as unknown as {
+        ministry_id: string
+        amount: number
+        ministries: { name: string }
+      }
       const ministry = intention.ministries
 
       const { createSupabaseAdminClient: getAdmin } = await import("@/lib/supabase/admin")
@@ -145,7 +150,9 @@ export const settlementsService = {
       new_value: { status: input.action, message: input.message, movement_id: movementId }
     })
 
-    const ministerUser = (current as unknown as { users: { email: string; full_name: string } | null }).users
+    const ministerUser = (
+      current as unknown as { users: { email: string; full_name: string } | null }
+    ).users
     if (ministerUser?.email) {
       await sendSettlementReviewNotification(data, ministerUser, input.action).catch(() => null)
     }
@@ -166,7 +173,10 @@ export const settlementsService = {
         .select("id")
         .eq("ministry_id", ministryId)
       if (intentions && intentions.length > 0) {
-        query = query.in("intention_id", intentions.map((i) => i.id))
+        query = query.in(
+          "intention_id",
+          intentions.map((i) => i.id)
+        )
       }
     }
 

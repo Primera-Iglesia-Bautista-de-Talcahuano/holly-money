@@ -8,7 +8,12 @@ import {
   sendIntentionReviewNotification,
   sendTransferNotification
 } from "@/services/email/workflow-emails.service"
-import type { CreateIntentionInput, ReviewIntentionInput, RegisterTransferInput, AddCommentInput } from "@/lib/validators/intention"
+import type {
+  CreateIntentionInput,
+  ReviewIntentionInput,
+  RegisterTransferInput,
+  AddCommentInput
+} from "@/lib/validators/intention"
 
 export const intentionsService = {
   async list(filters?: { ministryId?: string; status?: string }) {
@@ -21,7 +26,8 @@ export const intentionsService = {
       .order("created_at", { ascending: false })
 
     if (filters?.ministryId) query = query.eq("ministry_id", filters.ministryId)
-    if (filters?.status) query = query.eq("status", filters.status as "PENDING" | "APPROVED" | "REJECTED")
+    if (filters?.status)
+      query = query.eq("status", filters.status as "PENDING" | "APPROVED" | "REJECTED")
 
     const { data, error } = await query
     if (error) throw error
@@ -126,7 +132,9 @@ export const intentionsService = {
       new_value: { status: input.action, message: input.message }
     })
 
-    const ministerUser = (current as unknown as { users: { email: string; full_name: string } | null }).users
+    const ministerUser = (
+      current as unknown as { users: { email: string; full_name: string } | null }
+    ).users
     if (ministerUser?.email) {
       await sendIntentionReviewNotification(data, ministerUser, input.action).catch(() => null)
     }
@@ -160,7 +168,9 @@ export const intentionsService = {
     })
 
     const intention = await this.getById(intentionId)
-    const ministerUser = (intention as unknown as { users: { email: string; full_name: string } | null }).users
+    const ministerUser = (
+      intention as unknown as { users: { email: string; full_name: string } | null }
+    ).users
     if (ministerUser?.email) {
       await sendTransferNotification(intention, ministerUser).catch(() => null)
     }
@@ -179,7 +189,12 @@ export const intentionsService = {
     return data
   },
 
-  async addComment(entityId: string, entityType: "INTENTION" | "SETTLEMENT", input: AddCommentInput, userId: string) {
+  async addComment(
+    entityId: string,
+    entityType: "INTENTION" | "SETTLEMENT",
+    input: AddCommentInput,
+    userId: string
+  ) {
     const admin = createSupabaseAdminClient()
     const { data, error } = await admin
       .from("request_comments")

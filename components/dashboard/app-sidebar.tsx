@@ -39,10 +39,30 @@ type NavLink = {
 
 const ALL_LINKS: NavLink[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/movimientos", label: "Movimientos", icon: Briefcase, roles: ["ADMIN", "OPERATOR", "VIEWER"] },
-  { href: "/eventos", label: "Eventos", icon: CalendarDays, roles: ["ADMIN", "OPERATOR", "VIEWER"] },
-  { href: "/rendiciones", label: "Rendiciones", icon: Receipt, roles: ["ADMIN", "OPERATOR", "VIEWER"] },
-  { href: "/solicitudes", label: "Solicitudes", icon: FileCheck, roles: ["ADMIN", "OPERATOR", "MINISTER"] },
+  {
+    href: "/movimientos",
+    label: "Movimientos",
+    icon: Briefcase,
+    roles: ["ADMIN", "OPERATOR", "VIEWER"]
+  },
+  {
+    href: "/eventos",
+    label: "Eventos",
+    icon: CalendarDays,
+    roles: ["ADMIN", "OPERATOR", "VIEWER"]
+  },
+  {
+    href: "/rendiciones",
+    label: "Rendiciones",
+    icon: Receipt,
+    roles: ["ADMIN", "OPERATOR", "VIEWER"]
+  },
+  {
+    href: "/solicitudes",
+    label: "Solicitudes",
+    icon: FileCheck,
+    roles: ["ADMIN", "OPERATOR", "MINISTER"]
+  },
   { href: "/ministerios", label: "Ministerios", icon: Church, roles: ["ADMIN", "OPERATOR"] },
   { href: "/presupuesto", label: "Presupuesto", icon: PiggyBank, roles: ["ADMIN", "OPERATOR"] },
   { href: "/usuarios", label: "Usuarios", icon: Users, roles: ["ADMIN"] },

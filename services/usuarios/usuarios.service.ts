@@ -199,10 +199,7 @@ export const usuariosService = {
 
     if (linkError) throw linkError
 
-    await admin
-      .from("users")
-      .update({ updated_at: new Date().toISOString() })
-      .eq("id", userId)
+    await admin.from("users").update({ updated_at: new Date().toISOString() }).eq("id", userId)
 
     const inviteLink = wrapAuthLink(linkData.properties.action_link)
 
