@@ -9,6 +9,6 @@ export async function GET() {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 
-  const auditoria = await auditService.listSystem(80)
-  return NextResponse.json({ auditoria })
+  const auditLog = await auditService.listSystem(80)
+  return NextResponse.json({ auditLog })
 }

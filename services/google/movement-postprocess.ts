@@ -26,30 +26,28 @@ function toPayload(m: {
   return {
     movementId: m.id,
     folio: m.folio_display ?? "",
-    tipo: m.movement_type === "INCOME" ? "INGRESO" : "EGRESO",
-    fechaMovimiento: m.movement_date,
-    fecha: m.movement_date,
-    tipoMovimiento: m.movement_type === "INCOME" ? "INGRESO" : "EGRESO",
-    monto: Number(m.amount),
-    categoria: m.category,
-    concepto: m.concept,
-    descripcion: m.concept,
-    referente: m.reference_person,
-    recibidoPor: m.received_by,
-    entregadoPor: m.delivered_by,
-    beneficiario: m.beneficiary,
-    medioPago: m.payment_method,
-    numeroRespaldo: m.support_number,
-    observaciones: m.notes,
-    registradoPor: m.created_by.full_name,
-    usuario: m.created_by.full_name,
-    registradoEmail: m.created_by.email,
-    registradoEn: m.created_at,
-    nombreOrganizacion: "Sistema contable PIBT"
+    movementTypeLabel: m.movement_type === "INCOME" ? "INGRESO" : "EGRESO",
+    movementDate: m.movement_date,
+    amount: Number(m.amount),
+    category: m.category,
+    concept: m.concept,
+    description: m.concept,
+    reference: m.reference_person,
+    receivedBy: m.received_by,
+    deliveredBy: m.delivered_by,
+    beneficiary: m.beneficiary,
+    paymentMethod: m.payment_method,
+    supportNumber: m.support_number,
+    notes: m.notes,
+    registeredBy: m.created_by.full_name,
+    user: m.created_by.full_name,
+    registeredEmail: m.created_by.email,
+    registeredAt: m.created_at,
+    organizationName: "Sistema contable PIBT"
   }
 }
 
-export async function processMovimientoIntegrations(movementId: string, userId: string) {
+export async function processMovementIntegrations(movementId: string, userId: string) {
   const admin = createSupabaseAdminClient()
 
   const { data: movement, error } = await admin
@@ -58,7 +56,7 @@ export async function processMovimientoIntegrations(movementId: string, userId: 
     .eq("id", movementId)
     .single()
 
-  if (error || !movement) throw new Error("Movimiento no encontrado para integración")
+  if (error || !movement) throw new Error("Movement not found for integration")
 
   const created_by = movement.created_by as { full_name: string; email: string }
   const payload = toPayload({ ...movement, created_by })

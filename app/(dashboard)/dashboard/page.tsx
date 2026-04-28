@@ -2,7 +2,7 @@ import Link from "next/link"
 import { dashboardService } from "@/services/dashboard/dashboard.service"
 import { getCurrentUser } from "@/lib/supabase/server"
 import { canCreateOrEditMovements } from "@/lib/permissions/rbac"
-import { IngresosEgresosChart, CategoriaChart } from "@/components/dashboard/dashboard-charts"
+import { IncomeExpenseChart, CategoryChart } from "@/components/dashboard/dashboard-charts"
 import { MovementsTable } from "@/components/movements/movements-table"
 import { Label } from "@/components/ui/label"
 import { DatePicker } from "@/components/ui/date-picker"
@@ -23,7 +23,7 @@ export default async function DashboardPage({
   const from = (await searchParams)?.from
   const to = (await searchParams)?.to
   const [data, user] = await Promise.all([
-    dashboardService.getResumen({ from, to }),
+    dashboardService.getSummary({ from, to }),
     getCurrentUser()
   ])
   const canWrite = canCreateOrEditMovements(user?.role)
@@ -83,16 +83,16 @@ export default async function DashboardPage({
             Saldo actual
           </p>
           <p className="font-heading text-3xl font-bold tracking-tight tabular-nums">
-            {formatCLP(data.kpis.saldoActual)}
+            {formatCLP(data.kpis.currentBalance)}
           </p>
           <div className="flex flex-wrap gap-3 mt-1">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold">
               <TrendingUp className="size-3" />
-              {formatCLP(data.kpis.totalIngresos)}
+              {formatCLP(data.kpis.totalIncome)}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold">
               <TrendingDown className="size-3" />
-              {formatCLP(data.kpis.totalEgresos)}
+              {formatCLP(data.kpis.totalExpense)}
             </span>
           </div>
         </div>
@@ -106,10 +106,10 @@ export default async function DashboardPage({
             <TrendingUp className="size-4 text-income" />
           </div>
           <p className="font-heading text-2xl font-bold tracking-tight text-income tabular-nums">
-            {formatCLP(data.kpis.totalIngresos)}
+            {formatCLP(data.kpis.totalIncome)}
           </p>
           <p className="text-xs text-muted-foreground">
-            {data.kpis.cantidadMovimientos} movimientos en el período
+            {data.kpis.movementCount} movimientos en el período
           </p>
         </div>
 
@@ -122,7 +122,7 @@ export default async function DashboardPage({
             <TrendingDown className="size-4 text-destructive" />
           </div>
           <p className="font-heading text-2xl font-bold tracking-tight text-destructive tabular-nums">
-            {formatCLP(data.kpis.totalEgresos)}
+            {formatCLP(data.kpis.totalExpense)}
           </p>
           <p className="text-xs text-muted-foreground">En el período seleccionado</p>
         </div>
@@ -137,7 +137,7 @@ export default async function DashboardPage({
             </h2>
             <p className="text-xs text-muted-foreground">Tendencia por período</p>
           </div>
-          <IngresosEgresosChart data={data.serieIngresosEgresos} />
+          <IncomeExpenseChart data={data.incomeExpenseSeries} />
         </div>
         <div className="rounded-xl bg-card border border-border p-6 flex flex-col gap-4">
           <div className="flex flex-col gap-0.5">
@@ -146,7 +146,7 @@ export default async function DashboardPage({
             </h2>
             <p className="text-xs text-muted-foreground">Distribución del período</p>
           </div>
-          <CategoriaChart data={data.resumenPorCategoria} />
+          <CategoryChart data={data.categoryBreakdown} />
         </div>
       </div>
 
@@ -166,7 +166,7 @@ export default async function DashboardPage({
         <div className="rounded-xl bg-card border border-border overflow-hidden">
           <MovementsTable
             canWrite={canWrite}
-            rows={data.ultimosMovimientos.map((row) => ({
+            rows={data.recentMovements.map((row) => ({
               id: row.id,
               folio_display: row.folio_display,
               movement_date: row.movement_date,

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
 import { canCreateOrEditMovements } from "@/lib/permissions/rbac"
-import { processMovimientoIntegrations } from "@/services/google/movement-postprocess"
+import { processMovementIntegrations } from "@/services/google/movement-postprocess"
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -13,7 +13,7 @@ export async function POST(_: Request, { params }: Params) {
 
   const { id } = await params
   try {
-    await processMovimientoIntegrations(id, user.id)
+    await processMovementIntegrations(id, user.id)
     return NextResponse.json({ ok: true, message: "Regeneración iniciada/completada" })
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error regenerando PDF"

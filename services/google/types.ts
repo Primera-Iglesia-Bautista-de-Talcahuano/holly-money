@@ -1,28 +1,26 @@
-export type IntegrationStatus = "PENDIENTE" | "ENVIADO" | "ERROR"
+export type IntegrationStatus = "PENDING" | "SENT" | "ERROR"
 
 export type MovementIntegrationPayload = {
   movementId: string
   folio: string
-  tipo: "INGRESO" | "EGRESO"
-  fechaMovimiento: string
-  fecha: string
-  tipoMovimiento: "INGRESO" | "EGRESO"
-  monto: number
-  categoria: string
-  concepto: string
-  descripcion: string
-  referente?: string | null
-  recibidoPor?: string | null
-  entregadoPor?: string | null
-  beneficiario?: string | null
-  medioPago?: string | null
-  numeroRespaldo?: string | null
-  observaciones?: string | null
-  registradoPor: string
-  usuario: string
-  registradoEmail: string
-  registradoEn: string
-  nombreOrganizacion?: string | null
+  movementTypeLabel: "INGRESO" | "EGRESO"
+  movementDate: string
+  amount: number
+  category: string
+  concept: string
+  description: string
+  reference?: string | null
+  receivedBy?: string | null
+  deliveredBy?: string | null
+  beneficiary?: string | null
+  paymentMethod?: string | null
+  supportNumber?: string | null
+  notes?: string | null
+  registeredBy: string
+  user: string
+  registeredEmail: string
+  registeredAt: string
+  organizationName?: string | null
 }
 
 export type AppsScriptResponse = {

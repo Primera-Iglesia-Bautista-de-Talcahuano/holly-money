@@ -1,19 +1,19 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin"
 
-type SerieItem = { name: string; ingresos: number; egresos: number }
-type CategoriaItem = { categoria: string; total: number }
+type SeriesItem = { name: string; income: number; expense: number }
+type CategoryItem = { category: string; total: number }
 
-type DashboardPeriodo = {
+type DashboardPeriod = {
   from?: string
   to?: string
 }
 
 type RpcResult = {
-  totalIngresos: number
-  totalEgresos: number
-  cantidadMovimientos: number
-  series: Array<{ month: string; ingresos: number; egresos: number }>
-  resumenPorCategoria: CategoriaItem[]
+  totalIncome: number
+  totalExpense: number
+  movementCount: number
+  series: Array<{ month: string; income: number; expense: number }>
+  categoryBreakdown: Array<{ category: string; total: number }>
 }
 
 // Converts 'YYYY-MM' ISO month string to Spanish short locale label ("ene. 26").
@@ -24,18 +24,18 @@ function formatMonthES(isoMonth: string): string {
 }
 
 export const dashboardService = {
-  async getResumen(periodo: DashboardPeriodo = {}) {
+  async getSummary(period: DashboardPeriod = {}) {
     const admin = createSupabaseAdminClient()
 
     let pFrom: string | null = null
     let pTo: string | null = null
 
-    if (periodo.from) {
-      const d = new Date(periodo.from)
+    if (period.from) {
+      const d = new Date(period.from)
       if (!Number.isNaN(d.getTime())) pFrom = d.toISOString()
     }
-    if (periodo.to) {
-      const d = new Date(periodo.to)
+    if (period.to) {
+      const d = new Date(period.to)
       if (!Number.isNaN(d.getTime())) {
         d.setHours(23, 59, 59, 999)
         pTo = d.toISOString()
@@ -62,25 +62,27 @@ export const dashboardService = {
 
     const summary = rpcResponse.data as unknown as RpcResult
 
-    const serieIngresosEgresos: SerieItem[] = summary.series.map((s) => ({
+    const incomeExpenseSeries: SeriesItem[] = summary.series.map((s) => ({
       name: formatMonthES(s.month),
-      ingresos: Number(s.ingresos),
-      egresos: Number(s.egresos)
+      income: Number(s.income),
+      expense: Number(s.expense)
     }))
 
     return {
       kpis: {
-        totalIngresos: Number(summary.totalIngresos),
-        totalEgresos: Number(summary.totalEgresos),
-        saldoActual: Number(summary.totalIngresos) - Number(summary.totalEgresos),
-        cantidadMovimientos: Number(summary.cantidadMovimientos)
+        totalIncome: Number(summary.totalIncome),
+        totalExpense: Number(summary.totalExpense),
+        currentBalance: Number(summary.totalIncome) - Number(summary.totalExpense),
+        movementCount: Number(summary.movementCount)
       },
-      serieIngresosEgresos,
-      resumenPorCategoria: summary.resumenPorCategoria.map((c) => ({
-        categoria: c.categoria,
-        total: Number(c.total)
-      })),
-      ultimosMovimientos: recentResponse.data
+      incomeExpenseSeries,
+      categoryBreakdown: summary.categoryBreakdown.map(
+        (c): CategoryItem => ({
+          category: c.category,
+          total: Number(c.total)
+        })
+      ),
+      recentMovements: recentResponse.data
     }
   }
 }

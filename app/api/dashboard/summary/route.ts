@@ -9,6 +9,6 @@ export async function GET() {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 
-  const data = await dashboardService.getResumen()
+  const data = await dashboardService.getSummary()
   return NextResponse.json(data)
 }

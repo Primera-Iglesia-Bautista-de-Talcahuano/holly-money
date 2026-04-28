@@ -26,23 +26,15 @@ import {
 } from "@/components/ui/item"
 import { formatDate, formatCLP } from "@/lib/utils"
 import type { UserRole } from "@/types/auth"
+import type { intentionsService } from "@/services/intentions/intentions.service"
+import type { ministriesService } from "@/services/ministries/ministries.service"
 
-type Intention = {
-  id: string
-  amount: number
-  description: string
-  status: "PENDING" | "APPROVED" | "REJECTED"
-  is_over_budget: boolean
-  created_at: string
-  reviewed_at: string | null
-  review_message: string | null
-  ministries: { id: string; name: string } | null
-  users: { id: string; full_name: string; email: string } | null
-}
+type Intention = Awaited<ReturnType<typeof intentionsService.list>>[number]
+type MinistryAssignment = Awaited<ReturnType<typeof ministriesService.getMinistryForUser>>
+type Ministry = NonNullable<MinistryAssignment>["ministries"] | null
 
 type BudgetSummary = { allocated: number; used: number; remaining: number }
 type ActivePeriod = { id: string; name: string } | null
-type Ministry = { id: string; name: string } | null
 
 const STATUS_ICONS = {
   PENDING: <Clock className="size-4 text-amber-500" />,

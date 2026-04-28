@@ -3,7 +3,7 @@ import { getCurrentUser } from "@/lib/supabase/server"
 import { canCreateOrEditMovements, canViewMovements } from "@/lib/permissions/rbac"
 import { movementsService } from "@/services/movements/movements.service"
 import { updateMovementSchema } from "@/lib/validators/movement"
-import { processMovimientoIntegrations } from "@/services/google/movement-postprocess"
+import { processMovementIntegrations } from "@/services/google/movement-postprocess"
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -40,7 +40,7 @@ export async function PUT(request: Request, { params }: Params) {
     }
 
     const updated = await movementsService.update(id, parsed.data, user.id)
-    void processMovimientoIntegrations(updated.id, user.id).catch(() => {
+    void processMovementIntegrations(updated.id, user.id).catch(() => {
       // Mantener regla de negocio: si falla integración externa, movimiento queda guardado.
     })
     return NextResponse.json(updated)

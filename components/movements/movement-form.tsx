@@ -35,7 +35,7 @@ export function MovementForm({ mode, movementId, initialValues, onSuccess }: Pro
   const [error, setError] = useState<string | null>(null)
   const [supportFile, setSupportFile] = useState<File | null>(null)
 
-  const form = useForm<MovimientoFormInput, unknown, CreateMovementInput>({
+  const form = useForm<MovementFormInput, unknown, CreateMovementInput>({
     resolver: zodResolver(createMovementSchema),
     defaultValues: {
       movement_date: toDateValue(initialValues?.movement_date),
@@ -53,10 +53,10 @@ export function MovementForm({ mode, movementId, initialValues, onSuccess }: Pro
     }
   })
 
-  const tipo = useWatch({ control: form.control, name: "movement_type" })
-  const categorias = useMemo(
-    () => (tipo === "INCOME" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES),
-    [tipo]
+  const movementType = useWatch({ control: form.control, name: "movement_type" })
+  const categories = useMemo(
+    () => (movementType === "INCOME" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES),
+    [movementType]
   )
 
   async function onSubmit(values: CreateMovementInput) {
@@ -177,7 +177,7 @@ export function MovementForm({ mode, movementId, initialValues, onSuccess }: Pro
                 {...form.register("category")}
               >
                 <option value="">Seleccione Categoría</option>
-                {categorias.map((category) => (
+                {categories.map((category) => (
                   <option key={category} value={category}>
                     {category}
                   </option>
@@ -347,4 +347,4 @@ export function MovementForm({ mode, movementId, initialValues, onSuccess }: Pro
   )
 }
 
-type MovimientoFormInput = z.input<typeof createMovementSchema>
+type MovementFormInput = z.input<typeof createMovementSchema>

@@ -4,7 +4,7 @@ import { MovementForm } from "@/components/movements/movement-form"
 import { movementsService } from "@/services/movements/movements.service"
 import { getCurrentUser } from "@/lib/supabase/server"
 import { canCreateOrEditMovements } from "@/lib/permissions/rbac"
-import { toMovimientoFormValues } from "@/lib/utils"
+import { toMovementFormValues } from "@/lib/utils"
 
 export default async function EditarMovimientoPage({ params }: Props) {
   const { id } = await params
@@ -32,7 +32,7 @@ export default async function EditarMovimientoPage({ params }: Props) {
         <MovementForm
           mode="edit"
           movementId={id}
-          initialValues={toMovimientoFormValues(movement)}
+          initialValues={toMovementFormValues(movement)}
         />
       </div>
     </div>
