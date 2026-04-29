@@ -67,16 +67,18 @@ function getInitials(name: string) {
 
 function roleBadgeClass(role: UserRole) {
   if (role === "ADMIN") return "bg-primary/10 text-primary"
-  if (role === "OPERATOR") return "bg-role-purple-surface text-role-purple"
+  if (role === "BURSAR") return "bg-role-purple-surface text-role-purple"
+  if (role === "FINANCE") return "bg-emerald-100 text-emerald-700"
   if (role === "MINISTER") return "bg-amber-100 text-amber-700"
   return "bg-muted text-muted-foreground"
 }
 
 function roleLabel(role: UserRole) {
-  if (role === "ADMIN") return "Admin"
-  if (role === "OPERATOR") return "Operador"
+  if (role === "ADMIN") return "Administrador"
+  if (role === "BURSAR") return "Tesorero"
+  if (role === "FINANCE") return "Finanzas"
   if (role === "MINISTER") return "Ministro"
-  return "Visor"
+  return role
 }
 
 type StatusMeta = {
@@ -140,7 +142,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
   // ── Create form ──────────────────────────────────────────────────────────────
   const createForm = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
-    defaultValues: { full_name: "", email: "", role: "OPERATOR" }
+    defaultValues: { full_name: "", email: "", role: "BURSAR" }
   })
 
   const selectedRole = useWatch({ control: createForm.control, name: "role" })
@@ -429,10 +431,10 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
                       Nivel de Acceso
                     </FieldLabel>
                     <NativeSelect id="new-role" className="w-full" {...createForm.register("role")}>
-                      <option value="ADMIN">ADMIN — Control del Sistema</option>
-                      <option value="OPERATOR">OPERATOR — Ingreso de Datos</option>
-                      <option value="VIEWER">VIEWER — Solo Lectura</option>
-                      <option value="MINISTER">MINISTER — Solicitudes de Fondos</option>
+                      <option value="ADMIN">Administrador — Control del Sistema</option>
+                      <option value="BURSAR">Tesorero — Ingreso y Aprobación</option>
+                      <option value="FINANCE">Finanzas — Monitoreo de Registros</option>
+                      <option value="MINISTER">Ministro — Solicitudes de Fondos</option>
                     </NativeSelect>
                   </Field>
                 </FieldGroup>
@@ -447,21 +449,22 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
                     </AlertDescription>
                   </Alert>
                 )}
-                {selectedRole === "OPERATOR" && (
+                {selectedRole === "BURSAR" && (
                   <Alert variant="info">
-                    <AlertTitle>Ingreso y gestión de movimientos</AlertTitle>
+                    <AlertTitle>Tesorero — Ingreso y aprobación</AlertTitle>
                     <AlertDescription>
-                      Puede crear, editar y anular movimientos contables. No puede gestionar
-                      usuarios ni acceder a configuraciones del sistema.
+                      Puede crear, editar y anular movimientos contables, aprobar o rechazar
+                      solicitudes de fondos de ministros y gestionar presupuestos. No puede
+                      gestionar usuarios ni configurar el sistema.
                     </AlertDescription>
                   </Alert>
                 )}
-                {selectedRole === "VIEWER" && (
+                {selectedRole === "FINANCE" && (
                   <Alert variant="info">
-                    <AlertTitle>Solo lectura</AlertTitle>
+                    <AlertTitle>Finanzas — Monitoreo de registros</AlertTitle>
                     <AlertDescription>
-                      Puede consultar movimientos y reportes, pero no puede crear, editar ni anular
-                      ningún registro. Ideal para revisores o auditores externos.
+                      Puede consultar movimientos, presupuestos y el flujo de solicitudes, pero no
+                      puede crear, editar ni aprobar ningún registro. Rol de supervisión financiera.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -550,10 +553,10 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
                     Nivel de Acceso
                   </FieldLabel>
                   <NativeSelect id="edit-role" className="w-full" {...editForm.register("role")}>
-                    <option value="ADMIN">ADMIN — Control del Sistema</option>
-                    <option value="OPERATOR">OPERATOR — Ingreso de Datos</option>
-                    <option value="VIEWER">VIEWER — Solo Lectura</option>
-                    <option value="MINISTER">MINISTER — Solicitudes de Fondos</option>
+                    <option value="ADMIN">Administrador — Control del Sistema</option>
+                    <option value="BURSAR">Tesorero — Ingreso y Aprobación</option>
+                    <option value="FINANCE">Finanzas — Monitoreo de Registros</option>
+                    <option value="MINISTER">Ministro — Solicitudes de Fondos</option>
                   </NativeSelect>
                 </Field>
 

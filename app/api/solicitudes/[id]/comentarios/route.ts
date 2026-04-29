@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canViewWorkflow } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { intentionsService } from "@/services/intentions/intentions.service"
 import { addCommentSchema } from "@/lib/validators/intention"
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
-  if (!user || !canViewWorkflow(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.VIEW_WORKFLOW)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 
@@ -17,7 +17,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
-  if (!user || !canViewWorkflow(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.VIEW_WORKFLOW)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 

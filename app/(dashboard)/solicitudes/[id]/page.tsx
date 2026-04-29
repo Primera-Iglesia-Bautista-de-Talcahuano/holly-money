@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canViewWorkflow } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { intentionsService } from "@/services/intentions/intentions.service"
 import { settlementsService } from "@/services/settlements/settlements.service"
 import { ministriesService } from "@/services/ministries/ministries.service"
@@ -11,7 +11,7 @@ type DetailProps = ComponentProps<typeof IntentionDetailClient>
 
 export default async function SolicitudDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
-  if (!user || !canViewWorkflow(user.role)) redirect("/dashboard")
+  if (!user || !user.permissions.has(PERMISSIONS.VIEW_WORKFLOW)) redirect("/dashboard")
 
   const { id } = await params
   let intention

@@ -1,1 +1,1 @@
-export type UserRole = "ADMIN" | "OPERATOR" | "VIEWER" | "MINISTER"
+export type UserRole = "ADMIN" | "BURSAR" | "FINANCE" | "MINISTER"

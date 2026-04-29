@@ -96,7 +96,7 @@ export function IntentionDetailClient({
   const [settlements, setSettlements] = useState<Settlement[]>(initialSettlements)
   const status = STATUS_CONFIG[intention.status]
   const StatusIcon = status.icon
-  const canReview = userRole === "ADMIN" || userRole === "OPERATOR"
+  const canReview = userRole === "ADMIN" || userRole === "BURSAR"
   const isMinister = userRole === "MINISTER"
 
   // Review state

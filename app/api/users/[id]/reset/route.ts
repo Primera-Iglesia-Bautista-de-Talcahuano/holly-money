@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canManageUsers } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { usersService } from "@/services/users/users.service"
 
 type Params = { params: Promise<{ id: string }> }
 
 export async function POST(_req: Request, { params }: Params) {
   const user = await getCurrentUser()
-  if (!user || !canManageUsers(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_USERS)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 

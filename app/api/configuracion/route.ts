@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canManageSettings } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { settingsService } from "@/services/settings/settings.service"
 import { updateSettingsSchema } from "@/lib/validators/settings"
 
 export async function GET() {
   const user = await getCurrentUser()
-  if (!user || !canManageSettings(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_SETTINGS)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
   const data = await settingsService.getAll()
@@ -15,7 +15,7 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !canManageSettings(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_SETTINGS)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 

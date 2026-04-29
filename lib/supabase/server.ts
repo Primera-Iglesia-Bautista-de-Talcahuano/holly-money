@@ -47,11 +47,20 @@ export const getCurrentUser = cache(async function getCurrentUser() {
 
   if (!profile || profile.status !== "ACTIVE") return null
 
+  const { data: perms } = await supabase
+    .from("role_permissions")
+    .select("permission")
+    .eq("role", profile.role)
+    .eq("enabled", true)
+
+  const permissions = new Set<string>((perms ?? []).map((p) => p.permission))
+
   return {
     id: profile.id,
     email: user.email ?? "",
     name: profile.full_name,
     role: profile.role,
-    status: profile.status
+    status: profile.status,
+    permissions
   }
 })

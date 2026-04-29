@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canManageBudgets } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { budgetService } from "@/services/budget/budget.service"
 import { ministriesService } from "@/services/ministries/ministries.service"
 import { BudgetClient } from "@/components/budget/budget-client"
 
 export default async function PresupuestoPage() {
   const user = await getCurrentUser()
-  if (!user || !canManageBudgets(user.role)) redirect("/dashboard")
+  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_BUDGETS)) redirect("/dashboard")
 
   const [periods, ministries] = await Promise.all([
     budgetService.listPeriods(),

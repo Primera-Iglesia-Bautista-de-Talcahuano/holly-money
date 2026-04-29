@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canManageBudgets } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { budgetService } from "@/services/budget/budget.service"
 import { createBudgetPeriodSchema } from "@/lib/validators/budget"
 
 export async function GET() {
   const user = await getCurrentUser()
-  if (!user || !canManageBudgets(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_BUDGETS)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
   const data = await budgetService.listPeriods()
@@ -15,7 +15,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !canManageBudgets(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_BUDGETS)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 

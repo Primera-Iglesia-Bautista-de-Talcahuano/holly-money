@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canViewWorkflow } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { settlementsService } from "@/services/settlements/settlements.service"
 import { createSettlementSchema } from "@/lib/validators/settlement"
 
 export async function GET(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !canViewWorkflow(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.VIEW_WORKFLOW)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 

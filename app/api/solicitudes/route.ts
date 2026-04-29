@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canReviewIntentions, canSubmitIntentions } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { intentionsService } from "@/services/intentions/intentions.service"
 import { ministriesService } from "@/services/ministries/ministries.service"
 import { createIntentionSchema } from "@/lib/validators/intention"
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     return NextResponse.json(data)
   }
 
-  if (!canReviewIntentions(user.role)) {
+  if (!user.permissions.has(PERMISSIONS.REVIEW_INTENTIONS)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !canSubmitIntentions(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.SUBMIT_INTENTIONS)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 

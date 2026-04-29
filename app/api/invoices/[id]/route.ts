@@ -2,11 +2,11 @@ import { NextResponse } from "next/server"
 import { updateInvoiceSchema } from "@/lib/validators/invoice"
 import { invoicesService } from "@/services/invoices/invoices.service"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canCreateOrEditMovements } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
-  if (!user || !canCreateOrEditMovements(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.CREATE_MOVEMENT)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 

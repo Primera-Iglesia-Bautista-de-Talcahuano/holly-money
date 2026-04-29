@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canViewWorkflow } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { intentionsService } from "@/services/intentions/intentions.service"
 import { ministriesService } from "@/services/ministries/ministries.service"
 import { budgetService } from "@/services/budget/budget.service"
@@ -8,7 +8,7 @@ import { IntentionsClient } from "@/components/intentions/intentions-client"
 
 export default async function SolicitudesPage() {
   const user = await getCurrentUser()
-  if (!user || !canViewWorkflow(user.role)) redirect("/dashboard")
+  if (!user || !user.permissions.has(PERMISSIONS.VIEW_WORKFLOW)) redirect("/dashboard")
 
   if (user.role === "MINISTER") {
     const assignment = await ministriesService.getMinistryForUser(user.id)

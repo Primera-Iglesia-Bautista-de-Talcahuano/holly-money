@@ -55,15 +55,20 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/movimientos",
         label: "Movimientos",
         icon: Briefcase,
-        roles: ["ADMIN", "OPERATOR", "VIEWER"]
+        roles: ["ADMIN", "BURSAR", "FINANCE"]
       },
       {
         href: "/rendiciones",
         label: "Rendiciones",
         icon: Receipt,
-        roles: ["ADMIN", "OPERATOR", "VIEWER"]
+        roles: ["ADMIN", "BURSAR", "FINANCE"]
       },
-      { href: "/presupuesto", label: "Presupuesto", icon: PiggyBank, roles: ["ADMIN", "OPERATOR"] }
+      {
+        href: "/presupuesto",
+        label: "Presupuesto",
+        icon: PiggyBank,
+        roles: ["ADMIN", "BURSAR", "FINANCE"]
+      }
     ]
   },
   {
@@ -73,14 +78,14 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/eventos",
         label: "Eventos",
         icon: CalendarDays,
-        roles: ["ADMIN", "OPERATOR", "VIEWER"]
+        roles: ["ADMIN", "BURSAR", "FINANCE"]
       },
-      { href: "/ministerios", label: "Ministerios", icon: Church, roles: ["ADMIN", "OPERATOR"] },
+      { href: "/ministerios", label: "Ministerios", icon: Church, roles: ["ADMIN", "BURSAR"] },
       {
         href: "/solicitudes",
         label: "Solicitudes",
         icon: FileCheck,
-        roles: ["ADMIN", "OPERATOR", "MINISTER"]
+        roles: ["ADMIN", "BURSAR", "FINANCE", "MINISTER"]
       }
     ]
   },

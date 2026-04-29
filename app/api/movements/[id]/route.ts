@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canCreateOrEditMovements, canViewMovements } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { movementsService } from "@/services/movements/movements.service"
 import { updateMovementSchema } from "@/lib/validators/movement"
 import { processMovementIntegrations } from "@/services/google/movement-postprocess"
@@ -9,7 +9,7 @@ type Params = { params: Promise<{ id: string }> }
 
 export async function GET(_: Request, { params }: Params) {
   const user = await getCurrentUser()
-  if (!user || !canViewMovements(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.VIEW_MOVEMENT)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 
@@ -24,7 +24,7 @@ export async function GET(_: Request, { params }: Params) {
 
 export async function PUT(request: Request, { params }: Params) {
   const user = await getCurrentUser()
-  if (!user || !canCreateOrEditMovements(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.CREATE_MOVEMENT)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 

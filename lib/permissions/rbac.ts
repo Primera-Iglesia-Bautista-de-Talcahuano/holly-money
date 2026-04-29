@@ -1,41 +1,17 @@
-import type { UserRole } from "@/types/auth"
+export const PERMISSIONS = {
+  MANAGE_USERS: "MANAGE_USERS",
+  CREATE_MOVEMENT: "CREATE_MOVEMENT",
+  VIEW_MOVEMENT: "VIEW_MOVEMENT",
+  MANAGE_MINISTRIES: "MANAGE_MINISTRIES",
+  MANAGE_BUDGETS: "MANAGE_BUDGETS",
+  REVIEW_INTENTIONS: "REVIEW_INTENTIONS",
+  SUBMIT_INTENTIONS: "SUBMIT_INTENTIONS",
+  MANAGE_SETTINGS: "MANAGE_SETTINGS",
+  VIEW_WORKFLOW: "VIEW_WORKFLOW"
+} as const
 
-export const roles = ["ADMIN", "OPERATOR", "VIEWER", "MINISTER"] as const
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS]
 
-export function canManageUsers(role?: UserRole) {
-  return role === "ADMIN"
-}
-
-export function canCreateOrEditMovements(role?: UserRole) {
-  return role === "ADMIN" || role === "OPERATOR"
-}
-
-export function canViewMovements(role?: UserRole) {
-  return role === "ADMIN" || role === "OPERATOR" || role === "VIEWER"
-}
-
-// ── Ministry & budget workflow ────────────────────────────────
-
-export function canManageMinistries(role?: UserRole) {
-  return role === "ADMIN" || role === "OPERATOR"
-}
-
-export function canManageBudgets(role?: UserRole) {
-  return role === "ADMIN" || role === "OPERATOR"
-}
-
-export function canReviewIntentions(role?: UserRole) {
-  return role === "ADMIN" || role === "OPERATOR"
-}
-
-export function canSubmitIntentions(role?: UserRole) {
-  return role === "MINISTER"
-}
-
-export function canManageSettings(role?: UserRole) {
-  return role === "ADMIN"
-}
-
-export function canViewWorkflow(role?: UserRole) {
-  return role === "ADMIN" || role === "OPERATOR" || role === "MINISTER"
+export function can(permissions: Set<string> | undefined, permission: Permission): boolean {
+  return permissions?.has(permission) ?? false
 }

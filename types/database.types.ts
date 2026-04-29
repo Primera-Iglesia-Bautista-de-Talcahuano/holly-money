@@ -1,4 +1,10 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
   graphql_public: {
@@ -54,7 +60,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       budget_intentions: {
@@ -140,7 +146,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       budget_periods: {
@@ -194,7 +200,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       expense_settlements: {
@@ -280,7 +286,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       folio_counter: {
@@ -346,7 +352,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       invoices: {
@@ -393,7 +399,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       ministries: {
@@ -431,7 +437,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       ministry_assignments: {
@@ -483,7 +489,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       ministry_budgets: {
@@ -551,7 +557,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       movement_audit_log: {
@@ -599,7 +605,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       movements: {
@@ -729,7 +735,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       request_comments: {
@@ -764,8 +770,26 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
+      }
+      role_permissions: {
+        Row: {
+          enabled: boolean
+          permission: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Insert: {
+          enabled?: boolean
+          permission: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Update: {
+          enabled?: boolean
+          permission?: string
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Relationships: []
       }
       system_audit_log: {
         Row: {
@@ -808,7 +832,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       users: {
@@ -885,8 +909,12 @@ export type Database = {
       notification_status: "PENDING" | "SENT" | "ERROR"
       pdf_status: "PENDING" | "GENERATED" | "ERROR"
       settlement_status: "PENDING" | "APPROVED" | "REJECTED"
-      user_role: "ADMIN" | "OPERATOR" | "VIEWER" | "MINISTER"
-      user_status: "ACTIVE" | "INACTIVE" | "PENDING_ACTIVATION" | "PENDING_RESET"
+      user_role: "ADMIN" | "BURSAR" | "FINANCE" | "MINISTER"
+      user_status:
+        | "ACTIVE"
+        | "INACTIVE"
+        | "PENDING_ACTIVATION"
+        | "PENDING_RESET"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -907,7 +935,7 @@ export type Tables<
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -917,8 +945,10 @@ export type Tables<
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -933,7 +963,7 @@ export type TablesInsert<
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -958,7 +988,7 @@ export type TablesUpdate<
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -983,7 +1013,7 @@ export type Enums<
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1000,7 +1030,7 @@ export type CompositeTypes<
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1011,7 +1041,7 @@ export type CompositeTypes<
 
 export const Constants = {
   graphql_public: {
-    Enums: {}
+    Enums: {},
   },
   public: {
     Enums: {
@@ -1025,8 +1055,14 @@ export const Constants = {
       notification_status: ["PENDING", "SENT", "ERROR"],
       pdf_status: ["PENDING", "GENERATED", "ERROR"],
       settlement_status: ["PENDING", "APPROVED", "REJECTED"],
-      user_role: ["ADMIN", "OPERATOR", "VIEWER", "MINISTER"],
-      user_status: ["ACTIVE", "INACTIVE", "PENDING_ACTIVATION", "PENDING_RESET"]
-    }
-  }
+      user_role: ["ADMIN", "BURSAR", "FINANCE", "MINISTER"],
+      user_status: [
+        "ACTIVE",
+        "INACTIVE",
+        "PENDING_ACTIVATION",
+        "PENDING_RESET",
+      ],
+    },
+  },
 } as const
+

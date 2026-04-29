@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation"
 import { MovementForm } from "@/components/movements/movement-form"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canCreateOrEditMovements } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 
 export default async function NuevoMovimientoPage() {
   const user = await getCurrentUser()
-  if (!canCreateOrEditMovements(user?.role)) {
+  if (!(user?.permissions.has(PERMISSIONS.CREATE_MOVEMENT) ?? false)) {
     redirect("/movimientos")
   }
 

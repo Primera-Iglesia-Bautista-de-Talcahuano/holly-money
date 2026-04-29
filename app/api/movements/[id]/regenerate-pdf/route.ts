@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canCreateOrEditMovements } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { processMovementIntegrations } from "@/services/google/movement-postprocess"
 
 type Params = { params: Promise<{ id: string }> }
 
 export async function POST(_: Request, { params }: Params) {
   const user = await getCurrentUser()
-  if (!user || !canCreateOrEditMovements(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.CREATE_MOVEMENT)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 

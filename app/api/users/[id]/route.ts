@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canManageUsers } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { usersService } from "@/services/users/users.service"
 import { updateUserSchema } from "@/lib/validators/user"
 
@@ -8,7 +8,7 @@ type Params = { params: Promise<{ id: string }> }
 
 export async function DELETE(_req: Request, { params }: Params) {
   const user = await getCurrentUser()
-  if (!user || !canManageUsers(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_USERS)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 
@@ -24,7 +24,7 @@ export async function DELETE(_req: Request, { params }: Params) {
 
 export async function PUT(request: Request, { params }: Params) {
   const user = await getCurrentUser()
-  if (!user || !canManageUsers(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_USERS)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 

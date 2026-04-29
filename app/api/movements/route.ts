@@ -2,12 +2,12 @@ import { NextResponse } from "next/server"
 import { createMovementSchema } from "@/lib/validators/movement"
 import { movementsService } from "@/services/movements/movements.service"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canCreateOrEditMovements, canViewMovements } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { processMovementIntegrations } from "@/services/google/movement-postprocess"
 
 export async function GET(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !canViewMovements(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.VIEW_MOVEMENT)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !canCreateOrEditMovements(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.CREATE_MOVEMENT)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 })
   }
 

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { cn, formatDateTime } from "@/lib/utils"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { canManageUsers } from "@/lib/permissions/rbac"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
 import { auditService } from "@/services/audit/audit.service"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
@@ -26,7 +26,7 @@ function entityClass(entity: string) {
 
 export default async function AuditoriaPage() {
   const user = await getCurrentUser()
-  if (!user || !canManageUsers(user.role)) {
+  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_USERS)) {
     redirect("/dashboard")
   }
 
