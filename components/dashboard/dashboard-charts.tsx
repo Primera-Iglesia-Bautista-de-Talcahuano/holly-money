@@ -141,6 +141,12 @@ const getCategoryConfig = (data: CategoryItem[]) => {
 }
 
 export const CategoryChart = memo(function CategoryChart({ data }: { data: CategoryItem[] }) {
+  const finalData = useMemo(
+    () => data.map((item, index) => ({ ...item, fill: COLORS[index % COLORS.length] })),
+    [data]
+  )
+  const config = useMemo(() => getCategoryConfig(data), [data])
+
   if (!data.length) {
     return (
       <Empty className="border-dashed h-[200px]">
@@ -154,12 +160,6 @@ export const CategoryChart = memo(function CategoryChart({ data }: { data: Categ
       </Empty>
     )
   }
-
-  const finalData = useMemo(
-    () => data.map((item, index) => ({ ...item, fill: COLORS[index % COLORS.length] })),
-    [data]
-  )
-  const config = useMemo(() => getCategoryConfig(data), [data])
 
   return (
     <div className="flex flex-col gap-4 w-full min-w-0">

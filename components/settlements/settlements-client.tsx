@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useCallback } from "react"
-import { useForm, Controller } from "react-hook-form"
+import { useState, useCallback, useMemo } from "react"
+import { useForm, Controller, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { cn, formatDate, formatCLP } from "@/lib/utils"
@@ -53,11 +53,12 @@ type Invoice = Database["public"]["Tables"]["invoices"]["Row"]
 
 const invoiceFormSchema = z.object({
   number: z.string().min(1, "El número de boleta es requerido"),
-  date: z.date({ required_error: "La fecha de emisión es requerida" }),
+  date: z.date(),
   amount: z.coerce.number().positive("El monto debe ser mayor a 0"),
   description: z.string().optional()
 })
 type InvoiceFormValues = z.infer<typeof invoiceFormSchema>
+type InvoiceFormRaw = Omit<InvoiceFormValues, "amount"> & { amount: string }
 
 export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoice[] }) {
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices)
@@ -65,12 +66,25 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
   const [open, setOpen] = useState(false)
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
 
-  const form = useForm<InvoiceFormValues>({
-    resolver: zodResolver(invoiceFormSchema),
+  const pendingTotal = useMemo(
+    () => invoices.filter((i) => i.status === "PENDING").reduce((s, i) => s + Number(i.amount), 0),
+    [invoices]
+  )
+  const settledTotal = useMemo(
+    () => invoices.filter((i) => i.status === "SETTLED").reduce((s, i) => s + Number(i.amount), 0),
+    [invoices]
+  )
+
+  const form = useForm<InvoiceFormRaw, unknown, InvoiceFormValues>({
+    resolver: zodResolver(invoiceFormSchema) as Resolver<
+      InvoiceFormRaw,
+      unknown,
+      InvoiceFormValues
+    >,
     defaultValues: {
       number: "",
       date: new Date(),
-      amount: "" as unknown as number,
+      amount: "",
       description: ""
     }
   })
@@ -108,7 +122,12 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
         if (!res.ok) throw new Error()
         const created = (await res.json()) as Invoice
         setInvoices((prev) => [created, ...prev])
-        form.reset({ number: "", date: new Date(), amount: "" as unknown as number, description: "" })
+        form.reset({
+          number: "",
+          date: new Date(),
+          amount: "",
+          description: ""
+        })
         setAttachedFile(null)
         setOpen(false)
       } catch {
@@ -153,7 +172,12 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
           onOpenChange={(o) => {
             setOpen(o)
             if (!o) {
-              form.reset({ number: "", date: new Date(), amount: "" as unknown as number, description: "" })
+              form.reset({
+                number: "",
+                date: new Date(),
+                amount: "",
+                description: ""
+              })
               setAttachedFile(null)
             }
           }}
@@ -214,7 +238,11 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
                       control={form.control}
                       name="date"
                       render={({ field }) => (
-                        <DatePicker value={field.value} onChange={field.onChange} className="h-12" />
+                        <DatePicker
+                          value={field.value}
+                          onChange={field.onChange}
+                          className="h-12"
+                        />
                       )}
                     />
                     <FieldError errors={[form.formState.errors.date]} />
@@ -298,11 +326,7 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
               Pendiente
             </p>
             <p className="font-heading text-2xl font-bold tracking-tight text-destructive tabular-nums">
-              {formatCLP(
-                invoices
-                  .filter((i) => i.status === "PENDING")
-                  .reduce((s, i) => s + Number(i.amount), 0)
-              )}
+              {formatCLP(pendingTotal)}
             </p>
           </div>
           <div className="rounded-xl bg-card border border-border p-4 sm:p-5 flex flex-col gap-1.5">
@@ -310,11 +334,7 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
               Rendido
             </p>
             <p className="font-heading text-2xl font-bold tracking-tight text-income tabular-nums">
-              {formatCLP(
-                invoices
-                  .filter((i) => i.status === "SETTLED")
-                  .reduce((s, i) => s + Number(i.amount), 0)
-              )}
+              {formatCLP(settledTotal)}
             </p>
           </div>
         </div>
