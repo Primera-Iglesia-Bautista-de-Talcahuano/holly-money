@@ -159,6 +159,7 @@ export function IntentionDetailClient({
     }
   })
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const settlDate = settlementForm.watch("expense_date")
   const lateExpiry = settlDate
     ? Math.floor((Date.now() - new Date(settlDate).getTime()) / 86_400_000) > 30

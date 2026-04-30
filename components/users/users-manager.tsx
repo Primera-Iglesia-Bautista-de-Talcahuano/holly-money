@@ -335,17 +335,6 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
             <span className="text-sm font-medium text-muted-foreground">cuentas de control</span>
           </div>
         </Card>
-        <Card className="p-5 sm:p-6">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-            Auditoría de Acceso
-          </p>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="font-heading text-4xl font-bold tracking-tight text-foreground">
-              100%
-            </span>
-            <span className="text-sm font-medium text-primary">Trazabilidad</span>
-          </div>
-        </Card>
       </div>
 
       {/* Search + invite */}

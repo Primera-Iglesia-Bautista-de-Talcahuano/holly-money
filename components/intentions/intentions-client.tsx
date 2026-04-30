@@ -86,6 +86,7 @@ export function IntentionsClient({
     }
   })
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const watchedAmount = form.watch("amount")
   const overBudgetWarning =
     isMinister && budgetSummary && Number(watchedAmount) > budgetSummary.remaining
