@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { useForm, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import {
@@ -123,10 +123,15 @@ export function IntentionDetailClient({
     defaultValues: { action: "APPROVED", message: "" }
   })
 
-  const transferForm = useForm<RegisterTransferInput>({
-    resolver: zodResolver(registerTransferSchema),
+  type TransferFormValues = Omit<RegisterTransferInput, "amount"> & { amount: string }
+  const transferForm = useForm<TransferFormValues, unknown, RegisterTransferInput>({
+    resolver: zodResolver(registerTransferSchema) as Resolver<
+      TransferFormValues,
+      unknown,
+      RegisterTransferInput
+    >,
     defaultValues: {
-      amount: intention.amount,
+      amount: String(intention.amount),
       transfer_date: "",
       reference: "",
       notes: ""
@@ -138,11 +143,16 @@ export function IntentionDetailClient({
     defaultValues: { message: "" }
   })
 
-  const settlementForm = useForm<CreateSettlementInput>({
-    resolver: zodResolver(createSettlementSchema),
+  type SettlementFormValues = Omit<CreateSettlementInput, "amount"> & { amount: string }
+  const settlementForm = useForm<SettlementFormValues, unknown, CreateSettlementInput>({
+    resolver: zodResolver(createSettlementSchema) as Resolver<
+      SettlementFormValues,
+      unknown,
+      CreateSettlementInput
+    >,
     defaultValues: {
       intention_id: intention.id,
-      amount: "" as unknown as number,
+      amount: "",
       description: "",
       expense_date: "",
       attachment_url: undefined
@@ -226,7 +236,7 @@ export function IntentionDetailClient({
       setSettlementOpen(false)
       settlementForm.reset({
         intention_id: intention.id,
-        amount: "" as unknown as number,
+        amount: "",
         description: "",
         expense_date: ""
       })
@@ -475,7 +485,7 @@ export function IntentionDetailClient({
                   if (!o)
                     settlementForm.reset({
                       intention_id: intention.id,
-                      amount: "" as unknown as number,
+                      amount: "",
                       description: "",
                       expense_date: ""
                     })

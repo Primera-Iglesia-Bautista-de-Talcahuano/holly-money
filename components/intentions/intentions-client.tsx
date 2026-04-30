@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { useForm, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { Plus, AlertTriangle, Clock, CheckCircle, XCircle, FileText } from "lucide-react"
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/item"
 import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { formatDate, formatCLP } from "@/lib/utils"
+import { z } from "zod"
 import { createIntentionSchema } from "@/lib/validators/intention"
 import type { CreateIntentionInput } from "@/lib/validators/intention"
 import type { intentionsService } from "@/services/intentions/intentions.service"
@@ -70,11 +71,16 @@ export function IntentionsClient({
 
   const isMinister = canSubmit
 
-  const form = useForm<CreateIntentionInput>({
-    resolver: zodResolver(createIntentionSchema),
+  type IntentionFormValues = Omit<CreateIntentionInput, "amount"> & { amount: string }
+  const form = useForm<IntentionFormValues, unknown, CreateIntentionInput>({
+    resolver: zodResolver(createIntentionSchema) as Resolver<
+      IntentionFormValues,
+      unknown,
+      CreateIntentionInput
+    >,
     defaultValues: {
       period_id: activePeriod?.id ?? "",
-      amount: "" as unknown as number,
+      amount: "",
       description: "",
       purpose: "",
       date_needed: ""
@@ -103,7 +109,7 @@ export function IntentionsClient({
       setOpen(false)
       form.reset({
         period_id: activePeriod.id,
-        amount: "" as unknown as number,
+        amount: "",
         description: "",
         purpose: "",
         date_needed: ""
@@ -133,7 +139,7 @@ export function IntentionsClient({
               if (!o)
                 form.reset({
                   period_id: activePeriod.id,
-                  amount: "" as unknown as number,
+                  amount: "",
                   description: "",
                   purpose: "",
                   date_needed: ""

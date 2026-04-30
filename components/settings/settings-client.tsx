@@ -1,6 +1,6 @@
 "use client"
 
-import { useForm } from "react-hook-form"
+import { useForm, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { Card } from "@/components/ui/card"
@@ -11,14 +11,25 @@ import { updateSettingsSchema } from "@/lib/validators/settings"
 import type { UpdateSettingsInput } from "@/lib/validators/settings"
 import type { AppSettings } from "@/services/settings/settings.service"
 
+type SettingsFormValues = {
+  tesoreria_notification_email: string
+  voucher_email: string
+  reminder_interval_days: string
+  budget_period_start_month: string
+}
+
 export function SettingsClient({ initialSettings }: { initialSettings: AppSettings }) {
-  const form = useForm<UpdateSettingsInput>({
-    resolver: zodResolver(updateSettingsSchema),
+  const form = useForm<SettingsFormValues, unknown, UpdateSettingsInput>({
+    resolver: zodResolver(updateSettingsSchema) as Resolver<
+      SettingsFormValues,
+      unknown,
+      UpdateSettingsInput
+    >,
     defaultValues: {
       tesoreria_notification_email: initialSettings.tesoreria_notification_email,
       voucher_email: initialSettings.voucher_email,
-      reminder_interval_days: initialSettings.reminder_interval_days,
-      budget_period_start_month: initialSettings.budget_period_start_month
+      reminder_interval_days: String(initialSettings.reminder_interval_days),
+      budget_period_start_month: String(initialSettings.budget_period_start_month)
     }
   })
 
