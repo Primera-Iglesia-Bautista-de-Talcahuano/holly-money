@@ -25,7 +25,7 @@ export function SettingsClient({ initialSettings }: { initialSettings: AppSettin
     e.preventDefault()
     setSaving(true)
     try {
-      const res = await fetch("/api/configuracion", {
+      const res = await fetch("/api/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings)

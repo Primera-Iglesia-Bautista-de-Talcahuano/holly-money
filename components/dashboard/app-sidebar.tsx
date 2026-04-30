@@ -52,19 +52,19 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Finanzas",
     links: [
       {
-        href: "/movimientos",
+        href: "/movements",
         label: "Movimientos",
         icon: Briefcase,
         roles: ["ADMIN", "BURSAR", "FINANCE"]
       },
       {
-        href: "/rendiciones",
+        href: "/settlements",
         label: "Rendiciones",
         icon: Receipt,
         roles: ["ADMIN", "BURSAR", "FINANCE"]
       },
       {
-        href: "/presupuesto",
+        href: "/budget",
         label: "Presupuesto",
         icon: PiggyBank,
         roles: ["ADMIN", "BURSAR", "FINANCE"]
@@ -75,14 +75,14 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Gestión",
     links: [
       {
-        href: "/eventos",
+        href: "/events",
         label: "Eventos",
         icon: CalendarDays,
         roles: ["ADMIN", "BURSAR", "FINANCE"]
       },
-      { href: "/ministerios", label: "Ministerios", icon: Church, roles: ["ADMIN", "BURSAR"] },
+      { href: "/ministries", label: "Ministerios", icon: Church, roles: ["ADMIN", "BURSAR"] },
       {
-        href: "/solicitudes",
+        href: "/requests",
         label: "Solicitudes",
         icon: FileCheck,
         roles: ["ADMIN", "BURSAR", "FINANCE", "MINISTER"]
@@ -92,9 +92,9 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Administración",
     links: [
-      { href: "/usuarios", label: "Usuarios", icon: Users, roles: ["ADMIN"] },
-      { href: "/auditoria", label: "Auditoría", icon: ClipboardList, roles: ["ADMIN"] },
-      { href: "/configuracion", label: "Configuración", icon: Settings, roles: ["ADMIN"] }
+      { href: "/users", label: "Usuarios", icon: Users, roles: ["ADMIN"] },
+      { href: "/audit", label: "Auditoría", icon: ClipboardList, roles: ["ADMIN"] },
+      { href: "/settings", label: "Configuración", icon: Settings, roles: ["ADMIN"] }
     ]
   }
 ]

@@ -80,7 +80,7 @@ export function IntentionsClient({
     if (!activePeriod) return
     setSubmitting(true)
     try {
-      const res = await fetch("/api/solicitudes", {
+      const res = await fetch("/api/requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -249,7 +249,7 @@ export function IntentionsClient({
             <Item
               key={intention.id}
               className="cursor-pointer hover:bg-muted/40 transition-colors"
-              onClick={() => router.push(`/solicitudes/${intention.id}`)}
+              onClick={() => router.push(`/requests/${intention.id}`)}
             >
               <ItemContent>
                 <div className="flex items-start gap-3">

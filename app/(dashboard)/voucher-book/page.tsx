@@ -1,0 +1,28 @@
+import { redirect } from "next/navigation"
+import { MovementForm } from "@/components/movements/movement-form"
+import { getCurrentUser } from "@/lib/supabase/server"
+import { PERMISSIONS } from "@/lib/permissions/rbac"
+
+export default async function VoucherBookPage() {
+  const user = await getCurrentUser()
+  if (!(user?.permissions.has(PERMISSIONS.CREATE_MOVEMENT) ?? false)) {
+    redirect("/movements")
+  }
+
+  return (
+    <section className="mx-auto max-w-5xl flex flex-col gap-8">
+      <div className="flex flex-col gap-0.5">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">
+          Talonario Unificado
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Gestión ágil para el registro de ingresos y egresos ministeriales.
+        </p>
+      </div>
+
+      <div className="rounded-xl bg-card border border-border p-6 sm:p-10">
+        <MovementForm mode="create" />
+      </div>
+    </section>
+  )
+}

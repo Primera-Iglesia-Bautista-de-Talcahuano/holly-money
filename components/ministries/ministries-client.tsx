@@ -44,7 +44,7 @@ export function MinistriesClient({ initialMinistries }: { initialMinistries: Min
     if (!name.trim()) return
     setSubmitting(true)
     try {
-      const res = await fetch("/api/ministerios", {
+      const res = await fetch("/api/ministries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim(), description: description.trim() || undefined })
@@ -152,7 +152,7 @@ function MinistryItem({ ministry }: { ministry: Ministry }) {
   async function loadAssignments() {
     setLoadingAssignments(true)
     try {
-      const res = await fetch(`/api/ministerios/${ministry.id}/asignaciones`)
+      const res = await fetch(`/api/ministries/${ministry.id}/assignments`)
       if (!res.ok) return
       setAssignments(await res.json())
     } finally {
@@ -171,7 +171,7 @@ function MinistryItem({ ministry }: { ministry: Ministry }) {
     if (!userId.trim()) return
     setAssigning(true)
     try {
-      const res = await fetch(`/api/ministerios/${ministry.id}/asignaciones`, {
+      const res = await fetch(`/api/ministries/${ministry.id}/assignments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId.trim() })

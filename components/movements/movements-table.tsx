@@ -353,7 +353,7 @@ export function MovementsTable({
                 <Button
                   variant="outline"
                   className="h-10 px-5"
-                  render={<Link href={`/movimientos/${selected.id}`} />}
+                  render={<Link href={`/movements/${selected.id}`} />}
                   nativeButton={false}
                 >
                   Ver detalles

@@ -31,7 +31,7 @@ export async function proxy(request: NextRequest) {
   const PUBLIC_PATHS = [
     "/",
     "/auth/callback",
-    "/activar",
+    "/activate",
     "/api/auth/verify",
     "/api/auth/forgot-password"
   ]

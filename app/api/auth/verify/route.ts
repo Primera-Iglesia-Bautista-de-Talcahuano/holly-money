@@ -29,5 +29,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/?error=link_expired", req.nextUrl.origin))
   }
 
-  return NextResponse.redirect(new URL("/activar", req.nextUrl.origin))
+  return NextResponse.redirect(new URL("/activate", req.nextUrl.origin))
 }

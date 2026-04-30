@@ -20,7 +20,7 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false)
 
   const fetchNotifications = useCallback(() => {
-    fetch("/api/notificaciones")
+    fetch("/api/notifications")
       .then((res) =>
         res.ok ? (res.json() as Promise<{ count?: number; items?: NotificationItem[] }>) : null
       )

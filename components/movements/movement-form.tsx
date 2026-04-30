@@ -101,9 +101,9 @@ export function MovementForm({ mode, movementId, initialValues, onSuccess }: Pro
       onSuccess()
     } else {
       if (mode === "create") {
-        router.push(`/movimientos/${payload.id}`)
+        router.push(`/movements/${payload.id}`)
       } else {
-        router.push(`/movimientos/${movementId}`)
+        router.push(`/movements/${movementId}`)
       }
     }
     router.refresh()

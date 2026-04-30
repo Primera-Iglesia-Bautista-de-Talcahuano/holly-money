@@ -157,7 +157,7 @@ export default async function DashboardPage({
             Últimos movimientos
           </h2>
           <Link
-            href="/movimientos"
+            href="/movements"
             className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
           >
             Ver todos →

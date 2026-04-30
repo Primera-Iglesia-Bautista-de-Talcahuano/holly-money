@@ -69,7 +69,7 @@ export async function sendIntentionNotification(
   if (!to) return
 
   const resend = new Resend(process.env.RESEND_API_KEY)
-  const reviewUrl = `${BASE_URL}/solicitudes/${intention.id}`
+  const reviewUrl = `${BASE_URL}/requests/${intention.id}`
   const overBudgetBadge = isOverBudget
     ? `<span style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;margin-left:8px;">SOBRE PRESUPUESTO</span>`
     : ""
@@ -118,7 +118,7 @@ export async function sendIntentionReviewNotification(
   const isApproved = action === "APPROVED"
   const statusLabel = isApproved ? "aprobada" : "rechazada"
   const statusColor = isApproved ? "#16a34a" : "#dc2626"
-  const detailUrl = `${BASE_URL}/solicitudes/${intention.id}`
+  const detailUrl = `${BASE_URL}/requests/${intention.id}`
 
   const html = wrapEmail(`
     <tr><td style="padding:24px 32px 8px;">
@@ -160,7 +160,7 @@ export async function sendTransferNotification(
   const settings = await settingsService.getAll()
   const to = settings.voucher_email || minister.email
   const resend = new Resend(process.env.RESEND_API_KEY)
-  const detailUrl = `${BASE_URL}/solicitudes/${intention.id}`
+  const detailUrl = `${BASE_URL}/requests/${intention.id}`
 
   const html = wrapEmail(`
     <tr><td style="padding:24px 32px 8px;">
@@ -210,7 +210,7 @@ export async function sendSettlementReviewNotification(
   const isApproved = action === "APPROVED"
   const statusLabel = isApproved ? "aprobada" : "rechazada"
   const statusColor = isApproved ? "#16a34a" : "#dc2626"
-  const detailUrl = `${BASE_URL}/solicitudes/${settlement.id}`
+  const detailUrl = `${BASE_URL}/requests/${settlement.id}`
 
   const html = wrapEmail(`
     <tr><td style="padding:24px 32px 8px;">
@@ -278,7 +278,7 @@ export async function sendReminderEmail(summary: {
       </table>
     </td></tr>
     <tr><td style="padding:24px 32px;">
-      ${buildButton("Ir al sistema", `${BASE_URL}/solicitudes`)}
+      ${buildButton("Ir al sistema", `${BASE_URL}/requests`)}
     </td></tr>`)
 
   await resend.emails.send({

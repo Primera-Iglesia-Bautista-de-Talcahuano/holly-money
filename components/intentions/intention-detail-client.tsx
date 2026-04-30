@@ -129,7 +129,7 @@ export function IntentionDetailClient({
     e.preventDefault()
     setReviewing(true)
     try {
-      const res = await fetch(`/api/solicitudes/${intention.id}/revisar`, {
+      const res = await fetch(`/api/requests/${intention.id}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: reviewAction, message: reviewMessage })
@@ -155,7 +155,7 @@ export function IntentionDetailClient({
     e.preventDefault()
     setRegisteringTransfer(true)
     try {
-      const res = await fetch(`/api/solicitudes/${intention.id}/transferencia`, {
+      const res = await fetch(`/api/requests/${intention.id}/transfer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -182,7 +182,7 @@ export function IntentionDetailClient({
     if (!commentMsg.trim()) return
     setAddingComment(true)
     try {
-      const res = await fetch(`/api/solicitudes/${intention.id}/comentarios`, {
+      const res = await fetch(`/api/requests/${intention.id}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: commentMsg.trim() })
@@ -202,7 +202,7 @@ export function IntentionDetailClient({
     e.preventDefault()
     setSubmittingSettlement(true)
     try {
-      const res = await fetch("/api/rendiciones-ministerio", {
+      const res = await fetch("/api/ministry-settlements", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -18,28 +18,28 @@ import { NotificationBell } from "@/components/dashboard/notification-bell"
 
 const PAGE_LABELS: Record<string, string> = {
   "/dashboard": "Dashboard",
-  "/movimientos": "Movimientos",
-  "/movimientos/nuevo": "Nuevo Movimiento",
-  "/eventos": "Eventos",
-  "/rendiciones": "Rendiciones",
-  "/usuarios": "Usuarios",
-  "/auditoria": "Auditoría",
-  "/solicitudes": "Solicitudes",
-  "/ministerios": "Ministerios",
-  "/presupuesto": "Presupuesto",
-  "/configuracion": "Configuración"
+  "/movements": "Movimientos",
+  "/movements/new": "Nuevo Movimiento",
+  "/events": "Eventos",
+  "/settlements": "Rendiciones",
+  "/users": "Usuarios",
+  "/audit": "Auditoría",
+  "/requests": "Solicitudes",
+  "/ministries": "Ministerios",
+  "/budget": "Presupuesto",
+  "/settings": "Configuración"
 }
 
 function usePageLabel() {
   const pathname = usePathname()
-  if (pathname.startsWith("/movimientos/") && pathname !== "/movimientos/nuevo") {
-    return { parent: { label: "Movimientos", href: "/movimientos" }, current: "Detalle" }
+  if (pathname.startsWith("/movements/") && pathname !== "/movements/new") {
+    return { parent: { label: "Movimientos", href: "/movements" }, current: "Detalle" }
   }
-  if (pathname === "/movimientos/nuevo") {
-    return { parent: { label: "Movimientos", href: "/movimientos" }, current: "Nuevo" }
+  if (pathname === "/movements/new") {
+    return { parent: { label: "Movimientos", href: "/movements" }, current: "Nuevo" }
   }
-  if (pathname.startsWith("/solicitudes/")) {
-    return { parent: { label: "Solicitudes", href: "/solicitudes" }, current: "Detalle" }
+  if (pathname.startsWith("/requests/")) {
+    return { parent: { label: "Solicitudes", href: "/requests" }, current: "Detalle" }
   }
   const label = PAGE_LABELS[pathname]
   return { parent: null, current: label ?? "..." }

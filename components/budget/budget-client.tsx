@@ -62,7 +62,7 @@ export function BudgetClient({
     e.preventDefault()
     setSubmitting(true)
     try {
-      const res = await fetch("/api/periodos-presupuesto", {
+      const res = await fetch("/api/budget-periods", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, start_date: startDate, end_date: endDate })
@@ -84,7 +84,7 @@ export function BudgetClient({
 
   async function handleRelease(id: string) {
     try {
-      const res = await fetch(`/api/periodos-presupuesto/${id}/liberar`, { method: "POST" })
+      const res = await fetch(`/api/budget-periods/${id}/release`, { method: "POST" })
       const releasedData = (await res.json()) as Period & { message?: string }
       if (!res.ok) throw new Error(releasedData.message)
       setPeriods((prev) => prev.map((p) => (p.id === id ? releasedData : p)))
@@ -96,7 +96,7 @@ export function BudgetClient({
 
   async function handleClose(id: string) {
     try {
-      const res = await fetch(`/api/periodos-presupuesto/${id}/cerrar`, { method: "POST" })
+      const res = await fetch(`/api/budget-periods/${id}/close`, { method: "POST" })
       const closedData = (await res.json()) as Period & { message?: string }
       if (!res.ok) throw new Error(closedData.message)
       setPeriods((prev) => prev.map((p) => (p.id === id ? closedData : p)))
@@ -224,7 +224,7 @@ function PeriodCard({
   async function loadBudgets() {
     setLoading(true)
     try {
-      const res = await fetch(`/api/presupuestos?period_id=${period.id}`)
+      const res = await fetch(`/api/budgets?period_id=${period.id}`)
       if (!res.ok) return
       const data = (await res.json()) as BudgetRow[]
       setBudgets(data)
@@ -245,7 +245,7 @@ function PeriodCard({
     if (!amount || amount <= 0) return
     setSavingId(ministryId)
     try {
-      const res = await fetch("/api/presupuestos", {
+      const res = await fetch("/api/budgets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ministry_id: ministryId, period_id: period.id, amount })
