@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { movementsService } from "@/services/movements/movements.service"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { CancelButton } from "@/components/movements/cancel-button"
 import { RegeneratePdfButton } from "@/components/movements/regenerate-pdf-button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -24,7 +24,7 @@ type Props = { params: Promise<{ id: string }> }
 export default async function MovementDetailPage({ params }: Props) {
   const { id } = await params
   const user = await getCurrentUser()
-  const canWrite = user?.permissions.has(PERMISSIONS.CREATE_MOVEMENT) ?? false
+  const canWrite = can(user?.permissions, PERMISSIONS.CREATE_MOVEMENT) ?? false
 
   const row = await movementsService.findById(id).catch(() => null)
   if (!row) notFound()

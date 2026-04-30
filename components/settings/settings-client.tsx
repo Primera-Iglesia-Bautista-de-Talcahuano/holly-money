@@ -1,41 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Field, FieldLabel, FieldError } from "@/components/ui/field"
+import { updateSettingsSchema } from "@/lib/validators/settings"
+import type { UpdateSettingsInput } from "@/lib/validators/settings"
 import type { AppSettings } from "@/services/settings/settings.service"
 
 export function SettingsClient({ initialSettings }: { initialSettings: AppSettings }) {
-  const [settings, setSettings] = useState(initialSettings)
-  const [saving, setSaving] = useState(false)
+  const form = useForm<UpdateSettingsInput>({
+    resolver: zodResolver(updateSettingsSchema),
+    defaultValues: {
+      tesoreria_notification_email: initialSettings.tesoreria_notification_email,
+      voucher_email: initialSettings.voucher_email,
+      reminder_interval_days: initialSettings.reminder_interval_days,
+      budget_period_start_month: initialSettings.budget_period_start_month
+    }
+  })
 
-  function handleChange(key: keyof AppSettings, value: string) {
-    setSettings((prev) => ({
-      ...prev,
-      [key]: ["reminder_interval_days", "budget_period_start_month"].includes(key)
-        ? parseInt(value, 10) || prev[key]
-        : value
-    }))
-  }
-
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
-    setSaving(true)
+  async function handleSave(values: UpdateSettingsInput) {
     try {
       const res = await fetch("/api/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings)
+        body: JSON.stringify(values)
       })
       if (!res.ok) throw new Error(((await res.json()) as { message?: string }).message)
       toast.success("Configuración guardada")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al guardar")
-    } finally {
-      setSaving(false)
     }
   }
 
@@ -49,68 +46,68 @@ export function SettingsClient({ initialSettings }: { initialSettings: AppSettin
       </div>
 
       <Card className="p-5">
-        <form onSubmit={handleSave} className="space-y-5">
-          <div className="space-y-1.5">
-            <Label htmlFor="tesoreria-email">Email de notificación — Tesorería</Label>
+        <form onSubmit={form.handleSubmit(handleSave)} className="space-y-5">
+          <Field>
+            <FieldLabel htmlFor="tesoreria-email">Email de notificación — Tesorería</FieldLabel>
             <Input
               id="tesoreria-email"
               type="email"
-              value={settings.tesoreria_notification_email}
-              onChange={(e) => handleChange("tesoreria_notification_email", e.target.value)}
               placeholder="tesoreria@pibtalcahuano.com"
+              {...form.register("tesoreria_notification_email")}
             />
             <p className="text-xs text-muted-foreground">
               Recibe alertas de nuevas solicitudes y recordatorios de pendientes.
             </p>
-          </div>
+            <FieldError errors={[form.formState.errors.tesoreria_notification_email]} />
+          </Field>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="voucher-email">Email de comprobante — Ministros</Label>
+          <Field>
+            <FieldLabel htmlFor="voucher-email">Email de comprobante — Ministros</FieldLabel>
             <Input
               id="voucher-email"
               type="email"
-              value={settings.voucher_email}
-              onChange={(e) => handleChange("voucher_email", e.target.value)}
               placeholder="notificaciones@pibtalcahuano.com"
+              {...form.register("voucher_email")}
             />
             <p className="text-xs text-muted-foreground">
               Si está vacío, los correos se envían al email registrado de cada ministro.
             </p>
-          </div>
+            <FieldError errors={[form.formState.errors.voucher_email]} />
+          </Field>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="reminder-days">Intervalo de recordatorios (días)</Label>
+          <Field>
+            <FieldLabel htmlFor="reminder-days">Intervalo de recordatorios (días)</FieldLabel>
             <Input
               id="reminder-days"
               type="number"
               min={1}
               max={30}
-              value={settings.reminder_interval_days}
-              onChange={(e) => handleChange("reminder_interval_days", e.target.value)}
+              {...form.register("reminder_interval_days")}
             />
             <p className="text-xs text-muted-foreground">
               Si una solicitud lleva este número de días sin respuesta, se envía un recordatorio a
               tesorería.
             </p>
-          </div>
+            <FieldError errors={[form.formState.errors.reminder_interval_days]} />
+          </Field>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="start-month">Mes de inicio del período presupuestario</Label>
+          <Field>
+            <FieldLabel htmlFor="start-month">Mes de inicio del período presupuestario</FieldLabel>
             <Input
               id="start-month"
               type="number"
               min={1}
               max={12}
-              value={settings.budget_period_start_month}
-              onChange={(e) => handleChange("budget_period_start_month", e.target.value)}
+              {...form.register("budget_period_start_month")}
             />
             <p className="text-xs text-muted-foreground">
               1 = Enero, 5 = Mayo, 12 = Diciembre. Valor por defecto: 5 (mayo).
             </p>
-          </div>
+            <FieldError errors={[form.formState.errors.budget_period_start_month]} />
+          </Field>
 
-          <Button type="submit" disabled={saving} className="w-full">
-            {saving ? "Guardando..." : "Guardar configuración"}
+          <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
+            {form.formState.isSubmitting ? "Guardando..." : "Guardar configuración"}
           </Button>
         </form>
       </Card>

@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { intentionsService } from "@/services/intentions/intentions.service"
 import { settlementsService } from "@/services/settlements/settlements.service"
 import { ministriesService } from "@/services/ministries/ministries.service"
 
 export async function GET() {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.VIEW_WORKFLOW)) {
+  if (!user || !can(user.permissions, PERMISSIONS.VIEW_WORKFLOW)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
-  if (user.role === "MINISTER") {
+  if (can(user.permissions, PERMISSIONS.SUBMIT_INTENTIONS)) {
     const assignment = await ministriesService.getMinistryForUser(user.id)
     if (!assignment) return NextResponse.json({ count: 0, items: [] })
 

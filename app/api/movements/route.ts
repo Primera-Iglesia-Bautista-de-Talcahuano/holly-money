@@ -2,12 +2,12 @@ import { NextResponse } from "next/server"
 import { createMovementSchema } from "@/lib/validators/movement"
 import { movementsService } from "@/services/movements/movements.service"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { processMovementIntegrations } from "@/services/google/movement-postprocess"
 
 export async function GET(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.VIEW_MOVEMENT)) {
+  if (!user || !can(user.permissions, PERMISSIONS.VIEW_MOVEMENT)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.CREATE_MOVEMENT)) {
+  if (!user || !can(user.permissions, PERMISSIONS.CREATE_MOVEMENT)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 

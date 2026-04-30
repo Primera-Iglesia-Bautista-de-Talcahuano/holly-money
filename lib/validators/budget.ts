@@ -21,7 +21,7 @@ export const updateBudgetPeriodSchema = z.object({
 export const upsertMinistryBudgetSchema = z.object({
   ministry_id: z.string().uuid(),
   period_id: z.string().uuid(),
-  amount: z.number().positive("El monto debe ser mayor a 0")
+  amount: z.coerce.number().positive("El monto debe ser mayor a 0")
 })
 
 export type CreateBudgetPeriodInput = z.infer<typeof createBudgetPeriodSchema>

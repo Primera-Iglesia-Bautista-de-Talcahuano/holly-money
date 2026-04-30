@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { cn, formatDate, formatCLP } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { DatePicker } from "@/components/ui/date-picker"
 import {
   Dialog,
@@ -31,6 +33,7 @@ import {
   SheetTitle,
   SheetDescription
 } from "@/components/ui/sheet"
+import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { format } from "date-fns"
 import {
   Plus,
@@ -48,22 +51,32 @@ import { FileInput } from "@/components/ui/file-input"
 
 type Invoice = Database["public"]["Tables"]["invoices"]["Row"]
 
+const invoiceFormSchema = z.object({
+  number: z.string().min(1, "El número de boleta es requerido"),
+  date: z.date({ required_error: "La fecha de emisión es requerida" }),
+  amount: z.coerce.number().positive("El monto debe ser mayor a 0"),
+  description: z.string().optional()
+})
+type InvoiceFormValues = z.infer<typeof invoiceFormSchema>
+
 export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoice[] }) {
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices)
-  const [number, setNumber] = useState("")
-  const [date, setDate] = useState<Date | undefined>(new Date())
-  const [amount, setAmount] = useState("")
-  const [description, setDescription] = useState("")
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
-  const [submitting, setSubmitting] = useState(false)
   const [open, setOpen] = useState(false)
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
 
+  const form = useForm<InvoiceFormValues>({
+    resolver: zodResolver(invoiceFormSchema),
+    defaultValues: {
+      number: "",
+      date: new Date(),
+      amount: "" as unknown as number,
+      description: ""
+    }
+  })
+
   const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault()
-      if (!number || !date || !amount) return
-      setSubmitting(true)
+    async (values: InvoiceFormValues) => {
       try {
         let attachment_url: string | null = null
 
@@ -85,29 +98,24 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            number,
-            date: format(date, "yyyy-MM-dd"),
-            amount: parseFloat(amount),
-            description: description || null,
+            number: values.number,
+            date: format(values.date, "yyyy-MM-dd"),
+            amount: values.amount,
+            description: values.description || null,
             attachment_url
           })
         })
         if (!res.ok) throw new Error()
         const created = (await res.json()) as Invoice
         setInvoices((prev) => [created, ...prev])
-        setNumber("")
-        setDate(new Date())
-        setAmount("")
-        setDescription("")
+        form.reset({ number: "", date: new Date(), amount: "" as unknown as number, description: "" })
         setAttachedFile(null)
         setOpen(false)
       } catch {
         // keep dialog open on error
-      } finally {
-        setSubmitting(false)
       }
     },
-    [number, date, amount, description, attachedFile]
+    [attachedFile, form]
   )
 
   const toggleStatus = useCallback(async (invoice: Invoice) => {
@@ -140,7 +148,16 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
           </p>
         </div>
 
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog
+          open={open}
+          onOpenChange={(o) => {
+            setOpen(o)
+            if (!o) {
+              form.reset({ number: "", date: new Date(), amount: "" as unknown as number, description: "" })
+              setAttachedFile(null)
+            }
+          }}
+        >
           <DialogTrigger
             render={
               <Button className="gap-2">
@@ -160,7 +177,7 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
                 </DialogDescription>
               </DialogHeader>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-6">
                 <div className="flex items-center gap-4">
                   <div className="h-px flex-1 bg-border" />
                   <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-muted-foreground">
@@ -170,79 +187,86 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-2">
-                    <Label
+                  <Field>
+                    <FieldLabel
                       htmlFor="invoice-number"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Número de Boleta
-                    </Label>
+                    </FieldLabel>
                     <Input
                       id="invoice-number"
                       placeholder="Ej: BOL-001"
-                      value={number}
-                      onChange={(e) => setNumber(e.target.value)}
                       className="h-12 bg-muted border-none rounded-xl px-5 text-base font-medium"
+                      {...form.register("number")}
                     />
-                  </div>
+                    <FieldError errors={[form.formState.errors.number]} />
+                  </Field>
 
-                  <div className="flex flex-col gap-2">
-                    <Label
+                  <Field>
+                    <FieldLabel
                       htmlFor="invoice-date"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Fecha de Emisión
-                    </Label>
-                    <DatePicker value={date} onChange={setDate} className="h-12" />
-                  </div>
+                    </FieldLabel>
+                    <Controller
+                      control={form.control}
+                      name="date"
+                      render={({ field }) => (
+                        <DatePicker value={field.value} onChange={field.onChange} className="h-12" />
+                      )}
+                    />
+                    <FieldError errors={[form.formState.errors.date]} />
+                  </Field>
 
-                  <div className="flex flex-col gap-2">
-                    <Label
+                  <Field>
+                    <FieldLabel
                       htmlFor="invoice-amount"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Monto Total
-                    </Label>
+                    </FieldLabel>
                     <Input
                       id="invoice-amount"
                       type="number"
                       placeholder="0"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
                       className="h-12 bg-muted border-none rounded-xl px-5 text-lg font-bold"
+                      {...form.register("amount")}
                     />
-                  </div>
+                    <FieldError errors={[form.formState.errors.amount]} />
+                  </Field>
 
-                  <div className="flex flex-col gap-2">
-                    <Label
+                  <Field>
+                    <FieldLabel
                       htmlFor="invoice-description"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Descripción
-                    </Label>
+                    </FieldLabel>
                     <Input
                       id="invoice-description"
                       placeholder="Descripción de la boleta..."
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
                       className="h-12 bg-muted border-none rounded-xl px-5 text-base font-medium"
+                      {...form.register("description")}
                     />
-                  </div>
+                    <FieldError errors={[form.formState.errors.description]} />
+                  </Field>
 
                   <div className="sm:col-span-2 flex flex-col gap-2">
-                    <Label
+                    <FieldLabel
                       htmlFor="invoice-file"
                       className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
                     >
                       Comprobante (foto o archivo)
-                    </Label>
+                    </FieldLabel>
                     <FileInput id="invoice-file" value={attachedFile} onChange={setAttachedFile} />
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                  <Button type="submit" className="h-11" disabled={submitting}>
-                    {submitting ? "Registrando..." : "Registrar Boleta"}
+                  <Button type="submit" className="h-11" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? "Registrando..." : "Registrar Boleta"}
                   </Button>
                   <Button
                     variant="outline"

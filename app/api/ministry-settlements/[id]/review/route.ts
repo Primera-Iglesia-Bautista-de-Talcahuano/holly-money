@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { settlementsService } from "@/services/settlements/settlements.service"
 import { reviewSettlementSchema } from "@/lib/validators/settlement"
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.REVIEW_INTENTIONS)) {
+  if (!user || !can(user.permissions, PERMISSIONS.REVIEW_INTENTIONS)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 

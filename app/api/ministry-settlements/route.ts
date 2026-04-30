@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { settlementsService } from "@/services/settlements/settlements.service"
 import { createSettlementSchema } from "@/lib/validators/settlement"
 
 export async function GET(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.VIEW_WORKFLOW)) {
+  if (!user || !can(user.permissions, PERMISSIONS.VIEW_WORKFLOW)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
@@ -22,11 +22,8 @@ export async function POST(request: Request) {
   const user = await getCurrentUser()
   if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
 
-  if (user.role !== "MINISTER") {
-    return NextResponse.json(
-      { message: "Only ministers can submit settlements" },
-      { status: 403 }
-    )
+  if (!can(user.permissions, PERMISSIONS.SUBMIT_INTENTIONS)) {
+    return NextResponse.json({ message: "Only ministers can submit settlements" }, { status: 403 })
   }
 
   try {

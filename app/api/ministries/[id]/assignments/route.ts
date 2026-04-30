@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { ministriesService } from "@/services/ministries/ministries.service"
 import { assignMinisterSchema } from "@/lib/validators/ministry"
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_MINISTRIES)) {
+  if (!user || !can(user.permissions, PERMISSIONS.MANAGE_MINISTRIES)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
   const { id } = await params
@@ -16,7 +16,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_MINISTRIES)) {
+  if (!user || !can(user.permissions, PERMISSIONS.MANAGE_MINISTRIES)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 

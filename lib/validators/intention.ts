@@ -2,7 +2,7 @@ import { z } from "zod"
 
 export const createIntentionSchema = z.object({
   period_id: z.string().uuid("Período inválido"),
-  amount: z.number().positive("El monto debe ser mayor a 0"),
+  amount: z.coerce.number().positive("El monto debe ser mayor a 0"),
   description: z.string().min(5, "La descripción debe tener al menos 5 caracteres"),
   purpose: z.string().optional(),
   date_needed: z
@@ -17,7 +17,7 @@ export const reviewIntentionSchema = z.object({
 })
 
 export const registerTransferSchema = z.object({
-  amount: z.number().positive("El monto debe ser mayor a 0"),
+  amount: z.coerce.number().positive("El monto debe ser mayor a 0"),
   transfer_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha inválido"),
   reference: z.string().optional(),
   notes: z.string().optional()

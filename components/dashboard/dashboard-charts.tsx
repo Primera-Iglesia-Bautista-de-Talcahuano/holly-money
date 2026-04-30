@@ -1,6 +1,6 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useMemo } from "react"
 import {
   Bar,
   BarChart,
@@ -155,11 +155,11 @@ export const CategoryChart = memo(function CategoryChart({ data }: { data: Categ
     )
   }
 
-  const finalData = data.map((item, index) => ({
-    ...item,
-    fill: COLORS[index % COLORS.length]
-  }))
-  const config = getCategoryConfig(data)
+  const finalData = useMemo(
+    () => data.map((item, index) => ({ ...item, fill: COLORS[index % COLORS.length] })),
+    [data]
+  )
+  const config = useMemo(() => getCategoryConfig(data), [data])
 
   return (
     <div className="flex flex-col gap-4 w-full min-w-0">

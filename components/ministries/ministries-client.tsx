@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { Plus, Users, ChevronDown, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -22,7 +23,10 @@ import {
   ItemDescription,
   ItemActions
 } from "@/components/ui/item"
+import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { formatDate } from "@/lib/utils"
+import { createMinistrySchema, assignMinisterSchema } from "@/lib/validators/ministry"
+import type { CreateMinistryInput, AssignMinisterInput } from "@/lib/validators/ministry"
 
 type Ministry = {
   id: string
@@ -34,32 +38,31 @@ type Ministry = {
 
 export function MinistriesClient({ initialMinistries }: { initialMinistries: Ministry[] }) {
   const [ministries, setMinistries] = useState<Ministry[]>(initialMinistries)
-  const [name, setName] = useState("")
-  const [description, setDescription] = useState("")
-  const [submitting, setSubmitting] = useState(false)
   const [open, setOpen] = useState(false)
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault()
-    if (!name.trim()) return
-    setSubmitting(true)
+  const form = useForm<CreateMinistryInput>({
+    resolver: zodResolver(createMinistrySchema),
+    defaultValues: { name: "", description: "" }
+  })
+
+  async function handleCreate(values: CreateMinistryInput) {
     try {
       const res = await fetch("/api/ministries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), description: description.trim() || undefined })
+        body: JSON.stringify({
+          name: values.name.trim(),
+          description: values.description?.trim() || undefined
+        })
       })
       const createdData = (await res.json()) as { message?: string } & Ministry
       if (!res.ok) throw new Error(createdData.message)
       setMinistries((prev) => [createdData, ...prev])
-      setName("")
-      setDescription("")
+      form.reset()
       setOpen(false)
       toast.success("Ministerio creado")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al crear ministerio")
-    } finally {
-      setSubmitting(false)
     }
   }
 
@@ -72,7 +75,13 @@ export function MinistriesClient({ initialMinistries }: { initialMinistries: Min
             Gestiona los ministerios y sus ministros asignados
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog
+          open={open}
+          onOpenChange={(o) => {
+            setOpen(o)
+            if (!o) form.reset()
+          }}
+        >
           <DialogTrigger
             render={
               <Button size="sm">
@@ -85,28 +94,23 @@ export function MinistriesClient({ initialMinistries }: { initialMinistries: Min
             <DialogHeader>
               <DialogTitle>Nuevo ministerio</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleCreate} className="space-y-4 pt-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="name">Nombre *</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Ministerio de Jóvenes"
-                  required
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="description">Descripción</Label>
+            <form onSubmit={form.handleSubmit(handleCreate)} className="space-y-4 pt-2">
+              <Field>
+                <FieldLabel htmlFor="name">Nombre *</FieldLabel>
+                <Input id="name" placeholder="Ministerio de Jóvenes" {...form.register("name")} />
+                <FieldError errors={[form.formState.errors.name]} />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="description">Descripción</FieldLabel>
                 <Input
                   id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
                   placeholder="Descripción opcional"
+                  {...form.register("description")}
                 />
-              </div>
-              <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? "Creando..." : "Crear ministerio"}
+                <FieldError errors={[form.formState.errors.description]} />
+              </Field>
+              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Creando..." : "Crear ministerio"}
               </Button>
             </form>
           </DialogContent>
@@ -136,8 +140,6 @@ export function MinistriesClient({ initialMinistries }: { initialMinistries: Min
 
 function MinistryItem({ ministry }: { ministry: Ministry }) {
   const [expanded, setExpanded] = useState(false)
-  const [userId, setUserId] = useState("")
-  const [assigning, setAssigning] = useState(false)
   const [assignments, setAssignments] = useState<AssignmentRow[] | null>(null)
   const [loadingAssignments, setLoadingAssignments] = useState(false)
 
@@ -148,6 +150,11 @@ function MinistryItem({ ministry }: { ministry: Ministry }) {
     unassigned_at: string | null
     users: { id: string; full_name: string; email: string } | null
   }
+
+  const assignForm = useForm<AssignMinisterInput>({
+    resolver: zodResolver(assignMinisterSchema),
+    defaultValues: { user_id: "" }
+  })
 
   async function loadAssignments() {
     setLoadingAssignments(true)
@@ -166,25 +173,20 @@ function MinistryItem({ ministry }: { ministry: Ministry }) {
     if (next && assignments === null) loadAssignments()
   }
 
-  async function handleAssign(e: React.FormEvent) {
-    e.preventDefault()
-    if (!userId.trim()) return
-    setAssigning(true)
+  async function handleAssign(values: AssignMinisterInput) {
     try {
       const res = await fetch(`/api/ministries/${ministry.id}/assignments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId.trim() })
+        body: JSON.stringify({ user_id: values.user_id.trim() })
       })
       const assignData = (await res.json()) as { message?: string }
       if (!res.ok) throw new Error(assignData.message)
       toast.success("Ministro asignado")
-      setUserId("")
+      assignForm.reset()
       loadAssignments()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al asignar")
-    } finally {
-      setAssigning(false)
     }
   }
 
@@ -211,17 +213,19 @@ function MinistryItem({ ministry }: { ministry: Ministry }) {
       </ItemActions>
       {expanded && (
         <div className="col-span-full border-t px-4 py-3 space-y-3 bg-muted/30">
-          <form onSubmit={handleAssign} className="flex gap-2">
-            <Input
-              placeholder="ID del usuario"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              className="flex-1 text-sm"
-            />
-            <Button size="sm" type="submit" disabled={assigning}>
-              <UserPlus className="size-4" />
-              Asignar
-            </Button>
+          <form onSubmit={assignForm.handleSubmit(handleAssign)} className="space-y-1">
+            <div className="flex gap-2">
+              <Input
+                placeholder="ID del usuario"
+                className="flex-1 text-sm"
+                {...assignForm.register("user_id")}
+              />
+              <Button size="sm" type="submit" disabled={assignForm.formState.isSubmitting}>
+                <UserPlus className="size-4" />
+                Asignar
+              </Button>
+            </div>
+            <FieldError errors={[assignForm.formState.errors.user_id]} />
           </form>
           {loadingAssignments && <p className="text-xs text-muted-foreground">Cargando...</p>}
           {assignments && assignments.length === 0 && (

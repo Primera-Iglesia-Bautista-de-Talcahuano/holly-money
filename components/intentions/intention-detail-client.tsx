@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import {
   CheckCircle,
@@ -17,7 +19,6 @@ import {
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -26,8 +27,20 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { formatDate, formatDateTime, formatCLP } from "@/lib/utils"
-import type { UserRole } from "@/types/auth"
+import {
+  reviewIntentionSchema,
+  registerTransferSchema,
+  addCommentSchema
+} from "@/lib/validators/intention"
+import { createSettlementSchema } from "@/lib/validators/settlement"
+import type {
+  ReviewIntentionInput,
+  RegisterTransferInput,
+  AddCommentInput
+} from "@/lib/validators/intention"
+import type { CreateSettlementInput } from "@/lib/validators/settlement"
 
 type Intention = {
   id: string
@@ -83,56 +96,70 @@ export function IntentionDetailClient({
   comments: initialComments,
   transfer,
   settlements: initialSettlements,
-  userRole
+  canReview,
+  canSubmit
 }: {
   intention: Intention
   comments: Comment[]
   transfer: Transfer
   settlements: Settlement[]
-  userRole: UserRole
+  canReview: boolean
+  canSubmit: boolean
 }) {
   const router = useRouter()
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [settlements, setSettlements] = useState<Settlement[]>(initialSettlements)
+  const [currentTransfer, setCurrentTransfer] = useState<Transfer>(transfer)
   const status = STATUS_CONFIG[intention.status]
   const StatusIcon = status.icon
-  const canReview = userRole === "ADMIN" || userRole === "BURSAR"
-  const isMinister = userRole === "MINISTER"
+  const isMinister = canSubmit
 
-  // Review state
   const [reviewOpen, setReviewOpen] = useState(false)
-  const [reviewAction, setReviewAction] = useState<"APPROVED" | "REJECTED">("APPROVED")
-  const [reviewMessage, setReviewMessage] = useState("")
-  const [reviewing, setReviewing] = useState(false)
-
-  // Transfer state
   const [transferOpen, setTransferOpen] = useState(false)
-  const [transferAmount, setTransferAmount] = useState(String(intention.amount))
-  const [transferDate, setTransferDate] = useState("")
-  const [transferRef, setTransferRef] = useState("")
-  const [transferNotes, setTransferNotes] = useState("")
-  const [registeringTransfer, setRegisteringTransfer] = useState(false)
-  const [currentTransfer, setCurrentTransfer] = useState<Transfer>(transfer)
-
-  // Comment state
-  const [commentMsg, setCommentMsg] = useState("")
-  const [addingComment, setAddingComment] = useState(false)
-
-  // Settlement state
   const [settlementOpen, setSettlementOpen] = useState(false)
-  const [settlAmount, setSettlAmount] = useState("")
-  const [settlDesc, setSettlDesc] = useState("")
-  const [settlDate, setSettlDate] = useState("")
-  const [submittingSettlement, setSubmittingSettlement] = useState(false)
 
-  async function handleReview(e: React.FormEvent) {
-    e.preventDefault()
-    setReviewing(true)
+  const reviewForm = useForm<ReviewIntentionInput>({
+    resolver: zodResolver(reviewIntentionSchema),
+    defaultValues: { action: "APPROVED", message: "" }
+  })
+
+  const transferForm = useForm<RegisterTransferInput>({
+    resolver: zodResolver(registerTransferSchema),
+    defaultValues: {
+      amount: intention.amount,
+      transfer_date: "",
+      reference: "",
+      notes: ""
+    }
+  })
+
+  const commentForm = useForm<AddCommentInput>({
+    resolver: zodResolver(addCommentSchema),
+    defaultValues: { message: "" }
+  })
+
+  const settlementForm = useForm<CreateSettlementInput>({
+    resolver: zodResolver(createSettlementSchema),
+    defaultValues: {
+      intention_id: intention.id,
+      amount: "" as unknown as number,
+      description: "",
+      expense_date: "",
+      attachment_url: undefined
+    }
+  })
+
+  const settlDate = settlementForm.watch("expense_date")
+  const lateExpiry = settlDate
+    ? Math.floor((Date.now() - new Date(settlDate).getTime()) / 86_400_000) > 30
+    : false
+
+  async function handleReview(values: ReviewIntentionInput) {
     try {
       const res = await fetch(`/api/requests/${intention.id}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: reviewAction, message: reviewMessage })
+        body: JSON.stringify(values)
       })
       const data = (await res.json()) as { message?: string }
       if (res.status === 409) {
@@ -141,28 +168,23 @@ export function IntentionDetailClient({
         return
       }
       if (!res.ok) throw new Error(data.message)
-      toast.success(reviewAction === "APPROVED" ? "Solicitud aprobada" : "Solicitud rechazada")
+      toast.success(values.action === "APPROVED" ? "Solicitud aprobada" : "Solicitud rechazada")
       setReviewOpen(false)
       router.refresh()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al revisar")
-    } finally {
-      setReviewing(false)
     }
   }
 
-  async function handleRegisterTransfer(e: React.FormEvent) {
-    e.preventDefault()
-    setRegisteringTransfer(true)
+  async function handleRegisterTransfer(values: RegisterTransferInput) {
     try {
       const res = await fetch(`/api/requests/${intention.id}/transfer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: parseFloat(transferAmount),
-          transfer_date: transferDate,
-          reference: transferRef || undefined,
-          notes: transferNotes || undefined
+          ...values,
+          reference: values.reference || undefined,
+          notes: values.notes || undefined
         })
       })
       const transferData = (await res.json()) as Transfer & { message?: string }
@@ -172,64 +194,47 @@ export function IntentionDetailClient({
       toast.success("Transferencia registrada")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al registrar")
-    } finally {
-      setRegisteringTransfer(false)
     }
   }
 
-  async function handleAddComment(e: React.FormEvent) {
-    e.preventDefault()
-    if (!commentMsg.trim()) return
-    setAddingComment(true)
+  async function handleAddComment(values: AddCommentInput) {
     try {
       const res = await fetch(`/api/requests/${intention.id}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: commentMsg.trim() })
+        body: JSON.stringify(values)
       })
       const commentData = (await res.json()) as Comment & { message?: string }
       if (!res.ok) throw new Error(commentData.message)
       setComments((prev) => [...prev, commentData])
-      setCommentMsg("")
+      commentForm.reset()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al comentar")
-    } finally {
-      setAddingComment(false)
     }
   }
 
-  async function handleSubmitSettlement(e: React.FormEvent) {
-    e.preventDefault()
-    setSubmittingSettlement(true)
+  async function handleSubmitSettlement(values: CreateSettlementInput) {
     try {
       const res = await fetch("/api/ministry-settlements", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          intention_id: intention.id,
-          amount: parseFloat(settlAmount),
-          description: settlDesc,
-          expense_date: settlDate
-        })
+        body: JSON.stringify(values)
       })
       const settlData = (await res.json()) as Settlement & { message?: string }
       if (!res.ok) throw new Error(settlData.message)
       setSettlements((prev) => [...prev, settlData])
       setSettlementOpen(false)
-      setSettlAmount("")
-      setSettlDesc("")
-      setSettlDate("")
+      settlementForm.reset({
+        intention_id: intention.id,
+        amount: "" as unknown as number,
+        description: "",
+        expense_date: ""
+      })
       toast.success("Rendición enviada para revisión")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al enviar rendición")
-    } finally {
-      setSubmittingSettlement(false)
     }
   }
-
-  const lateExpiry = settlDate
-    ? Math.floor((Date.now() - new Date(settlDate).getTime()) / 86_400_000) > 30
-    : false
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -297,9 +302,15 @@ export function IntentionDetailClient({
         {/* Actions for tesorería */}
         {canReview && intention.status === "PENDING" && (
           <div className="flex gap-2 pt-1">
-            <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
+            <Dialog
+              open={reviewOpen}
+              onOpenChange={(o) => {
+                setReviewOpen(o)
+                if (!o) reviewForm.reset()
+              }}
+            >
               <DialogTrigger
-                onClick={() => setReviewAction("APPROVED")}
+                onClick={() => reviewForm.setValue("action", "APPROVED")}
                 render={
                   <Button size="sm">
                     <CheckCircle className="size-4" />
@@ -308,7 +319,7 @@ export function IntentionDetailClient({
                 }
               />
               <DialogTrigger
-                onClick={() => setReviewAction("REJECTED")}
+                onClick={() => reviewForm.setValue("action", "REJECTED")}
                 render={
                   <Button size="sm" variant="outline">
                     <XCircle className="size-4" />
@@ -319,29 +330,30 @@ export function IntentionDetailClient({
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
-                    {reviewAction === "APPROVED" ? "Aprobar solicitud" : "Rechazar solicitud"}
+                    {reviewForm.watch("action") === "APPROVED"
+                      ? "Aprobar solicitud"
+                      : "Rechazar solicitud"}
                   </DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleReview} className="space-y-4 pt-2">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="review-msg">Mensaje *</Label>
+                <form onSubmit={reviewForm.handleSubmit(handleReview)} className="space-y-4 pt-2">
+                  <Field>
+                    <FieldLabel htmlFor="review-msg">Mensaje *</FieldLabel>
                     <Input
                       id="review-msg"
-                      value={reviewMessage}
-                      onChange={(e) => setReviewMessage(e.target.value)}
                       placeholder="Escribe un mensaje para el ministro"
-                      required
+                      {...reviewForm.register("message")}
                     />
-                  </div>
+                    <FieldError errors={[reviewForm.formState.errors.message]} />
+                  </Field>
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={reviewing}
-                    variant={reviewAction === "APPROVED" ? "default" : "destructive"}
+                    disabled={reviewForm.formState.isSubmitting}
+                    variant={reviewForm.watch("action") === "APPROVED" ? "default" : "destructive"}
                   >
-                    {reviewing
+                    {reviewForm.formState.isSubmitting
                       ? "Procesando..."
-                      : reviewAction === "APPROVED"
+                      : reviewForm.watch("action") === "APPROVED"
                         ? "Confirmar aprobación"
                         : "Confirmar rechazo"}
                   </Button>
@@ -361,50 +373,54 @@ export function IntentionDetailClient({
               Transferencia
             </h2>
             {canReview && !currentTransfer && (
-              <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
+              <Dialog
+                open={transferOpen}
+                onOpenChange={(o) => {
+                  setTransferOpen(o)
+                  if (!o) transferForm.reset()
+                }}
+              >
                 <DialogTrigger render={<Button size="sm">Registrar transferencia</Button>} />
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Registrar transferencia</DialogTitle>
                   </DialogHeader>
-                  <form onSubmit={handleRegisterTransfer} className="space-y-4 pt-2">
-                    <div className="space-y-1.5">
-                      <Label>Monto (CLP) *</Label>
+                  <form
+                    onSubmit={transferForm.handleSubmit(handleRegisterTransfer)}
+                    className="space-y-4 pt-2"
+                  >
+                    <Field>
+                      <FieldLabel>Monto (CLP) *</FieldLabel>
+                      <Input type="number" min={1} {...transferForm.register("amount")} />
+                      <FieldError errors={[transferForm.formState.errors.amount]} />
+                    </Field>
+                    <Field>
+                      <FieldLabel>Fecha de transferencia *</FieldLabel>
+                      <Input type="date" {...transferForm.register("transfer_date")} />
+                      <FieldError errors={[transferForm.formState.errors.transfer_date]} />
+                    </Field>
+                    <Field>
+                      <FieldLabel>Referencia</FieldLabel>
                       <Input
-                        type="number"
-                        min={1}
-                        value={transferAmount}
-                        onChange={(e) => setTransferAmount(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label>Fecha de transferencia *</Label>
-                      <Input
-                        type="date"
-                        value={transferDate}
-                        onChange={(e) => setTransferDate(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label>Referencia</Label>
-                      <Input
-                        value={transferRef}
-                        onChange={(e) => setTransferRef(e.target.value)}
                         placeholder="N° de comprobante o referencia bancaria"
+                        {...transferForm.register("reference")}
                       />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label>Notas</Label>
+                      <FieldError errors={[transferForm.formState.errors.reference]} />
+                    </Field>
+                    <Field>
+                      <FieldLabel>Notas</FieldLabel>
                       <Input
-                        value={transferNotes}
-                        onChange={(e) => setTransferNotes(e.target.value)}
                         placeholder="Observaciones opcionales"
+                        {...transferForm.register("notes")}
                       />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={registeringTransfer}>
-                      {registeringTransfer ? "Registrando..." : "Registrar"}
+                      <FieldError errors={[transferForm.formState.errors.notes]} />
+                    </Field>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={transferForm.formState.isSubmitting}
+                    >
+                      {transferForm.formState.isSubmitting ? "Registrando..." : "Registrar"}
                     </Button>
                   </form>
                 </DialogContent>
@@ -452,7 +468,19 @@ export function IntentionDetailClient({
               Rendición de gastos
             </h2>
             {isMinister && (
-              <Dialog open={settlementOpen} onOpenChange={setSettlementOpen}>
+              <Dialog
+                open={settlementOpen}
+                onOpenChange={(o) => {
+                  setSettlementOpen(o)
+                  if (!o)
+                    settlementForm.reset({
+                      intention_id: intention.id,
+                      amount: "" as unknown as number,
+                      description: "",
+                      expense_date: ""
+                    })
+                }}
+              >
                 <DialogTrigger
                   render={
                     <Button size="sm">
@@ -472,37 +500,34 @@ export function IntentionDetailClient({
                       el equipo de tesorería.
                     </div>
                   )}
-                  <form onSubmit={handleSubmitSettlement} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <Label>Monto del gasto (CLP) *</Label>
+                  <form
+                    onSubmit={settlementForm.handleSubmit(handleSubmitSettlement)}
+                    className="space-y-4"
+                  >
+                    <Field>
+                      <FieldLabel>Monto del gasto (CLP) *</FieldLabel>
+                      <Input type="number" min={1} {...settlementForm.register("amount")} />
+                      <FieldError errors={[settlementForm.formState.errors.amount]} />
+                    </Field>
+                    <Field>
+                      <FieldLabel>Descripción *</FieldLabel>
                       <Input
-                        type="number"
-                        min={1}
-                        value={settlAmount}
-                        onChange={(e) => setSettlAmount(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label>Descripción *</Label>
-                      <Input
-                        value={settlDesc}
-                        onChange={(e) => setSettlDesc(e.target.value)}
                         placeholder="Detalle del gasto realizado"
-                        required
+                        {...settlementForm.register("description")}
                       />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label>Fecha del gasto *</Label>
-                      <Input
-                        type="date"
-                        value={settlDate}
-                        onChange={(e) => setSettlDate(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={submittingSettlement}>
-                      {submittingSettlement ? "Enviando..." : "Enviar rendición"}
+                      <FieldError errors={[settlementForm.formState.errors.description]} />
+                    </Field>
+                    <Field>
+                      <FieldLabel>Fecha del gasto *</FieldLabel>
+                      <Input type="date" {...settlementForm.register("expense_date")} />
+                      <FieldError errors={[settlementForm.formState.errors.expense_date]} />
+                    </Field>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={settlementForm.formState.isSubmitting}
+                    >
+                      {settlementForm.formState.isSubmitting ? "Enviando..." : "Enviar rendición"}
                     </Button>
                   </form>
                 </DialogContent>
@@ -574,15 +599,18 @@ export function IntentionDetailClient({
             </div>
           ))}
         </div>
-        <form onSubmit={handleAddComment} className="flex gap-2 pt-1">
+        <form onSubmit={commentForm.handleSubmit(handleAddComment)} className="flex gap-2 pt-1">
           <Input
-            value={commentMsg}
-            onChange={(e) => setCommentMsg(e.target.value)}
             placeholder="Escribe un comentario..."
             className="flex-1"
+            {...commentForm.register("message")}
           />
-          <Button size="sm" type="submit" disabled={addingComment || !commentMsg.trim()}>
-            {addingComment ? "..." : "Comentar"}
+          <Button
+            size="sm"
+            type="submit"
+            disabled={commentForm.formState.isSubmitting || !commentForm.watch("message").trim()}
+          >
+            {commentForm.formState.isSubmitting ? "..." : "Comentar"}
           </Button>
         </form>
       </Card>

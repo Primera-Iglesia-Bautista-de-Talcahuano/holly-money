@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { Plus, Calendar, ChevronDown, Unlock, Lock } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -15,7 +16,10 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
+import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { formatDate, formatCLP } from "@/lib/utils"
+import { createBudgetPeriodSchema } from "@/lib/validators/budget"
+import type { CreateBudgetPeriodInput } from "@/lib/validators/budget"
 
 type Period = {
   id: string
@@ -53,32 +57,27 @@ export function BudgetClient({
 }) {
   const [periods, setPeriods] = useState<Period[]>(initialPeriods)
   const [open, setOpen] = useState(false)
-  const [name, setName] = useState("")
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [submitting, setSubmitting] = useState(false)
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault()
-    setSubmitting(true)
+  const form = useForm<CreateBudgetPeriodInput>({
+    resolver: zodResolver(createBudgetPeriodSchema),
+    defaultValues: { name: "", start_date: "", end_date: "" }
+  })
+
+  async function handleCreate(values: CreateBudgetPeriodInput) {
     try {
       const res = await fetch("/api/budget-periods", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, start_date: startDate, end_date: endDate })
+        body: JSON.stringify(values)
       })
       const created = (await res.json()) as Period & { message?: string }
       if (!res.ok) throw new Error(created.message)
       setPeriods((prev) => [created, ...prev])
       setOpen(false)
-      setName("")
-      setStartDate("")
-      setEndDate("")
+      form.reset()
       toast.success("Período creado")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al crear período")
-    } finally {
-      setSubmitting(false)
     }
   }
 
@@ -115,7 +114,13 @@ export function BudgetClient({
             Define períodos presupuestarios y asigna montos por ministerio
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog
+          open={open}
+          onOpenChange={(o) => {
+            setOpen(o)
+            if (!o) form.reset()
+          }}
+        >
           <DialogTrigger
             render={
               <Button size="sm">
@@ -128,41 +133,30 @@ export function BudgetClient({
             <DialogHeader>
               <DialogTitle>Nuevo período presupuestario</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleCreate} className="space-y-4 pt-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="period-name">Nombre *</Label>
+            <form onSubmit={form.handleSubmit(handleCreate)} className="space-y-4 pt-2">
+              <Field>
+                <FieldLabel htmlFor="period-name">Nombre *</FieldLabel>
                 <Input
                   id="period-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
                   placeholder="Presupuesto 2025-2026"
-                  required
+                  {...form.register("name")}
                 />
-              </div>
+                <FieldError errors={[form.formState.errors.name]} />
+              </Field>
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="start-date">Fecha inicio *</Label>
-                  <Input
-                    id="start-date"
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="end-date">Fecha fin *</Label>
-                  <Input
-                    id="end-date"
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    required
-                  />
-                </div>
+                <Field>
+                  <FieldLabel htmlFor="start-date">Fecha inicio *</FieldLabel>
+                  <Input id="start-date" type="date" {...form.register("start_date")} />
+                  <FieldError errors={[form.formState.errors.start_date]} />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="end-date">Fecha fin *</FieldLabel>
+                  <Input id="end-date" type="date" {...form.register("end_date")} />
+                  <FieldError errors={[form.formState.errors.end_date]} />
+                </Field>
               </div>
-              <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? "Creando..." : "Crear período"}
+              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Creando..." : "Crear período"}
               </Button>
             </form>
           </DialogContent>

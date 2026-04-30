@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { getPermissionMap, updatePermission } from "@/services/permissions/permissions.service"
 import type { UserRole } from "@/types/auth"
 import type { Permission } from "@/lib/permissions/rbac"
 
 export async function GET() {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_SETTINGS)) {
+  if (!user || !can(user.permissions, PERMISSIONS.MANAGE_SETTINGS)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
@@ -28,7 +28,7 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_SETTINGS)) {
+  if (!user || !can(user.permissions, PERMISSIONS.MANAGE_SETTINGS)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 

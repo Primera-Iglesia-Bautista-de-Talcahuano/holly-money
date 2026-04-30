@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { movementsService } from "@/services/movements/movements.service"
 import { MovementsTable } from "@/components/movements/movements-table"
 import { Button } from "@/components/ui/button"
@@ -20,7 +20,7 @@ type Props = {
 
 export default async function MovementsPage({ searchParams }: Props) {
   const user = await getCurrentUser()
-  const canWrite = user?.permissions.has(PERMISSIONS.CREATE_MOVEMENT) ?? false
+  const canWrite = can(user?.permissions, PERMISSIONS.CREATE_MOVEMENT) ?? false
   const params = await searchParams
   const search = params.search?.trim() ?? ""
   const movement_type = params.movement_type ?? "ALL"

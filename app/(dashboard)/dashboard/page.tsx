@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { dashboardService } from "@/services/dashboard/dashboard.service"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { IncomeExpenseChart, CategoryChart } from "@/components/dashboard/dashboard-charts"
 import { MovementsTable } from "@/components/movements/movements-table"
 import { Label } from "@/components/ui/label"
@@ -26,7 +26,7 @@ export default async function DashboardPage({
     dashboardService.getSummary({ from, to }),
     getCurrentUser()
   ])
-  const canWrite = user?.permissions.has(PERMISSIONS.CREATE_MOVEMENT) ?? false
+  const canWrite = can(user?.permissions, PERMISSIONS.CREATE_MOVEMENT) ?? false
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto">

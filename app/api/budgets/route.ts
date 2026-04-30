@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { budgetService } from "@/services/budget/budget.service"
 import { upsertMinistryBudgetSchema } from "@/lib/validators/budget"
 
 export async function GET(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_BUDGETS)) {
+  if (!user || !can(user.permissions, PERMISSIONS.MANAGE_BUDGETS)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
   const { searchParams } = new URL(request.url)
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_BUDGETS)) {
+  if (!user || !can(user.permissions, PERMISSIONS.MANAGE_BUDGETS)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 

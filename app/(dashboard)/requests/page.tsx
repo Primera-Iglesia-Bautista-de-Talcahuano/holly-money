@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { intentionsService } from "@/services/intentions/intentions.service"
 import { ministriesService } from "@/services/ministries/ministries.service"
 import { budgetService } from "@/services/budget/budget.service"
@@ -8,9 +8,9 @@ import { IntentionsClient } from "@/components/intentions/intentions-client"
 
 export default async function RequestsPage() {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.VIEW_WORKFLOW)) redirect("/dashboard")
+  if (!user || !can(user.permissions, PERMISSIONS.VIEW_WORKFLOW)) redirect("/dashboard")
 
-  if (user.role === "MINISTER") {
+  if (can(user.permissions, PERMISSIONS.SUBMIT_INTENTIONS)) {
     const assignment = await ministriesService.getMinistryForUser(user.id)
     const activePeriod = await budgetService.getActivePeriod()
 
@@ -25,7 +25,7 @@ export default async function RequestsPage() {
 
     return (
       <IntentionsClient
-        role="MINISTER"
+        canSubmit={true}
         intentions={intentions}
         ministry={assignment?.ministries ?? null}
         budgetSummary={budgetSummary}
@@ -38,7 +38,7 @@ export default async function RequestsPage() {
 
   return (
     <IntentionsClient
-      role={user.role}
+      canSubmit={false}
       intentions={intentions}
       ministry={null}
       budgetSummary={null}

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { intentionsService } from "@/services/intentions/intentions.service"
 import { ministriesService } from "@/services/ministries/ministries.service"
 import { createIntentionSchema } from "@/lib/validators/intention"
@@ -12,14 +12,14 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const status = searchParams.get("status") ?? undefined
 
-  if (user.role === "MINISTER") {
+  if (can(user.permissions, PERMISSIONS.SUBMIT_INTENTIONS)) {
     const assignment = await ministriesService.getMinistryForUser(user.id)
     if (!assignment) return NextResponse.json([])
     const data = await intentionsService.list({ ministryId: assignment.ministry_id, status })
     return NextResponse.json(data)
   }
 
-  if (!user.permissions.has(PERMISSIONS.REVIEW_INTENTIONS)) {
+  if (!can(user.permissions, PERMISSIONS.REVIEW_INTENTIONS)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.SUBMIT_INTENTIONS)) {
+  if (!user || !can(user.permissions, PERMISSIONS.SUBMIT_INTENTIONS)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 

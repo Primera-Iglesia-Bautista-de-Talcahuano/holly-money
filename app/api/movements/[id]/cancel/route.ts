@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { movementsService } from "@/services/movements/movements.service"
 import { cancelMovementSchema } from "@/lib/validators/movement"
 import { processMovementIntegrations } from "@/services/google/movement-postprocess"
@@ -9,7 +9,7 @@ type Params = { params: Promise<{ id: string }> }
 
 export async function POST(request: Request, { params }: Params) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.CREATE_MOVEMENT)) {
+  if (!user || !can(user.permissions, PERMISSIONS.CREATE_MOVEMENT)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 

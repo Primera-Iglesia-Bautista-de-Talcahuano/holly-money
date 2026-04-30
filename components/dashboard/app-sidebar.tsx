@@ -3,6 +3,7 @@
 import type React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useMemo } from "react"
 import {
   LayoutDashboard,
   Briefcase,
@@ -113,13 +114,19 @@ export function AppSidebar({
   const pathname = usePathname()
   const { setOpenMobile } = useSidebar()
 
-  const visibleGroups = NAV_GROUPS.map((group) => ({
-    ...group,
-    links: group.links.filter((l) => !l.roles || l.roles.includes(user.role))
-  })).filter((group) => group.links.length > 0)
+  const visibleGroups = useMemo(
+    () =>
+      NAV_GROUPS.map((group) => ({
+        ...group,
+        links: group.links.filter((l) => !l.roles || l.roles.includes(user.role))
+      })).filter((group) => group.links.length > 0),
+    [user.role]
+  )
 
-  const totalLinks = visibleGroups.reduce((sum, g) => sum + g.links.length, 0)
-  const useGroups = totalLinks >= GROUP_THRESHOLD
+  const useGroups = useMemo(
+    () => visibleGroups.reduce((sum, g) => sum + g.links.length, 0) >= GROUP_THRESHOLD,
+    [visibleGroups]
+  )
 
   const renderLinks = (links: NavLink[]) =>
     links.map((link) => {

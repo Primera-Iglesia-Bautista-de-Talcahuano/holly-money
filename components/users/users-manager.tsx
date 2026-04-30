@@ -300,9 +300,14 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
     )
   }
 
-  const totalUsers = users.length
-  const activeUsers = users.filter((u) => u.status === "ACTIVE").length
-  const adminUsers = users.filter((u) => u.role === "ADMIN").length
+  const { totalUsers, activeUsers, adminUsers } = useMemo(
+    () => ({
+      totalUsers: users.length,
+      activeUsers: users.filter((u) => u.status === "ACTIVE").length,
+      adminUsers: users.filter((u) => u.role === "ADMIN").length
+    }),
+    [users]
+  )
 
   return (
     <div className="flex flex-col gap-8">

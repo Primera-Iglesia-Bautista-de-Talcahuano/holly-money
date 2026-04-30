@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { intentionsService } from "@/services/intentions/intentions.service"
 import { settlementsService } from "@/services/settlements/settlements.service"
 import { ministriesService } from "@/services/ministries/ministries.service"
@@ -11,7 +11,7 @@ type DetailProps = ComponentProps<typeof IntentionDetailClient>
 
 export default async function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.VIEW_WORKFLOW)) redirect("/dashboard")
+  if (!user || !can(user.permissions, PERMISSIONS.VIEW_WORKFLOW)) redirect("/dashboard")
 
   const { id } = await params
   let intention
@@ -22,7 +22,10 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
     notFound()
   }
 
-  if (user.role === "MINISTER") {
+  const canSubmit = can(user.permissions, PERMISSIONS.SUBMIT_INTENTIONS)
+  const canReview = can(user.permissions, PERMISSIONS.REVIEW_INTENTIONS)
+
+  if (canSubmit) {
     const assignment = await ministriesService.getMinistryForUser(user.id)
     if (!assignment || assignment.ministry_id !== intention.ministry_id) {
       redirect("/requests")
@@ -41,7 +44,8 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
       comments={comments as unknown as DetailProps["comments"]}
       transfer={transfer as unknown as DetailProps["transfer"]}
       settlements={settlements as unknown as DetailProps["settlements"]}
-      userRole={user.role}
+      canReview={canReview}
+      canSubmit={canSubmit}
     />
   )
 }

@@ -2,12 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { Plus, AlertTriangle, Clock, CheckCircle, XCircle, FileText } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -24,8 +25,10 @@ import {
   ItemDescription,
   ItemActions
 } from "@/components/ui/item"
+import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { formatDate, formatCLP } from "@/lib/utils"
-import type { UserRole } from "@/types/auth"
+import { createIntentionSchema } from "@/lib/validators/intention"
+import type { CreateIntentionInput } from "@/lib/validators/intention"
 import type { intentionsService } from "@/services/intentions/intentions.service"
 import type { ministriesService } from "@/services/ministries/ministries.service"
 
@@ -49,13 +52,13 @@ const STATUS_LABELS = {
 }
 
 export function IntentionsClient({
-  role,
+  canSubmit,
   intentions: initialIntentions,
   ministry,
   budgetSummary,
   activePeriod
 }: {
-  role: UserRole
+  canSubmit: boolean
   intentions: Intention[]
   ministry: Ministry
   budgetSummary: BudgetSummary | null
@@ -64,46 +67,50 @@ export function IntentionsClient({
   const router = useRouter()
   const [intentions, setIntentions] = useState<Intention[]>(initialIntentions)
   const [open, setOpen] = useState(false)
-  const [amount, setAmount] = useState("")
-  const [description, setDescription] = useState("")
-  const [purpose, setPurpose] = useState("")
-  const [dateNeeded, setDateNeeded] = useState("")
-  const [submitting, setSubmitting] = useState(false)
 
-  const isMinister = role === "MINISTER"
+  const isMinister = canSubmit
 
+  const form = useForm<CreateIntentionInput>({
+    resolver: zodResolver(createIntentionSchema),
+    defaultValues: {
+      period_id: activePeriod?.id ?? "",
+      amount: "" as unknown as number,
+      description: "",
+      purpose: "",
+      date_needed: ""
+    }
+  })
+
+  const watchedAmount = form.watch("amount")
   const overBudgetWarning =
-    isMinister && budgetSummary && parseFloat(amount) > budgetSummary.remaining
+    isMinister && budgetSummary && Number(watchedAmount) > budgetSummary.remaining
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleSubmit(values: CreateIntentionInput) {
     if (!activePeriod) return
-    setSubmitting(true)
     try {
       const res = await fetch("/api/requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          period_id: activePeriod.id,
-          amount: parseFloat(amount),
-          description,
-          purpose: purpose || undefined,
-          date_needed: dateNeeded || undefined
+          ...values,
+          purpose: values.purpose || undefined,
+          date_needed: values.date_needed || undefined
         })
       })
       const created = (await res.json()) as Intention & { message?: string }
       if (!res.ok) throw new Error(created.message)
       setIntentions((prev) => [created, ...prev])
       setOpen(false)
-      setAmount("")
-      setDescription("")
-      setPurpose("")
-      setDateNeeded("")
+      form.reset({
+        period_id: activePeriod.id,
+        amount: "" as unknown as number,
+        description: "",
+        purpose: "",
+        date_needed: ""
+      })
       toast.success("Solicitud enviada al equipo de tesorería")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al enviar solicitud")
-    } finally {
-      setSubmitting(false)
     }
   }
 
@@ -119,7 +126,20 @@ export function IntentionsClient({
           </p>
         </div>
         {isMinister && activePeriod && (
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog
+            open={open}
+            onOpenChange={(o) => {
+              setOpen(o)
+              if (!o)
+                form.reset({
+                  period_id: activePeriod.id,
+                  amount: "" as unknown as number,
+                  description: "",
+                  purpose: "",
+                  date_needed: ""
+                })
+            }}
+          >
             <DialogTrigger
               render={
                 <Button size="sm">
@@ -159,50 +179,44 @@ export function IntentionsClient({
                   especial del equipo de tesorería.
                 </div>
               )}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="int-amount">Monto solicitado (CLP) *</Label>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <Field>
+                  <FieldLabel htmlFor="int-amount">Monto solicitado (CLP) *</FieldLabel>
                   <Input
                     id="int-amount"
                     type="number"
                     min={1}
                     step={1000}
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
                     placeholder="100000"
-                    required
+                    {...form.register("amount")}
                   />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="int-description">Descripción *</Label>
+                  <FieldError errors={[form.formState.errors.amount]} />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="int-description">Descripción *</FieldLabel>
                   <Input
                     id="int-description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
                     placeholder="Ej: Materiales para campamento de jóvenes"
-                    required
+                    {...form.register("description")}
                   />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="int-purpose">Propósito</Label>
+                  <FieldError errors={[form.formState.errors.description]} />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="int-purpose">Propósito</FieldLabel>
                   <Input
                     id="int-purpose"
-                    value={purpose}
-                    onChange={(e) => setPurpose(e.target.value)}
                     placeholder="Categoría o finalidad del gasto"
+                    {...form.register("purpose")}
                   />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="int-date">Fecha en que se necesita</Label>
-                  <Input
-                    id="int-date"
-                    type="date"
-                    value={dateNeeded}
-                    onChange={(e) => setDateNeeded(e.target.value)}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? "Enviando..." : "Enviar solicitud"}
+                  <FieldError errors={[form.formState.errors.purpose]} />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="int-date">Fecha en que se necesita</FieldLabel>
+                  <Input id="int-date" type="date" {...form.register("date_needed")} />
+                  <FieldError errors={[form.formState.errors.date_needed]} />
+                </Field>
+                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                  {form.formState.isSubmitting ? "Enviando..." : "Enviar solicitud"}
                 </Button>
               </form>
             </DialogContent>

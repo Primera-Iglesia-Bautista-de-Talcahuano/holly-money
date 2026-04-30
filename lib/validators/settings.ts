@@ -3,13 +3,13 @@ import { z } from "zod"
 export const updateSettingsSchema = z.object({
   tesoreria_notification_email: z.string().email("Email inválido").optional().or(z.literal("")),
   voucher_email: z.string().email("Email inválido").optional().or(z.literal("")),
-  reminder_interval_days: z
+  reminder_interval_days: z.coerce
     .number()
     .int()
     .min(1, "Mínimo 1 día")
     .max(30, "Máximo 30 días")
     .optional(),
-  budget_period_start_month: z
+  budget_period_start_month: z.coerce
     .number()
     .int()
     .min(1, "Mes inválido")

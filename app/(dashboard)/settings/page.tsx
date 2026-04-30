@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { getCurrentUser, createSupabaseServerClient } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { settingsService } from "@/services/settings/settings.service"
 import { getPermissionMap } from "@/services/permissions/permissions.service"
 import { SettingsClient } from "@/components/settings/settings-client"
@@ -8,7 +8,7 @@ import { PermissionsMatrix } from "@/components/configuration/permissions-matrix
 
 export default async function SettingsPage() {
   const user = await getCurrentUser()
-  if (!user || !user.permissions.has(PERMISSIONS.MANAGE_SETTINGS)) redirect("/dashboard")
+  if (!user || !can(user.permissions, PERMISSIONS.MANAGE_SETTINGS)) redirect("/dashboard")
 
   const supabase = await createSupabaseServerClient()
   const [settings, permMap] = await Promise.all([

@@ -3,13 +3,13 @@ import { notFound, redirect } from "next/navigation"
 import { MovementForm } from "@/components/movements/movement-form"
 import { movementsService } from "@/services/movements/movements.service"
 import { getCurrentUser } from "@/lib/supabase/server"
-import { PERMISSIONS } from "@/lib/permissions/rbac"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { toMovementFormValues } from "@/lib/utils"
 
 export default async function EditMovementPage({ params }: Props) {
   const { id } = await params
   const user = await getCurrentUser()
-  if (!(user?.permissions.has(PERMISSIONS.CREATE_MOVEMENT) ?? false)) {
+  if (!(can(user?.permissions, PERMISSIONS.CREATE_MOVEMENT) ?? false)) {
     redirect(`/movements/${id}`)
   }
 
