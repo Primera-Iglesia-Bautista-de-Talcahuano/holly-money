@@ -9,7 +9,7 @@ type Params = { params: Promise<{ id: string }> }
 export async function DELETE(_req: Request, { params }: Params) {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.MANAGE_USERS)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -17,7 +17,7 @@ export async function DELETE(_req: Request, { params }: Params) {
     await usersService.delete(id, user.id)
     return NextResponse.json({ ok: true })
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error inesperado"
+    const message = error instanceof Error ? error.message : "Unexpected error"
     return NextResponse.json({ message }, { status: 400 })
   }
 }
@@ -25,7 +25,7 @@ export async function DELETE(_req: Request, { params }: Params) {
 export async function PUT(request: Request, { params }: Params) {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.MANAGE_USERS)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -34,7 +34,7 @@ export async function PUT(request: Request, { params }: Params) {
     const parsed = updateUserSchema.safeParse({ ...(body as Record<string, unknown>), id })
     if (!parsed.success) {
       return NextResponse.json(
-        { message: "Datos inválidos", errors: parsed.error.flatten() },
+        { message: "Invalid data", errors: parsed.error.flatten() },
         { status: 400 }
       )
     }
@@ -42,7 +42,7 @@ export async function PUT(request: Request, { params }: Params) {
     const updated = await usersService.update(parsed.data, user.id)
     return NextResponse.json(updated)
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error inesperado"
+    const message = error instanceof Error ? error.message : "Unexpected error"
     return NextResponse.json({ message }, { status: 400 })
   }
 }

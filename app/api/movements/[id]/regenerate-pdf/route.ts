@@ -8,13 +8,13 @@ type Params = { params: Promise<{ id: string }> }
 export async function POST(_: Request, { params }: Params) {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.CREATE_MOVEMENT)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   const { id } = await params
   try {
     await processMovementIntegrations(id, user.id)
-    return NextResponse.json({ ok: true, message: "Regeneración iniciada/completada" })
+    return NextResponse.json({ ok: true, message: "Regeneration started/completed" })
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error regenerando PDF"
     return NextResponse.json({ ok: false, message }, { status: 400 })

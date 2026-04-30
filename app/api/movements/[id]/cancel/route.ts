@@ -10,7 +10,7 @@ type Params = { params: Promise<{ id: string }> }
 export async function POST(request: Request, { params }: Params) {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.CREATE_MOVEMENT)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -19,7 +19,7 @@ export async function POST(request: Request, { params }: Params) {
     const parsed = cancelMovementSchema.safeParse(body)
     if (!parsed.success) {
       return NextResponse.json(
-        { message: "Datos invalidos", errors: parsed.error.flatten() },
+        { message: "Invalid data", errors: parsed.error.flatten() },
         { status: 400 }
       )
     }
@@ -30,7 +30,7 @@ export async function POST(request: Request, { params }: Params) {
     })
     return NextResponse.json(result)
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error inesperado"
+    const message = error instanceof Error ? error.message : "Unexpected error"
     return NextResponse.json({ message }, { status: 400 })
   }
 }

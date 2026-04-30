@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, summary })
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error inesperado"
+    const message = error instanceof Error ? error.message : "Unexpected error"
     return NextResponse.json({ message }, { status: 500 })
   }
 }

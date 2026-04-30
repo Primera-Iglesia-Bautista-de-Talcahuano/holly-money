@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const body: unknown = await request.json()
     const parsed = forgotPasswordSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ message: "Email inválido" }, { status: 400 })
+      return NextResponse.json({ message: "Invalid email" }, { status: 400 })
     }
 
     const email = parsed.data.email.toLowerCase().trim()

@@ -8,7 +8,7 @@ import { processMovementIntegrations } from "@/services/google/movement-postproc
 export async function GET(request: Request) {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.VIEW_MOVEMENT)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   const { searchParams } = new URL(request.url)
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.CREATE_MOVEMENT)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     const parsed = createMovementSchema.safeParse(body)
     if (!parsed.success) {
       return NextResponse.json(
-        { message: "Datos invalidos", errors: parsed.error.flatten() },
+        { message: "Invalid data", errors: parsed.error.flatten() },
         { status: 400 }
       )
     }
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     })
     return NextResponse.json(created, { status: 201 })
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error inesperado"
+    const message = error instanceof Error ? error.message : "Unexpected error"
     return NextResponse.json({ message }, { status: 500 })
   }
 }

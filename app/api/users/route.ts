@@ -7,7 +7,7 @@ import { createUserSchema } from "@/lib/validators/user"
 export async function GET() {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.MANAGE_USERS)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   const rows = await usersService.list()
@@ -17,7 +17,7 @@ export async function GET() {
 export async function POST(request: Request) {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.MANAGE_USERS)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const parsed = createUserSchema.safeParse(body)
     if (!parsed.success) {
       return NextResponse.json(
-        { message: "Datos inválidos", errors: parsed.error.flatten() },
+        { message: "Invalid data", errors: parsed.error.flatten() },
         { status: 400 }
       )
     }
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     const created = await usersService.invite(parsed.data, user.id)
     return NextResponse.json(created, { status: 201 })
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error inesperado"
+    const message = error instanceof Error ? error.message : "Unexpected error"
     return NextResponse.json({ message }, { status: 400 })
   }
 }

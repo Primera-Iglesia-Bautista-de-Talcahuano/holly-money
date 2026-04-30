@@ -10,13 +10,7 @@ type UserContextValue = Omit<SessionUser, "permissions"> & {
 
 const UserContext = createContext<UserContextValue | null>(null)
 
-export function UserProvider({
-  user,
-  children
-}: {
-  user: SessionUser
-  children: React.ReactNode
-}) {
+export function UserProvider({ user, children }: { user: SessionUser; children: React.ReactNode }) {
   const value = useMemo(() => {
     const permSet = new Set(user.permissions)
     return { ...user, permissions: permSet, can: (p: string) => permSet.has(p) }

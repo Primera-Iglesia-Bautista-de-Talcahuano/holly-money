@@ -9,7 +9,7 @@ import type { Permission } from "@/lib/permissions/rbac"
 export async function GET() {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.MANAGE_SETTINGS)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   const supabase = await createSupabaseServerClient()
@@ -29,7 +29,7 @@ export async function GET() {
 export async function PATCH(request: Request) {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.MANAGE_SETTINGS)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -38,7 +38,7 @@ export async function PATCH(request: Request) {
 
     if (role === "ADMIN") {
       return NextResponse.json(
-        { message: "Los permisos de Administrador no se pueden modificar" },
+        { message: "Administrator permissions cannot be modified" },
         { status: 400 }
       )
     }
@@ -47,10 +47,10 @@ export async function PATCH(request: Request) {
     const validPermissions = Object.values(PERMISSIONS)
 
     if (!validRoles.includes(role as UserRole)) {
-      return NextResponse.json({ message: "Rol inválido" }, { status: 400 })
+      return NextResponse.json({ message: "Invalid role" }, { status: 400 })
     }
     if (!validPermissions.includes(permission as Permission)) {
-      return NextResponse.json({ message: "Permiso inválido" }, { status: 400 })
+      return NextResponse.json({ message: "Invalid permission" }, { status: 400 })
     }
 
     const supabase = await createSupabaseServerClient()
@@ -58,6 +58,6 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ ok: true })
   } catch {
-    return NextResponse.json({ message: "Error inesperado" }, { status: 500 })
+    return NextResponse.json({ message: "Unexpected error" }, { status: 500 })
   }
 }

@@ -6,7 +6,7 @@ import { usersService } from "@/services/users/users.service"
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.MANAGE_USERS)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -14,7 +14,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     const result = await usersService.resendInvite(id, user.id)
     return NextResponse.json(result)
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error inesperado"
+    const message = error instanceof Error ? error.message : "Unexpected error"
     return NextResponse.json({ message }, { status: 400 })
   }
 }

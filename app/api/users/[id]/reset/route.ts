@@ -8,7 +8,7 @@ type Params = { params: Promise<{ id: string }> }
 export async function POST(_req: Request, { params }: Params) {
   const user = await getCurrentUser()
   if (!user || !user.permissions.has(PERMISSIONS.MANAGE_USERS)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -16,7 +16,7 @@ export async function POST(_req: Request, { params }: Params) {
     await usersService.resetAccount(id, user.id)
     return NextResponse.json({ ok: true })
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error inesperado"
+    const message = error instanceof Error ? error.message : "Unexpected error"
     return NextResponse.json({ message }, { status: 400 })
   }
 }
