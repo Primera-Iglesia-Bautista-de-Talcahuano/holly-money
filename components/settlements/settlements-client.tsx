@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useMemo } from "react"
-import { useForm, Controller, type Resolver } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { cn, formatDate, formatCLP } from "@/lib/utils"
@@ -58,7 +58,6 @@ const invoiceFormSchema = z.object({
   description: z.string().optional()
 })
 type InvoiceFormValues = z.infer<typeof invoiceFormSchema>
-type InvoiceFormRaw = Omit<InvoiceFormValues, "amount"> & { amount: string }
 
 export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoice[] }) {
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices)
@@ -75,12 +74,8 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
     [invoices]
   )
 
-  const form = useForm<InvoiceFormRaw, unknown, InvoiceFormValues>({
-    resolver: zodResolver(invoiceFormSchema) as Resolver<
-      InvoiceFormRaw,
-      unknown,
-      InvoiceFormValues
-    >,
+  const form = useForm<z.input<typeof invoiceFormSchema>, unknown, InvoiceFormValues>({
+    resolver: zodResolver(invoiceFormSchema),
     defaultValues: {
       number: "",
       date: new Date(),

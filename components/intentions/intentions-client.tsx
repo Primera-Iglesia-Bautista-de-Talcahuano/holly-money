@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/item"
 import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { formatDate, formatCLP } from "@/lib/utils"
-import { z } from "zod"
 import { createIntentionSchema } from "@/lib/validators/intention"
 import type { CreateIntentionInput } from "@/lib/validators/intention"
 import type { intentionsService } from "@/services/intentions/intentions.service"
