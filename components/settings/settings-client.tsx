@@ -11,6 +11,7 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { updateSettingsSchema } from "@/lib/validators/settings"
 import type { UpdateSettingsInput } from "@/lib/validators/settings"
 import type { AppSettings } from "@/services/settings/settings.service"
+import { updateSettings } from "@/app/actions/settings"
 
 export function SettingsClient({ initialSettings }: { initialSettings: AppSettings }) {
   const form = useForm<z.input<typeof updateSettingsSchema>, unknown, UpdateSettingsInput>({
@@ -25,12 +26,7 @@ export function SettingsClient({ initialSettings }: { initialSettings: AppSettin
 
   async function handleSave(values: UpdateSettingsInput) {
     try {
-      const res = await fetch("/api/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values)
-      })
-      if (!res.ok) throw new Error(((await res.json()) as { message?: string }).message)
+      await updateSettings(values)
       toast.success("Configuración guardada")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al guardar")
