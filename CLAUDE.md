@@ -96,6 +96,17 @@ See `.env.example`. Critical ones:
 - `GOOGLE_DRIVE_FOLDER_ID` / `GOOGLE_SHEET_ID` — Google Drive and Sheets targets
 - `NOTIFICATION_EMAIL` — email notification config
 
+## Git workflow
+
+**Never push directly to `main`.** Always create a feature branch, push it, and open a PR.
+
+```bash
+git checkout -b feat/my-feature
+# make changes, commit
+git push -u origin feat/my-feature
+gh pr create --base main --head feat/my-feature ...
+```
+
 ## CI pipeline
 
 `.github/workflows/ci.yml` runs on every push and PR:
