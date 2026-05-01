@@ -1,0 +1,44 @@
+"use server"
+
+import { revalidatePath } from "next/cache"
+import { getCurrentUser } from "@/lib/supabase/server"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
+import { usersService } from "@/services/users/users.service"
+import type { CreateUserInput, UpdateUserInput } from "@/lib/validators/user"
+
+function assertUserAccess(user: Awaited<ReturnType<typeof getCurrentUser>>) {
+  if (!user || !can(user.permissions, PERMISSIONS.MANAGE_USERS)) {
+    throw new Error("Sin permisos para gestionar usuarios")
+  }
+  return user
+}
+
+export async function inviteUser(input: CreateUserInput) {
+  const user = assertUserAccess(await getCurrentUser())
+  const created = await usersService.invite(input, user.id)
+  revalidatePath("/users")
+  return created
+}
+
+export async function updateUser(input: UpdateUserInput) {
+  const user = assertUserAccess(await getCurrentUser())
+  const updated = await usersService.update(input, user.id)
+  revalidatePath("/users")
+  return updated
+}
+
+export async function deleteUser(id: string) {
+  const user = assertUserAccess(await getCurrentUser())
+  await usersService.delete(id, user.id)
+  revalidatePath("/users")
+}
+
+export async function resendInvite(id: string) {
+  const user = assertUserAccess(await getCurrentUser())
+  return usersService.resendInvite(id, user.id)
+}
+
+export async function resetUser(id: string) {
+  const user = assertUserAccess(await getCurrentUser())
+  await usersService.resetAccount(id, user.id)
+}

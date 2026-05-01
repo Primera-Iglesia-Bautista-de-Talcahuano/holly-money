@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import { cancelMovement } from "@/app/actions/movements"
 import {
   Dialog,
   DialogContent,
@@ -39,16 +40,7 @@ export function CancelButton({
     if (!motivo.trim()) return
 
     setLoading(true)
-    const promise = fetch(`/api/movements/${movement.id}/cancel`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cancellation_reason: motivo })
-    }).then(async (res) => {
-      if (!res.ok) {
-        const payload = (await res.json().catch(() => ({}))) as { message?: string }
-        throw new Error(payload.message ?? "No se pudo anular.")
-      }
-    })
+    const promise = cancelMovement(movement.id, { cancellation_reason: motivo })
 
     toast.promise(promise, {
       loading: "Anulando movimiento...",

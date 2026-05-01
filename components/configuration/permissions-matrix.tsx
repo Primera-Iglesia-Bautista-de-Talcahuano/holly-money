@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PERMISSIONS } from "@/lib/permissions/rbac"
 import type { Permission } from "@/lib/permissions/rbac"
 import type { UserRole } from "@/types/auth"
+import { updateRolePermission } from "@/app/actions/permissions"
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   MANAGE_USERS: "Gestionar usuarios",
@@ -43,16 +44,7 @@ export function PermissionsMatrix({ initialMatrix }: { initialMatrix: Permission
     setPending(key)
 
     try {
-      const res = await fetch("/api/permissions", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role, permission, enabled: next })
-      })
-
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { message?: string }
-        throw new Error(data.message ?? "Error al actualizar permiso")
-      }
+      await updateRolePermission(role, permission, next)
     } catch (e) {
       setMatrix((prev) => ({
         ...prev,

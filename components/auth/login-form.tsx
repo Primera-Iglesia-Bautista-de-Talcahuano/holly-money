@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog"
 import { Loader2 } from "lucide-react"
 import { forgotPasswordSchema, type ForgotPasswordValues } from "@/lib/validators/auth"
+import { sendForgotPassword } from "@/app/actions/auth"
 
 const loginSchema = z.object({
   email: z.email("Ingresa un email válido"),
@@ -69,11 +70,7 @@ export function LoginForm() {
   }
 
   const onForgotSubmit = async (values: ForgotPasswordValues) => {
-    await fetch("/api/auth/forgot-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values)
-    })
+    await sendForgotPassword(values.email)
     setForgotSent(true)
   }
 
