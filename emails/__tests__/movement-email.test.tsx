@@ -1,24 +1,29 @@
 import { renderToStaticMarkup } from "react-dom/server"
 
 import { MovementEmail } from "../movement-email"
+import type { MovementIntegrationPayload } from "@/services/google/types"
 
 const render = (el: React.ReactElement) => renderToStaticMarkup(el)
 
-const baseMovement = {
+const baseMovement: MovementIntegrationPayload = {
+  movementId: "mov-1",
   folio: "000042",
   movementDate: "2026-05-01",
-  movementTypeLabel: "Ingreso",
+  movementTypeLabel: "INGRESO",
   amount: 150000,
   category: "Diezmos",
   concept: "Diezmo mayo",
+  description: "Diezmo mayo 2026",
   registeredBy: "Marcelo Fuentes",
   registeredEmail: "marcelo@example.com",
+  registeredAt: "2026-05-01T10:00:00Z",
+  user: "Marcelo Fuentes",
   reference: null,
   receivedBy: null,
   deliveredBy: null,
   paymentMethod: null,
   supportNumber: null,
-  notes: null,
+  notes: null
 }
 
 describe("MovementEmail", () => {
