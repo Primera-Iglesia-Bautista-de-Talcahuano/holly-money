@@ -17,7 +17,6 @@ import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { FileInput } from "@/components/ui/file-input"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
-import { createMovement, updateMovement } from "@/app/actions/movements"
 
 type EditMovement = {
   id: string
@@ -100,25 +99,31 @@ export function MovementForm(props: Props) {
       }
     }
 
-    try {
-      if (mode === "create") {
-        const created = await createMovement({ ...values, attachment_url })
-        if (onSuccess) {
-          onSuccess()
-        } else {
-          router.push(`/movements/${created.id}`)
-        }
-      } else {
-        await updateMovement(movementId!, { ...values, attachment_url })
-        if (onSuccess) {
-          onSuccess()
-        } else {
-          router.push(`/movements/${movementId}`)
-        }
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo guardar el movimiento.")
+    const endpoint = mode === "create" ? "/api/movements" : `/api/movements/${movementId}`
+    const method = mode === "create" ? "POST" : "PUT"
+    const res = await fetch(endpoint, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...values, attachment_url })
+    })
+
+    if (!res.ok) {
+      const payload = (await res.json().catch(() => ({}))) as { message?: string }
+      setError(payload.message ?? "No se pudo guardar el movimiento.")
+      return
     }
+
+    const payload = (await res.json()) as { id?: string }
+    if (onSuccess) {
+      onSuccess()
+    } else {
+      if (mode === "create") {
+        router.push(`/movements/${payload.id}`)
+      } else {
+        router.push(`/movements/${movementId}`)
+      }
+    }
+    router.refresh()
   }
 
   return (

@@ -20,13 +20,6 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { formatDate, formatCLP } from "@/lib/utils"
 import { createBudgetPeriodSchema } from "@/lib/validators/budget"
 import type { CreateBudgetPeriodInput } from "@/lib/validators/budget"
-import {
-  createBudgetPeriod,
-  releaseBudgetPeriod,
-  closeBudgetPeriod,
-  listBudgetsByPeriod,
-  upsertMinistryBudget
-} from "@/app/actions/budget"
 
 type Period = {
   id: string
@@ -72,8 +65,14 @@ export function BudgetClient({
 
   async function handleCreate(values: CreateBudgetPeriodInput) {
     try {
-      const created = await createBudgetPeriod(values)
-      setPeriods((prev) => [created as unknown as Period, ...prev])
+      const res = await fetch("/api/budget-periods", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values)
+      })
+      const created = (await res.json()) as Period & { message?: string }
+      if (!res.ok) throw new Error(created.message)
+      setPeriods((prev) => [created, ...prev])
       setOpen(false)
       form.reset()
       toast.success("Período creado")
@@ -84,8 +83,10 @@ export function BudgetClient({
 
   async function handleRelease(id: string) {
     try {
-      const releasedData = await releaseBudgetPeriod(id)
-      setPeriods((prev) => prev.map((p) => (p.id === id ? (releasedData as unknown as Period) : p)))
+      const res = await fetch(`/api/budget-periods/${id}/release`, { method: "POST" })
+      const releasedData = (await res.json()) as Period & { message?: string }
+      if (!res.ok) throw new Error(releasedData.message)
+      setPeriods((prev) => prev.map((p) => (p.id === id ? releasedData : p)))
       toast.success("Período liberado a los ministros")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al liberar período")
@@ -94,8 +95,10 @@ export function BudgetClient({
 
   async function handleClose(id: string) {
     try {
-      const closedData = await closeBudgetPeriod(id)
-      setPeriods((prev) => prev.map((p) => (p.id === id ? (closedData as unknown as Period) : p)))
+      const res = await fetch(`/api/budget-periods/${id}/close`, { method: "POST" })
+      const closedData = (await res.json()) as Period & { message?: string }
+      if (!res.ok) throw new Error(closedData.message)
+      setPeriods((prev) => prev.map((p) => (p.id === id ? closedData : p)))
       toast.success("Período cerrado")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al cerrar período")
@@ -215,11 +218,11 @@ function PeriodCard({
   async function loadBudgets() {
     setLoading(true)
     try {
-      const data = (await listBudgetsByPeriod(period.id)) as unknown as BudgetRow[]
+      const res = await fetch(`/api/budgets?period_id=${period.id}`)
+      if (!res.ok) return
+      const data = (await res.json()) as BudgetRow[]
       setBudgets(data)
       setAmounts(Object.fromEntries(data.map((b) => [b.ministry_id, String(b.amount)])))
-    } catch {
-      // silently fail - expand/collapse is a secondary action
     } finally {
       setLoading(false)
     }
@@ -236,11 +239,13 @@ function PeriodCard({
     if (!amount || amount <= 0) return
     setSavingId(ministryId)
     try {
-      const saved = (await upsertMinistryBudget({
-        ministry_id: ministryId,
-        period_id: period.id,
-        amount
-      })) as unknown as BudgetRow
+      const res = await fetch("/api/budgets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ministry_id: ministryId, period_id: period.id, amount })
+      })
+      const saved = (await res.json()) as BudgetRow & { message?: string }
+      if (!res.ok) throw new Error(saved.message)
       setBudgets((prev) => {
         if (!prev) return [saved]
         const exists = prev.find((b) => b.ministry_id === ministryId)

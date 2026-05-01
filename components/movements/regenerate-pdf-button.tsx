@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { regeneratePdf } from "@/app/actions/movements"
 
 export function RegeneratePdfButton({ movement }: { movement: { id: string } }) {
   const [loading, setLoading] = useState(false)
@@ -12,7 +11,14 @@ export function RegeneratePdfButton({ movement }: { movement: { id: string } }) 
 
   async function onClick() {
     setLoading(true)
-    const promise = regeneratePdf(movement.id)
+    const promise = fetch(`/api/movements/${movement.id}/regenerate-pdf`, {
+      method: "POST"
+    }).then(async (res) => {
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => ({}))) as { message?: string }
+        throw new Error(payload.message ?? "No se pudo regenerar el PDF.")
+      }
+    })
 
     toast.promise(promise, {
       loading: "Regenerando PDF...",

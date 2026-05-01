@@ -48,7 +48,6 @@ import {
 import type { Database } from "@/types/database.types"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 import { FileInput } from "@/components/ui/file-input"
-import { createInvoice, updateInvoiceStatus } from "@/app/actions/invoices"
 
 type Invoice = Database["public"]["Tables"]["invoices"]["Row"]
 
@@ -104,14 +103,20 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
           attachment_url = urlData.publicUrl
         }
 
-        const created = await createInvoice({
-          number: values.number,
-          date: format(values.date, "yyyy-MM-dd"),
-          amount: values.amount,
-          description: values.description || null,
-          attachment_url
+        const res = await fetch("/api/invoices", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            number: values.number,
+            date: format(values.date, "yyyy-MM-dd"),
+            amount: values.amount,
+            description: values.description || null,
+            attachment_url
+          })
         })
-        setInvoices((prev) => [created as unknown as Invoice, ...prev])
+        if (!res.ok) throw new Error()
+        const created = (await res.json()) as Invoice
+        setInvoices((prev) => [created, ...prev])
         form.reset({
           number: "",
           date: new Date(),
@@ -130,7 +135,13 @@ export function SettlementsClient({ initialInvoices }: { initialInvoices: Invoic
   const toggleStatus = useCallback(async (invoice: Invoice) => {
     const nextStatus = invoice.status === "SETTLED" ? "PENDING" : "SETTLED"
     try {
-      const updated = (await updateInvoiceStatus(invoice.id, nextStatus)) as unknown as Invoice
+      const res = await fetch(`/api/invoices/${invoice.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus })
+      })
+      if (!res.ok) throw new Error()
+      const updated = (await res.json()) as Invoice
       setInvoices((prev) => prev.map((i) => (i.id === updated.id ? updated : i)))
       setSelectedInvoice((prev) => (prev?.id === updated.id ? updated : prev))
     } catch {

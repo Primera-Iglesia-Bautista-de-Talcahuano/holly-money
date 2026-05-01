@@ -43,8 +43,6 @@ import type {
 import type { CreateSettlementInput } from "@/lib/validators/settlement"
 import type { intentionsService } from "@/services/intentions/intentions.service"
 import type { settlementsService } from "@/services/settlements/settlements.service"
-import { reviewRequest, registerTransfer, addComment } from "@/app/actions/requests"
-import { createMinistrySettlement } from "@/app/actions/ministry-settlements"
 
 type Intention = Awaited<ReturnType<typeof intentionsService.getById>>
 type Transfer = Awaited<ReturnType<typeof intentionsService.getTransfer>>
@@ -133,12 +131,18 @@ export function IntentionDetailClient({
 
   async function handleReview(values: ReviewIntentionInput) {
     try {
-      const result = await reviewRequest(intention.id, values)
-      if (result.alreadyActioned) {
-        toast.info("Esta solicitud ya fue revisada")
+      const res = await fetch(`/api/requests/${intention.id}/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values)
+      })
+      const data = (await res.json()) as { message?: string }
+      if (res.status === 409) {
+        toast.info(data.message)
         setReviewOpen(false)
         return
       }
+      if (!res.ok) throw new Error(data.message)
       toast.success(values.action === "APPROVED" ? "Solicitud aprobada" : "Solicitud rechazada")
       setReviewOpen(false)
       router.refresh()
@@ -149,12 +153,18 @@ export function IntentionDetailClient({
 
   async function handleRegisterTransfer(values: RegisterTransferInput) {
     try {
-      const transferData = await registerTransfer(intention.id, {
-        ...values,
-        reference: values.reference || undefined,
-        notes: values.notes || undefined
+      const res = await fetch(`/api/requests/${intention.id}/transfer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...values,
+          reference: values.reference || undefined,
+          notes: values.notes || undefined
+        })
       })
-      setCurrentTransfer(transferData as unknown as Transfer)
+      const transferData = (await res.json()) as Transfer & { message?: string }
+      if (!res.ok) throw new Error(transferData.message)
+      setCurrentTransfer(transferData)
       setTransferOpen(false)
       toast.success("Transferencia registrada")
     } catch (err) {
@@ -164,8 +174,14 @@ export function IntentionDetailClient({
 
   async function handleAddComment(values: AddCommentInput) {
     try {
-      const commentData = await addComment(intention.id, values)
-      setComments((prev) => [...prev, commentData as unknown as Comment])
+      const res = await fetch(`/api/requests/${intention.id}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values)
+      })
+      const commentData = (await res.json()) as Comment & { message?: string }
+      if (!res.ok) throw new Error(commentData.message)
+      setComments((prev) => [...prev, commentData])
       commentForm.reset()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al comentar")
@@ -174,8 +190,14 @@ export function IntentionDetailClient({
 
   async function handleSubmitSettlement(values: CreateSettlementInput) {
     try {
-      const settlData = await createMinistrySettlement(values)
-      setSettlements((prev) => [...prev, settlData as unknown as Settlement])
+      const res = await fetch("/api/ministry-settlements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values)
+      })
+      const settlData = (await res.json()) as Settlement & { message?: string }
+      if (!res.ok) throw new Error(settlData.message)
+      setSettlements((prev) => [...prev, settlData])
       setSettlementOpen(false)
       settlementForm.reset({
         intention_id: intention.id,

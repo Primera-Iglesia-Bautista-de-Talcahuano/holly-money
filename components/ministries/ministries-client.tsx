@@ -27,7 +27,6 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { formatDate } from "@/lib/utils"
 import { createMinistrySchema, assignMinisterSchema } from "@/lib/validators/ministry"
 import type { CreateMinistryInput, AssignMinisterInput } from "@/lib/validators/ministry"
-import { createMinistry, getMinistryAssignments, assignMinister } from "@/app/actions/ministries"
 
 type Ministry = {
   id: string
@@ -48,11 +47,17 @@ export function MinistriesClient({ initialMinistries }: { initialMinistries: Min
 
   async function handleCreate(values: CreateMinistryInput) {
     try {
-      const createdData = await createMinistry({
-        name: values.name.trim(),
-        description: values.description?.trim() || undefined
+      const res = await fetch("/api/ministries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name.trim(),
+          description: values.description?.trim() || undefined
+        })
       })
-      setMinistries((prev) => [createdData as unknown as Ministry, ...prev])
+      const createdData = (await res.json()) as { message?: string } & Ministry
+      if (!res.ok) throw new Error(createdData.message)
+      setMinistries((prev) => [createdData, ...prev])
       form.reset()
       setOpen(false)
       toast.success("Ministerio creado")
@@ -154,10 +159,9 @@ function MinistryItem({ ministry }: { ministry: Ministry }) {
   async function loadAssignments() {
     setLoadingAssignments(true)
     try {
-      const data = await getMinistryAssignments(ministry.id)
-      setAssignments(data as unknown as AssignmentRow[])
-    } catch {
-      // silently fail
+      const res = await fetch(`/api/ministries/${ministry.id}/assignments`)
+      if (!res.ok) return
+      setAssignments(await res.json())
     } finally {
       setLoadingAssignments(false)
     }
@@ -171,7 +175,13 @@ function MinistryItem({ ministry }: { ministry: Ministry }) {
 
   async function handleAssign(values: AssignMinisterInput) {
     try {
-      await assignMinister(ministry.id, { user_id: values.user_id.trim() })
+      const res = await fetch(`/api/ministries/${ministry.id}/assignments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: values.user_id.trim() })
+      })
+      const assignData = (await res.json()) as { message?: string }
+      if (!res.ok) throw new Error(assignData.message)
       toast.success("Ministro asignado")
       assignForm.reset()
       loadAssignments()

@@ -31,7 +31,6 @@ import { createIntentionSchema } from "@/lib/validators/intention"
 import type { CreateIntentionInput } from "@/lib/validators/intention"
 import type { intentionsService } from "@/services/intentions/intentions.service"
 import type { ministriesService } from "@/services/ministries/ministries.service"
-import { createRequest } from "@/app/actions/requests"
 
 type Intention = Awaited<ReturnType<typeof intentionsService.list>>[number]
 type MinistryAssignment = Awaited<ReturnType<typeof ministriesService.getMinistryForUser>>
@@ -95,12 +94,18 @@ export function IntentionsClient({
   async function handleSubmit(values: CreateIntentionInput) {
     if (!activePeriod) return
     try {
-      const created = await createRequest({
-        ...values,
-        purpose: values.purpose || undefined,
-        date_needed: values.date_needed || undefined
+      const res = await fetch("/api/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...values,
+          purpose: values.purpose || undefined,
+          date_needed: values.date_needed || undefined
+        })
       })
-      setIntentions((prev) => [created as unknown as Intention, ...prev])
+      const created = (await res.json()) as Intention & { message?: string }
+      if (!res.ok) throw new Error(created.message)
+      setIntentions((prev) => [created, ...prev])
       setOpen(false)
       form.reset({
         period_id: activePeriod.id,
