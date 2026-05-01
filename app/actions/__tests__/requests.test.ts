@@ -41,7 +41,10 @@ jest.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => mockRevalidatePath(...args)
 }))
 
-const mockUser = { id: "user-1", permissions: ["SUBMIT_INTENTIONS", "REVIEW_INTENTIONS", "VIEW_WORKFLOW"] }
+const mockUser = {
+  id: "user-1",
+  permissions: ["SUBMIT_INTENTIONS", "REVIEW_INTENTIONS", "VIEW_WORKFLOW"]
+}
 const requestInput = {
   period_id: "00000000-0000-0000-0000-000000000001",
   amount: 5000,
@@ -86,7 +89,9 @@ describe("reviewRequest", () => {
   it("throws when lacks REVIEW_INTENTIONS permission", async () => {
     mockGetCurrentUser.mockResolvedValue(mockUser)
     mockCan.mockReturnValue(false)
-    await expect(reviewRequest("req-1", { action: "APPROVED", message: "ok" })).rejects.toThrow("Sin permisos")
+    await expect(reviewRequest("req-1", { action: "APPROVED", message: "ok" })).rejects.toThrow(
+      "Sin permisos"
+    )
   })
 
   it("returns alreadyActioned:true without revalidating", async () => {
@@ -125,7 +130,12 @@ describe("addComment", () => {
 
     const data = await addComment("req-1", { message: "ok" })
 
-    expect(mockAddComment).toHaveBeenCalledWith("req-1", "INTENTION", { message: "ok" }, mockUser.id)
+    expect(mockAddComment).toHaveBeenCalledWith(
+      "req-1",
+      "INTENTION",
+      { message: "ok" },
+      mockUser.id
+    )
     expect(mockRevalidatePath).toHaveBeenCalledWith("/requests/req-1")
     expect(data).toEqual(comment)
   })

@@ -44,7 +44,10 @@ describe("budget actions — auth guard", () => {
   beforeEach(() => jest.clearAllMocks())
 
   it.each([
-    ["createBudgetPeriod", () => createBudgetPeriod({ name: "2026", start_date: "2026-05-01", end_date: "2027-04-30" })],
+    [
+      "createBudgetPeriod",
+      () => createBudgetPeriod({ name: "2026", start_date: "2026-05-01", end_date: "2027-04-30" })
+    ],
     ["releaseBudgetPeriod", () => releaseBudgetPeriod("p-1")],
     ["closeBudgetPeriod", () => closeBudgetPeriod("p-1")],
     ["listBudgetsByPeriod", () => listBudgetsByPeriod("p-1")],

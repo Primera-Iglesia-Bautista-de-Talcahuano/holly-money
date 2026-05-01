@@ -71,7 +71,9 @@ describe("sendForgotPassword", () => {
     mockAdminAuthListUsers.mockResolvedValue({ data: { users: [authUser] } })
 
     const mockFromChainLocal = () => ({
-      select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: { status: "INACTIVE" } }) }) })
+      select: () => ({
+        eq: () => ({ single: () => Promise.resolve({ data: { status: "INACTIVE" } }) })
+      })
     })
     const { createSupabaseAdminClient } = jest.requireMock("@/lib/supabase/admin") as {
       createSupabaseAdminClient: jest.Mock
