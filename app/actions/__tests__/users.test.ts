@@ -1,0 +1,107 @@
+import { inviteUser, updateUser, deleteUser, resendInvite, resetUser } from "../users"
+
+const mockGetCurrentUser = jest.fn()
+const mockCan = jest.fn()
+const mockInvite = jest.fn()
+const mockUpdate = jest.fn()
+const mockDelete = jest.fn()
+const mockResendInvite = jest.fn()
+const mockResetAccount = jest.fn()
+const mockRevalidatePath = jest.fn()
+
+jest.mock("@/lib/supabase/server", () => ({
+  getCurrentUser: () => mockGetCurrentUser()
+}))
+
+jest.mock("@/lib/permissions/rbac", () => ({
+  PERMISSIONS: { MANAGE_USERS: "MANAGE_USERS" },
+  can: (...args: unknown[]) => mockCan(...args)
+}))
+
+jest.mock("@/services/users/users.service", () => ({
+  usersService: {
+    invite: (...args: unknown[]) => mockInvite(...args),
+    update: (...args: unknown[]) => mockUpdate(...args),
+    delete: (...args: unknown[]) => mockDelete(...args),
+    resendInvite: (...args: unknown[]) => mockResendInvite(...args),
+    resetAccount: (...args: unknown[]) => mockResetAccount(...args)
+  }
+}))
+
+jest.mock("next/cache", () => ({
+  revalidatePath: (...args: unknown[]) => mockRevalidatePath(...args)
+}))
+
+const mockUser = { id: "admin-1", permissions: ["MANAGE_USERS"] }
+const createInput = { email: "new@example.com", full_name: "New User", role: "MINISTER" as const }
+const updateInput = {
+  id: "u-1",
+  full_name: "Updated",
+  role: "MINISTER" as const,
+  status: "ACTIVE" as const
+}
+
+describe("users actions — auth guard", () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it.each([
+    ["inviteUser", () => inviteUser(createInput)],
+    ["updateUser", () => updateUser(updateInput)],
+    ["deleteUser", () => deleteUser("u-1")],
+    ["resendInvite", () => resendInvite("u-1")],
+    ["resetUser", () => resetUser("u-1")]
+  ])("%s throws when unauthenticated", async (_name, fn) => {
+    mockGetCurrentUser.mockResolvedValue(null)
+    mockCan.mockReturnValue(false)
+    await expect(fn()).rejects.toThrow("Sin permisos")
+  })
+})
+
+describe("inviteUser", () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it("creates user and revalidates", async () => {
+    const created = { id: "u-new", ...createInput }
+    mockGetCurrentUser.mockResolvedValue(mockUser)
+    mockCan.mockReturnValue(true)
+    mockInvite.mockResolvedValue(created)
+
+    const data = await inviteUser(createInput)
+
+    expect(mockInvite).toHaveBeenCalledWith(createInput, mockUser.id)
+    expect(mockRevalidatePath).toHaveBeenCalledWith("/users")
+    expect(data).toEqual(created)
+  })
+})
+
+describe("updateUser", () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it("updates user and revalidates", async () => {
+    const updated = { id: "u-1", full_name: "Updated" }
+    mockGetCurrentUser.mockResolvedValue(mockUser)
+    mockCan.mockReturnValue(true)
+    mockUpdate.mockResolvedValue(updated)
+
+    const data = await updateUser(updateInput)
+
+    expect(mockUpdate).toHaveBeenCalledWith(updateInput, mockUser.id)
+    expect(mockRevalidatePath).toHaveBeenCalledWith("/users")
+    expect(data).toEqual(updated)
+  })
+})
+
+describe("deleteUser", () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it("deletes user and revalidates", async () => {
+    mockGetCurrentUser.mockResolvedValue(mockUser)
+    mockCan.mockReturnValue(true)
+    mockDelete.mockResolvedValue(undefined)
+
+    await deleteUser("u-1")
+
+    expect(mockDelete).toHaveBeenCalledWith("u-1", mockUser.id)
+    expect(mockRevalidatePath).toHaveBeenCalledWith("/users")
+  })
+})
