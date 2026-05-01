@@ -5,7 +5,7 @@ import { ActionButton, BaseEmail, DataTable, formatAmount } from "./components/b
 export function IntentionNotificationEmail({
   intention,
   isOverBudget,
-  reviewUrl,
+  reviewUrl
 }: {
   intention: { amount: number; description: string }
   isOverBudget: boolean
@@ -27,7 +27,7 @@ export function IntentionNotificationEmail({
                 borderRadius: 4,
                 fontSize: 12,
                 fontWeight: 700,
-                marginLeft: 8,
+                marginLeft: 8
               }}
             >
               SOBRE PRESUPUESTO
@@ -39,7 +39,7 @@ export function IntentionNotificationEmail({
         <DataTable
           rows={[
             ["Monto solicitado", formatAmount(intention.amount)],
-            ["Descripción", intention.description],
+            ["Descripción", intention.description]
           ]}
         />
       </Section>

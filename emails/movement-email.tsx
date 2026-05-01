@@ -18,12 +18,14 @@ export function MovementEmail({ movement }: { movement: MovementIntegrationPaylo
       movement.paymentMethod ? ["Medio de pago", movement.paymentMethod] : null,
       movement.supportNumber ? ["N° respaldo", movement.supportNumber] : null,
       movement.notes ? ["Observaciones", movement.notes] : null,
-      ["Registrado por", movement.registeredBy],
+      ["Registrado por", movement.registeredBy]
     ] as ([string, string] | null)[]
   ).filter((r): r is [string, string] => r !== null)
 
   return (
-    <BaseEmail preview={`Nuevo movimiento: ${movement.movementTypeLabel} - Folio ${movement.folio}`}>
+    <BaseEmail
+      preview={`Nuevo movimiento: ${movement.movementTypeLabel} - Folio ${movement.folio}`}
+    >
       <Section style={{ padding: "24px 32px 8px" }}>
         <Text style={{ margin: 0, fontSize: 15, color: "#333" }}>
           Se ha registrado un nuevo movimiento:

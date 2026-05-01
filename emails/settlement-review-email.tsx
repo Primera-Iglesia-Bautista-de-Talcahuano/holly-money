@@ -6,7 +6,7 @@ export function SettlementReviewEmail({
   settlement,
   minister,
   action,
-  detailUrl,
+  detailUrl
 }: {
   settlement: { amount: number; description: string }
   minister: { full_name: string }
@@ -21,8 +21,7 @@ export function SettlementReviewEmail({
     <BaseEmail preview={`Tu rendición fue ${statusLabel}`}>
       <Section style={{ padding: "24px 32px 8px" }}>
         <Text style={{ margin: 0, fontSize: 18, color: "#222", fontWeight: 700 }}>
-          Tu rendición fue{" "}
-          <span style={{ color: statusColor }}>{statusLabel}</span>
+          Tu rendición fue <span style={{ color: statusColor }}>{statusLabel}</span>
         </Text>
         <Text style={{ margin: "8px 0 0", color: "#555", fontSize: 14 }}>
           Hola {minister.full_name}, tu rendición de gastos ha sido revisada por el equipo de
@@ -33,7 +32,7 @@ export function SettlementReviewEmail({
         <DataTable
           rows={[
             ["Monto", formatAmount(settlement.amount)],
-            ["Descripción", settlement.description],
+            ["Descripción", settlement.description]
           ]}
         />
       </Section>

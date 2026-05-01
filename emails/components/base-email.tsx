@@ -5,18 +5,14 @@ const ORG_SHORT = "Sistema Contable PIBT"
 
 export { ORG_NAME, ORG_SHORT }
 
-export function BaseEmail({
-  children,
-  preview,
-}: {
-  children: React.ReactNode
-  preview?: string
-}) {
+export function BaseEmail({ children, preview }: { children: React.ReactNode; preview?: string }) {
   return (
     <Html lang="es">
       <Head />
       {preview && <Preview>{preview}</Preview>}
-      <Body style={{ margin: 0, padding: 0, background: "#f5f5f5", fontFamily: "Arial, sans-serif" }}>
+      <Body
+        style={{ margin: 0, padding: 0, background: "#f5f5f5", fontFamily: "Arial, sans-serif" }}
+      >
         <Container
           style={{
             background: "#fff",
@@ -24,15 +20,19 @@ export function BaseEmail({
             maxWidth: 600,
             margin: "32px auto",
             overflow: "hidden",
-            boxShadow: "0 1px 4px rgba(0,0,0,.08)",
+            boxShadow: "0 1px 4px rgba(0,0,0,.08)"
           }}
         >
           <Section style={{ background: "#1a3a5c", padding: "20px 32px" }}>
-            <Text style={{ margin: 0, color: "#fff", fontSize: 18, fontWeight: 700 }}>{ORG_SHORT}</Text>
+            <Text style={{ margin: 0, color: "#fff", fontSize: 18, fontWeight: 700 }}>
+              {ORG_SHORT}
+            </Text>
             <Text style={{ margin: "4px 0 0", color: "#a8c4e0", fontSize: 13 }}>{ORG_NAME}</Text>
           </Section>
           {children}
-          <Section style={{ background: "#f9f9f9", padding: "16px 32px", borderTop: "1px solid #eee" }}>
+          <Section
+            style={{ background: "#f9f9f9", padding: "16px 32px", borderTop: "1px solid #eee" }}
+          >
             <Text style={{ margin: 0, fontSize: 12, color: "#999" }}>{ORG_NAME}</Text>
           </Section>
         </Container>
@@ -59,7 +59,7 @@ export function DataTable({ rows }: { rows: [string, string][] }) {
                 color: "#555",
                 whiteSpace: "nowrap",
                 borderBottom: "1px solid #eee",
-                width: "40%",
+                width: "40%"
               }}
             >
               {label}
@@ -77,7 +77,7 @@ export function DataTable({ rows }: { rows: [string, string][] }) {
 export function ActionButton({
   label,
   url,
-  color = "#1a3a5c",
+  color = "#1a3a5c"
 }: {
   label: string
   url: string
@@ -94,7 +94,7 @@ export function ActionButton({
         borderRadius: 6,
         textDecoration: "none",
         fontSize: 14,
-        fontWeight: 600,
+        fontWeight: 600
       }}
     >
       {label}

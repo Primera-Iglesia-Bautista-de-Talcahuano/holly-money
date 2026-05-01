@@ -15,7 +15,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
 const TRANSACTIONAL_HEADERS = {
   "List-Unsubscribe": `<mailto:${UNSUBSCRIBE_EMAIL}?subject=unsubscribe>`,
   "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-  "X-Entity-Ref-ID": "sistema-contable-pibt",
+  "X-Entity-Ref-ID": "sistema-contable-pibt"
 }
 
 export async function sendIntentionNotification(
@@ -34,9 +34,9 @@ export async function sendIntentionNotification(
     react: IntentionNotificationEmail({
       intention,
       isOverBudget,
-      reviewUrl: `${BASE_URL}/requests/${intention.id}`,
+      reviewUrl: `${BASE_URL}/requests/${intention.id}`
     }),
-    headers: TRANSACTIONAL_HEADERS,
+    headers: TRANSACTIONAL_HEADERS
   })
 }
 
@@ -59,9 +59,9 @@ export async function sendIntentionReviewNotification(
       intention,
       minister,
       action,
-      detailUrl: `${BASE_URL}/requests/${intention.id}`,
+      detailUrl: `${BASE_URL}/requests/${intention.id}`
     }),
-    headers: TRANSACTIONAL_HEADERS,
+    headers: TRANSACTIONAL_HEADERS
   })
 }
 
@@ -80,9 +80,9 @@ export async function sendTransferNotification(
     react: TransferNotificationEmail({
       intention,
       minister,
-      detailUrl: `${BASE_URL}/requests/${intention.id}`,
+      detailUrl: `${BASE_URL}/requests/${intention.id}`
     }),
-    headers: TRANSACTIONAL_HEADERS,
+    headers: TRANSACTIONAL_HEADERS
   })
 }
 
@@ -105,9 +105,9 @@ export async function sendSettlementReviewNotification(
       settlement,
       minister,
       action,
-      detailUrl: `${BASE_URL}/requests/${settlement.id}`,
+      detailUrl: `${BASE_URL}/requests/${settlement.id}`
     }),
-    headers: TRANSACTIONAL_HEADERS,
+    headers: TRANSACTIONAL_HEADERS
   })
 }
 
@@ -128,6 +128,6 @@ export async function sendReminderEmail(summary: {
     to,
     subject: `[Recordatorio] ${total} items pendientes — ${ORG_SHORT}`,
     react: ReminderEmail({ summary, dashboardUrl: `${BASE_URL}/requests` }),
-    headers: TRANSACTIONAL_HEADERS,
+    headers: TRANSACTIONAL_HEADERS
   })
 }

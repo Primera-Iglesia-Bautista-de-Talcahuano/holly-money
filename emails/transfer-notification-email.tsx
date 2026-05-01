@@ -5,7 +5,7 @@ import { ActionButton, BaseEmail, DataTable, formatAmount } from "./components/b
 export function TransferNotificationEmail({
   intention,
   minister,
-  detailUrl,
+  detailUrl
 }: {
   intention: { amount: number; description: string }
   minister: { full_name: string }
@@ -26,7 +26,7 @@ export function TransferNotificationEmail({
         <DataTable
           rows={[
             ["Monto", formatAmount(intention.amount)],
-            ["Descripción", intention.description],
+            ["Descripción", intention.description]
           ]}
         />
       </Section>

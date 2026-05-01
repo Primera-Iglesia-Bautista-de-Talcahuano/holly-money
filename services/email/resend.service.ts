@@ -11,7 +11,7 @@ const UNSUBSCRIBE_EMAIL = "hola@pibtalcahuano.com"
 const TRANSACTIONAL_HEADERS = {
   "List-Unsubscribe": `<mailto:${UNSUBSCRIBE_EMAIL}?subject=unsubscribe>`,
   "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-  "X-Entity-Ref-ID": "sistema-contable-pibt",
+  "X-Entity-Ref-ID": "sistema-contable-pibt"
 }
 
 export async function sendMovementEmail(
@@ -24,7 +24,7 @@ export async function sendMovementEmail(
     replyTo: process.env.NOTIFICATION_EMAIL,
     subject: `[${movement.movementTypeLabel}] Folio ${movement.folio} - ${movement.concept}`,
     react: MovementEmail({ movement }),
-    headers: TRANSACTIONAL_HEADERS,
+    headers: TRANSACTIONAL_HEADERS
   })
 
   if (error) return { ok: false, error: error.message }
@@ -49,9 +49,9 @@ export async function sendInviteEmail(opts: {
         "Un administrador ha creado una cuenta para ti en el sistema contable de la iglesia. Haz clic en el botón para activarla y establecer tu contraseña.",
       buttonLabel: "Activar mi cuenta",
       buttonUrl: opts.action_link,
-      expiry: "24 horas",
+      expiry: "24 horas"
     }),
-    headers: TRANSACTIONAL_HEADERS,
+    headers: TRANSACTIONAL_HEADERS
   })
   if (error) throw new Error(`Resend error (invite): ${error.message}`)
 }
@@ -72,9 +72,9 @@ export async function sendResetEmail(opts: {
         "Se ha solicitado restablecer tu contraseña. Haz clic en el botón para crear una nueva. Tu sesión está bloqueada hasta que completes este proceso.",
       buttonLabel: "Restablecer contraseña",
       buttonUrl: opts.action_link,
-      expiry: "1 hora",
+      expiry: "1 hora"
     }),
-    headers: TRANSACTIONAL_HEADERS,
+    headers: TRANSACTIONAL_HEADERS
   })
   if (error) throw new Error(`Resend error (reset): ${error.message}`)
 }
@@ -94,9 +94,9 @@ export async function sendForgotPasswordEmail(opts: {
         "Recibimos una solicitud para restablecer la contraseña de tu cuenta. Si no fuiste tú, ignora este correo.",
       buttonLabel: "Restablecer contraseña",
       buttonUrl: opts.action_link,
-      expiry: "1 hora",
+      expiry: "1 hora"
     }),
-    headers: TRANSACTIONAL_HEADERS,
+    headers: TRANSACTIONAL_HEADERS
   })
   if (error) throw new Error(`Resend error (forgot-password): ${error.message}`)
 }

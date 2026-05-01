@@ -4,7 +4,7 @@ import { ActionButton, BaseEmail } from "./components/base-email"
 
 export function ReminderEmail({
   summary,
-  dashboardUrl,
+  dashboardUrl
 }: {
   summary: { intentions: number; settlements: number; missing_transfers: number }
   dashboardUrl: string
@@ -33,7 +33,7 @@ export function ReminderEmail({
                   fontWeight: 600,
                   color: "#555",
                   borderBottom: "1px solid #eee",
-                  width: "60%",
+                  width: "60%"
                 }}
               >
                 Intenciones pendientes de revisión
@@ -43,7 +43,7 @@ export function ReminderEmail({
                   padding: "8px 12px",
                   color: "#222",
                   borderBottom: "1px solid #eee",
-                  textAlign: "right",
+                  textAlign: "right"
                 }}
               >
                 {summary.intentions}
@@ -55,7 +55,7 @@ export function ReminderEmail({
                   padding: "8px 12px",
                   fontWeight: 600,
                   color: "#555",
-                  borderBottom: "1px solid #eee",
+                  borderBottom: "1px solid #eee"
                 }}
               >
                 Rendiciones pendientes de revisión
@@ -65,7 +65,7 @@ export function ReminderEmail({
                   padding: "8px 12px",
                   color: "#222",
                   borderBottom: "1px solid #eee",
-                  textAlign: "right",
+                  textAlign: "right"
                 }}
               >
                 {summary.settlements}
