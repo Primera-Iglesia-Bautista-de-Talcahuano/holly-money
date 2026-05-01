@@ -101,7 +101,7 @@ See `.env.example`. Critical ones:
 **Never push directly to `main`.** Always create a feature branch, push it, and open a PR.
 
 ```bash
-git checkout -b feat/my-feature
+git checkout -b feat/my-feature origin/main
 # make changes, commit
 git push -u origin feat/my-feature
 gh pr create --base main --head feat/my-feature ...
