@@ -12,7 +12,8 @@
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --write '**/*.{ts,tsx,js,css,html}'",
     "test": "jest --passWithNoTests",
-    "ci": "pnpm run lint && pnpm run typecheck"
+    "ci": "pnpm run lint && pnpm run typecheck",
+    "email:dev": "email dev --dir emails --port 3001"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -52,6 +53,7 @@
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
     "prettier": "^3.8.3",
+    "react-email": "^6.0.5",
     "supabase": "^2.98.0",
     "tailwindcss": "^4.2.4",
     "tsx": "^4.21.0",
