@@ -32,6 +32,7 @@ import type { CreateUserInput, UpdateUserInput } from "@/lib/validators/user"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field"
 import { toast } from "sonner"
+import { inviteUser, updateUser, deleteUser, resendInvite, resetUser } from "@/app/actions/users"
 
 type UserStatus = "ACTIVE" | "INACTIVE" | "PENDING_ACTIVATION" | "PENDING_RESET"
 
@@ -147,22 +148,12 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
   const selectedRole = useWatch({ control: createForm.control, name: "role" })
 
   const handleCreate = (values: CreateUserInput) => {
-    const promise = fetch("/api/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values)
-    }).then(async (res) => {
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { message?: string }
-        throw new Error(data.message ?? "No se pudo crear el usuario.")
-      }
-      return res.json() as Promise<UserRow & { invite_link?: string }>
-    })
+    const promise = inviteUser(values)
 
     toast.promise(promise, {
       loading: "Enviando invitación...",
       success: (created) => {
-        setUsers((prev) => [...prev, created])
+        setUsers((prev) => [...prev, created as unknown as UserRow])
         createForm.reset()
         setCreateOpen(false)
         if (created.invite_link) {
@@ -192,21 +183,11 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
   }
 
   const handleUpdate = (values: UpdateUserInput) => {
-    const promise = fetch(`/api/users/${values.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values)
-    }).then(async (res) => {
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { message?: string }
-        throw new Error(data.message ?? "No se pudo actualizar el usuario.")
-      }
-      return res.json() as Promise<UserRow>
-    })
+    const promise = updateUser(values)
 
     toast.promise(promise, {
       loading: "Guardando cambios...",
-      success: (updated: UserRow) => {
+      success: (updated) => {
         setUsers((prev) => prev.map((u) => (u.id === updated.id ? { ...u, ...updated } : u)))
         setEditingUser(null)
         return "Usuario actualizado"
@@ -222,77 +203,52 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
     const { id: userId, full_name: name } = deletingUser
     setDeletingUser(null)
 
-    toast.promise(
-      fetch(`/api/users/${userId}`, { method: "DELETE" }).then(async (res) => {
-        if (!res.ok) {
-          const data = (await res.json().catch(() => ({}))) as { message?: string }
-          throw new Error(data.message ?? "No se pudo eliminar el usuario.")
-        }
-      }),
-      {
-        loading: "Eliminando usuario...",
-        success: () => {
-          setUsers((prev) => prev.filter((u) => u.id !== userId))
-          return `${name} fue eliminado`
-        },
-        error: (e: Error) => e.message
-      }
-    )
+    toast.promise(deleteUser(userId), {
+      loading: "Eliminando usuario...",
+      success: () => {
+        setUsers((prev) => prev.filter((u) => u.id !== userId))
+        return `${name} fue eliminado`
+      },
+      error: (e: Error) => e.message
+    })
   }
 
   const handleResendInvite = (userId: string) => {
-    toast.promise(
-      fetch(`/api/users/${userId}/resend-invite`, { method: "POST" }).then(async (res) => {
-        if (!res.ok) {
-          const data = (await res.json().catch(() => ({}))) as { message?: string }
-          throw new Error(data.message ?? "No se pudo reenviar la invitación.")
+    toast.promise(resendInvite(userId), {
+      loading: "Reenviando invitación...",
+      success: (data) => {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === userId ? { ...u, updated_at: new Date().toISOString() } : u))
+        )
+        if (data?.invite_link) {
+          setLinkCopied(false)
+          setInviteLink(data.invite_link)
         }
-        return res.json() as Promise<{ invite_link?: string }>
-      }),
-      {
-        loading: "Reenviando invitación...",
-        success: (data) => {
-          setUsers((prev) =>
-            prev.map((u) => (u.id === userId ? { ...u, updated_at: new Date().toISOString() } : u))
-          )
-          if (data?.invite_link) {
-            setLinkCopied(false)
-            setInviteLink(data.invite_link)
-          }
-          return "Invitación reenviada correctamente"
-        },
-        error: (e: Error) => e.message
-      }
-    )
+        return "Invitación reenviada correctamente"
+      },
+      error: (e: Error) => e.message
+    })
   }
 
   const handleReset = (userId: string) => {
-    toast.promise(
-      fetch(`/api/users/${userId}/reset`, { method: "POST" }).then(async (res) => {
-        if (!res.ok) {
-          const data = (await res.json().catch(() => ({}))) as { message?: string }
-          throw new Error(data.message ?? "No se pudo resetear la cuenta.")
-        }
-      }),
-      {
-        loading: "Enviando correo de restablecimiento...",
-        success: () => {
-          setUsers((prev) =>
-            prev.map((u) =>
-              u.id === userId
-                ? {
-                    ...u,
-                    status: "PENDING_RESET" as UserStatus,
-                    updated_at: new Date().toISOString()
-                  }
-                : u
-            )
+    toast.promise(resetUser(userId), {
+      loading: "Enviando correo de restablecimiento...",
+      success: () => {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === userId
+              ? {
+                  ...u,
+                  status: "PENDING_RESET" as UserStatus,
+                  updated_at: new Date().toISOString()
+                }
+              : u
           )
-          return "Correo de restablecimiento enviado"
-        },
-        error: (e: Error) => e.message
-      }
-    )
+        )
+        return "Correo de restablecimiento enviado"
+      },
+      error: (e: Error) => e.message
+    })
   }
 
   const { totalUsers, activeUsers, adminUsers } = useMemo(

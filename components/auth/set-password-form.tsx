@@ -11,6 +11,7 @@ import { PasswordInput } from "@/components/ui/password-input"
 import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { setPasswordSchema, type SetPasswordValues } from "@/lib/validators/auth"
+import { activateAccount } from "@/app/actions/auth"
 
 export function SetPasswordForm() {
   const router = useRouter()
@@ -37,7 +38,7 @@ export function SetPasswordForm() {
       return
     }
 
-    await fetch("/api/auth/activate", { method: "POST" })
+    await activateAccount()
 
     router.push("/dashboard")
     router.refresh()
