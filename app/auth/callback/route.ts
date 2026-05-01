@@ -14,7 +14,7 @@ export async function GET(request: Request) {
 
   // Sign out any active session before accepting the invite/recovery code.
   // Without this, an admin clicking an invite link would silently switch
-  // into the new user's account and end up on /activar.
+  // into the new user's account and end up on /activate.
   await supabase.auth.signOut()
 
   const { error } = await supabase.auth.exchangeCodeForSession(code)
@@ -23,5 +23,5 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/?error=invalid_link`)
   }
 
-  return NextResponse.redirect(`${origin}/activar`)
+  return NextResponse.redirect(`${origin}/activate`)
 }

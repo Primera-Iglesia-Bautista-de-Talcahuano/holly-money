@@ -1,6 +1,6 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useMemo } from "react"
 import {
   Bar,
   BarChart,
@@ -24,8 +24,8 @@ import { formatCLP } from "@/lib/utils"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 import { BarChart2, PieChart as PieChartIcon } from "lucide-react"
 
-type SerieItem = { name: string; ingresos: number; egresos: number }
-type CategoriaItem = { categoria: string; total: number }
+type SeriesItem = { name: string; income: number; expense: number }
+type CategoryItem = { category: string; total: number }
 
 const COLORS = [
   "var(--color-chart-1)",
@@ -35,21 +35,21 @@ const COLORS = [
   "var(--color-chart-5)"
 ]
 
-const ingresosEgresosConfig = {
-  ingresos: {
+const incomeExpenseConfig = {
+  income: {
     label: "Ingresos",
     color: "var(--color-primary)"
   },
-  egresos: {
+  expense: {
     label: "Egresos",
     color: "var(--color-expense)"
   }
 } satisfies ChartConfig
 
-export const IngresosEgresosChart = memo(function IngresosEgresosChart({
+export const IncomeExpenseChart = memo(function IncomeExpenseChart({
   data
 }: {
-  data: SerieItem[]
+  data: SeriesItem[]
 }) {
   if (!data.length) {
     return (
@@ -67,7 +67,7 @@ export const IngresosEgresosChart = memo(function IngresosEgresosChart({
 
   return (
     <div className="h-[300px] sm:h-72 w-full">
-      <ChartContainer config={ingresosEgresosConfig} className="h-full w-full">
+      <ChartContainer config={incomeExpenseConfig} className="h-full w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid
@@ -116,13 +116,8 @@ export const IngresosEgresosChart = memo(function IngresosEgresosChart({
                 </div>
               )}
             />
-            <Bar
-              dataKey="ingresos"
-              fill="var(--color-ingresos)"
-              radius={[4, 4, 0, 0]}
-              barSize={20}
-            />
-            <Bar dataKey="egresos" fill="var(--color-egresos)" radius={[4, 4, 0, 0]} barSize={20} />
+            <Bar dataKey="income" fill="var(--color-income)" radius={[4, 4, 0, 0]} barSize={20} />
+            <Bar dataKey="expense" fill="var(--color-expense)" radius={[4, 4, 0, 0]} barSize={20} />
           </BarChart>
         </ResponsiveContainer>
       </ChartContainer>
@@ -130,22 +125,28 @@ export const IngresosEgresosChart = memo(function IngresosEgresosChart({
   )
 })
 
-const getCategoriaConfig = (data: CategoriaItem[]) => {
+const getCategoryConfig = (data: CategoryItem[]) => {
   const config: ChartConfig = {
     total: {
       label: "Total Registrado"
     }
   }
   data.forEach((item, index) => {
-    config[item.categoria] = {
-      label: item.categoria,
+    config[item.category] = {
+      label: item.category,
       color: COLORS[index % COLORS.length]
     }
   })
   return config
 }
 
-export const CategoriaChart = memo(function CategoriaChart({ data }: { data: CategoriaItem[] }) {
+export const CategoryChart = memo(function CategoryChart({ data }: { data: CategoryItem[] }) {
+  const finalData = useMemo(
+    () => data.map((item, index) => ({ ...item, fill: COLORS[index % COLORS.length] })),
+    [data]
+  )
+  const config = useMemo(() => getCategoryConfig(data), [data])
+
   if (!data.length) {
     return (
       <Empty className="border-dashed h-[200px]">
@@ -160,12 +161,6 @@ export const CategoriaChart = memo(function CategoriaChart({ data }: { data: Cat
     )
   }
 
-  const finalData = data.map((item, index) => ({
-    ...item,
-    fill: COLORS[index % COLORS.length]
-  }))
-  const config = getCategoriaConfig(data)
-
   return (
     <div className="flex flex-col gap-4 w-full min-w-0">
       {/* Fixed-height pie — never shrinks based on legend */}
@@ -177,7 +172,7 @@ export const CategoriaChart = memo(function CategoriaChart({ data }: { data: Cat
               <Pie
                 data={finalData}
                 dataKey="total"
-                nameKey="categoria"
+                nameKey="category"
                 innerRadius={60}
                 outerRadius={85}
                 paddingAngle={4}
@@ -204,7 +199,7 @@ export const CategoriaChart = memo(function CategoriaChart({ data }: { data: Cat
           <div key={index} className="flex items-center gap-2 min-w-0">
             <div className="size-2 rounded-full shrink-0" style={{ backgroundColor: entry.fill }} />
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">
-              {entry.categoria}
+              {entry.category}
             </span>
             <span className="text-xs font-black text-foreground ml-auto shrink-0">
               {formatCLP(entry.total)}

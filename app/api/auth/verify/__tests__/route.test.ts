@@ -29,7 +29,7 @@ beforeEach(() => {
 })
 
 describe("GET /api/auth/verify", () => {
-  it("signs out and calls verifyOtp then redirects to /activar on success", async () => {
+  it("signs out and calls verifyOtp then redirects to /activate on success", async () => {
     const req = makeRequest({ token: "abc123", type: "invite" })
     const res = await GET(req)
 
@@ -37,16 +37,16 @@ describe("GET /api/auth/verify", () => {
     expect(mockVerifyOtp).toHaveBeenCalledWith({ token_hash: "abc123", type: "invite" })
     expect(res.status).toBe(307)
     const location = new URL(res.headers.get("location")!)
-    expect(location.pathname).toBe("/activar")
+    expect(location.pathname).toBe("/activate")
   })
 
-  it("redirects to /activar for recovery type on success", async () => {
+  it("redirects to /activate for recovery type on success", async () => {
     const req = makeRequest({ token: "xyz789", type: "recovery" })
     const res = await GET(req)
 
     expect(mockVerifyOtp).toHaveBeenCalledWith({ token_hash: "xyz789", type: "recovery" })
     const location = new URL(res.headers.get("location")!)
-    expect(location.pathname).toBe("/activar")
+    expect(location.pathname).toBe("/activate")
   })
 
   it("redirects to / with error=link_expired when verifyOtp fails", async () => {
@@ -97,7 +97,7 @@ describe("GET /api/auth/verify", () => {
       const req = makeRequest({ token: "tok", type })
       const res = await GET(req)
       const location = new URL(res.headers.get("location")!)
-      expect(location.pathname).toBe("/activar")
+      expect(location.pathname).toBe("/activate")
     }
   })
 

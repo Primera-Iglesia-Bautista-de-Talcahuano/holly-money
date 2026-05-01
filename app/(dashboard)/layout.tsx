@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/supabase/server"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { SiteHeader } from "@/components/dashboard/site-header"
+import { UserProvider } from "@/components/providers/user-provider"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser()
@@ -19,13 +20,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
         .toUpperCase()
     : "U"
 
+  const sessionUser = { ...user, permissions: [...user.permissions] }
+
   return (
     <SidebarProvider>
-      <AppSidebar user={{ name: user.name ?? "", initials, role: user.role }} />
-      <SidebarInset>
-        <SiteHeader />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-h-0 overflow-x-hidden">{children}</main>
-      </SidebarInset>
+      <UserProvider user={sessionUser}>
+        <AppSidebar user={{ name: user.name ?? "", initials, role: user.role }} />
+        <SidebarInset>
+          <SiteHeader />
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 min-h-0 overflow-x-hidden">{children}</main>
+        </SidebarInset>
+      </UserProvider>
     </SidebarProvider>
   )
 }

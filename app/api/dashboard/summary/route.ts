@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/supabase/server";
-import { canViewMovements } from "@/lib/permissions/rbac";
-import { dashboardService } from "@/services/dashboard/dashboard.service";
+import { NextResponse } from "next/server"
+import { getCurrentUser } from "@/lib/supabase/server"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
+import { dashboardService } from "@/services/dashboard/dashboard.service"
 
 export async function GET() {
-  const user = await getCurrentUser();
-  if (!user || !canViewMovements(user.role)) {
-    return NextResponse.json({ message: "No autorizado" }, { status: 401 });
+  const user = await getCurrentUser()
+  if (!user || !can(user.permissions, PERMISSIONS.VIEW_MOVEMENT)) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
-  const data = await dashboardService.getResumen();
-  return NextResponse.json(data);
+  const data = await dashboardService.getSummary()
+  return NextResponse.json(data)
 }

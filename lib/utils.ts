@@ -41,7 +41,7 @@ export function getSiteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
 }
 
-export function toMovimientoFormValues(row: {
+export function toMovementFormValues(row: {
   movement_date: string
   movement_type: string
   amount: number | string

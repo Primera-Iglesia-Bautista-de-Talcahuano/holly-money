@@ -1,5 +1,5 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin"
-import { auditoriaService } from "@/services/auditoria/auditoria.service"
+import { auditService } from "@/services/audit/audit.service"
 import { generateMovementPdf } from "@/services/google/apps-script-documents"
 import { sendMovementEmail } from "@/services/email/resend.service"
 import { syncMovementToSheet } from "@/services/google/sheets-sync"
@@ -24,41 +24,39 @@ function toPayload(m: {
   created_by: { full_name: string; email: string }
 }): MovementIntegrationPayload {
   return {
-    movimientoId: m.id,
+    movementId: m.id,
     folio: m.folio_display ?? "",
-    tipo: m.movement_type === "INCOME" ? "INGRESO" : "EGRESO",
-    fechaMovimiento: m.movement_date,
-    fecha: m.movement_date,
-    tipoMovimiento: m.movement_type === "INCOME" ? "INGRESO" : "EGRESO",
-    monto: Number(m.amount),
-    categoria: m.category,
-    concepto: m.concept,
-    descripcion: m.concept,
-    referente: m.reference_person,
-    recibidoPor: m.received_by,
-    entregadoPor: m.delivered_by,
-    beneficiario: m.beneficiary,
-    medioPago: m.payment_method,
-    numeroRespaldo: m.support_number,
-    observaciones: m.notes,
-    registradoPor: m.created_by.full_name,
-    usuario: m.created_by.full_name,
-    registradoEmail: m.created_by.email,
-    registradoEn: m.created_at,
-    nombreOrganizacion: "Sistema contable PIBT"
+    movementTypeLabel: m.movement_type === "INCOME" ? "INGRESO" : "EGRESO",
+    movementDate: m.movement_date,
+    amount: Number(m.amount),
+    category: m.category,
+    concept: m.concept,
+    description: m.concept,
+    reference: m.reference_person,
+    receivedBy: m.received_by,
+    deliveredBy: m.delivered_by,
+    beneficiary: m.beneficiary,
+    paymentMethod: m.payment_method,
+    supportNumber: m.support_number,
+    notes: m.notes,
+    registeredBy: m.created_by.full_name,
+    user: m.created_by.full_name,
+    registeredEmail: m.created_by.email,
+    registeredAt: m.created_at,
+    organizationName: "Sistema contable PIBT"
   }
 }
 
-export async function processMovimientoIntegrations(movimientoId: string, userId: string) {
+export async function processMovementIntegrations(movementId: string, userId: string) {
   const admin = createSupabaseAdminClient()
 
   const { data: movement, error } = await admin
     .from("movements")
     .select("*, created_by:users!created_by_id(full_name, email)")
-    .eq("id", movimientoId)
+    .eq("id", movementId)
     .single()
 
-  if (error || !movement) throw new Error("Movimiento no encontrado para integración")
+  if (error || !movement) throw new Error("Movement not found for integration")
 
   const created_by = movement.created_by as { full_name: string; email: string }
   const payload = toPayload({ ...movement, created_by })
@@ -71,17 +69,31 @@ export async function processMovimientoIntegrations(movimientoId: string, userId
     sendMovementEmail(payload)
   ])
 
-  const pdf = pdfResult.status === "fulfilled" ? pdfResult.value : { ok: false, error: String(pdfResult.reason) }
-  const sheet = sheetResult.status === "fulfilled" ? sheetResult.value : { ok: false, error: String(sheetResult.reason) }
-  const mail = mailResult.status === "fulfilled" ? mailResult.value : { ok: false, error: String(mailResult.reason) }
+  const pdf =
+    pdfResult.status === "fulfilled"
+      ? pdfResult.value
+      : { ok: false, error: String(pdfResult.reason) }
+  const sheet =
+    sheetResult.status === "fulfilled"
+      ? sheetResult.value
+      : { ok: false, error: String(sheetResult.reason) }
+  const mail =
+    mailResult.status === "fulfilled"
+      ? mailResult.value
+      : { ok: false, error: String(mailResult.reason) }
 
   // Persist all three integration states in a single update
   await admin
     .from("movements")
     .update({
       pdf_status: pdf.ok ? "GENERATED" : "ERROR",
-      pdf_url: pdf.ok ? (pdf as { ok: true; pdfUrl?: string; driveFileId?: string }).pdfUrl ?? movement.pdf_url : movement.pdf_url,
-      drive_file_id: pdf.ok ? (pdf as { ok: true; pdfUrl?: string; driveFileId?: string }).driveFileId ?? movement.drive_file_id : movement.drive_file_id,
+      pdf_url: pdf.ok
+        ? ((pdf as { ok: true; pdfUrl?: string; driveFileId?: string }).pdfUrl ?? movement.pdf_url)
+        : movement.pdf_url,
+      drive_file_id: pdf.ok
+        ? ((pdf as { ok: true; pdfUrl?: string; driveFileId?: string }).driveFileId ??
+          movement.drive_file_id)
+        : movement.drive_file_id,
       pdf_error: pdf.ok ? null : (pdf.error ?? "Fallo generación PDF"),
       synced_to_sheet: Boolean(sheet.ok),
       sync_error: sheet.ok ? null : (sheet.error ?? "Fallo sync Sheet"),
@@ -89,20 +101,18 @@ export async function processMovimientoIntegrations(movimientoId: string, userId
       notification_sent_at: mail.ok ? new Date().toISOString() : null,
       notification_error: mail.ok ? null : (mail.error ?? "Fallo envío correo")
     })
-    .eq("id", movimientoId)
+    .eq("id", movementId)
 
   // Audit logs for PDF and email outcomes
   await Promise.allSettled([
-    auditoriaService.logMovement({
-      movement_id: movimientoId,
+    auditService.logMovement({
+      movement_id: movementId,
       user_id: userId,
       action: "PDF regenerado",
-      note: pdf.ok
-        ? "PDF generado exitosamente"
-        : `Error al generar PDF: ${pdf.error ?? ""}`
+      note: pdf.ok ? "PDF generado exitosamente" : `Error al generar PDF: ${pdf.error ?? ""}`
     }),
-    auditoriaService.logMovement({
-      movement_id: movimientoId,
+    auditService.logMovement({
+      movement_id: movementId,
       user_id: userId,
       action: mail.ok ? "Notificación enviada" : "Error de notificación",
       note: mail.ok

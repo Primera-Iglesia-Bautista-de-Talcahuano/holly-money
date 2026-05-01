@@ -1,0 +1,48 @@
+import { notFound, redirect } from "next/navigation"
+import { getCurrentUser } from "@/lib/supabase/server"
+import { PERMISSIONS, can } from "@/lib/permissions/rbac"
+import { intentionsService } from "@/services/intentions/intentions.service"
+import { settlementsService } from "@/services/settlements/settlements.service"
+import { ministriesService } from "@/services/ministries/ministries.service"
+import { IntentionDetailClient } from "@/components/intentions/intention-detail-client"
+
+export default async function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const user = await getCurrentUser()
+  if (!user || !can(user.permissions, PERMISSIONS.VIEW_WORKFLOW)) redirect("/dashboard")
+
+  const { id } = await params
+  let intention
+
+  try {
+    intention = await intentionsService.getById(id)
+  } catch {
+    notFound()
+  }
+
+  const canSubmit = can(user.permissions, PERMISSIONS.SUBMIT_INTENTIONS)
+  const canReview = can(user.permissions, PERMISSIONS.REVIEW_INTENTIONS)
+
+  if (canSubmit) {
+    const assignment = await ministriesService.getMinistryForUser(user.id)
+    if (!assignment || assignment.ministry_id !== intention.ministry_id) {
+      redirect("/requests")
+    }
+  }
+
+  const [comments, transfer, settlements] = await Promise.all([
+    intentionsService.getComments(id, "INTENTION"),
+    intentionsService.getTransfer(id),
+    settlementsService.list({ intentionId: id })
+  ])
+
+  return (
+    <IntentionDetailClient
+      intention={intention}
+      comments={comments}
+      transfer={transfer}
+      settlements={settlements}
+      canReview={canReview}
+      canSubmit={canSubmit}
+    />
+  )
+}

@@ -34,6 +34,261 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: string | null
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string | null
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_intentions: {
+        Row: {
+          amount: number
+          created_at: string
+          date_needed: string | null
+          description: string
+          id: string
+          is_over_budget: boolean
+          ministry_id: string
+          period_id: string
+          purpose: string | null
+          requested_by: string
+          review_message: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["intention_status"]
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date_needed?: string | null
+          description: string
+          id?: string
+          is_over_budget?: boolean
+          ministry_id: string
+          period_id: string
+          purpose?: string | null
+          requested_by: string
+          review_message?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["intention_status"]
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date_needed?: string | null
+          description?: string
+          id?: string
+          is_over_budget?: boolean
+          ministry_id?: string
+          period_id?: string
+          purpose?: string | null
+          requested_by?: string
+          review_message?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["intention_status"]
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_intentions_ministry_id_fkey"
+            columns: ["ministry_id"]
+            isOneToOne: false
+            referencedRelation: "ministries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_intentions_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "budget_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_intentions_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_intentions_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_periods: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          end_date: string
+          id: string
+          name: string
+          released_at: string | null
+          released_by: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["budget_period_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          end_date: string
+          id?: string
+          name: string
+          released_at?: string | null
+          released_by?: string | null
+          start_date: string
+          status?: Database["public"]["Enums"]["budget_period_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          end_date?: string
+          id?: string
+          name?: string
+          released_at?: string | null
+          released_by?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["budget_period_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_periods_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_periods_released_by_fkey"
+            columns: ["released_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expense_settlements: {
+        Row: {
+          amount: number
+          attachment_url: string | null
+          created_at: string
+          description: string
+          expense_date: string
+          id: string
+          intention_id: string
+          is_late: boolean
+          movement_id: string | null
+          review_message: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["settlement_status"]
+          submitted_by: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          attachment_url?: string | null
+          created_at?: string
+          description: string
+          expense_date: string
+          id?: string
+          intention_id: string
+          is_late?: boolean
+          movement_id?: string | null
+          review_message?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["settlement_status"]
+          submitted_by: string
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          attachment_url?: string | null
+          created_at?: string
+          description?: string
+          expense_date?: string
+          id?: string
+          intention_id?: string
+          is_late?: boolean
+          movement_id?: string | null
+          review_message?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["settlement_status"]
+          submitted_by?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_settlements_intention_id_fkey"
+            columns: ["intention_id"]
+            isOneToOne: false
+            referencedRelation: "budget_intentions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_settlements_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "movements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_settlements_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_settlements_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       folio_counter: {
         Row: {
           id: string
@@ -51,6 +306,54 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      intention_transfers: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          intention_id: string
+          notes: string | null
+          reference: string | null
+          registered_by: string
+          transfer_date: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          intention_id: string
+          notes?: string | null
+          reference?: string | null
+          registered_by: string
+          transfer_date: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          intention_id?: string
+          notes?: string | null
+          reference?: string | null
+          registered_by?: string
+          transfer_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intention_transfers_intention_id_fkey"
+            columns: ["intention_id"]
+            isOneToOne: true
+            referencedRelation: "budget_intentions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intention_transfers_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoices: {
         Row: {
@@ -93,6 +396,164 @@ export type Database = {
           {
             foreignKeyName: "invoices_created_by_id_fkey"
             columns: ["created_by_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ministries: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ministries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ministry_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          ministry_id: string
+          notes: string | null
+          unassigned_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          ministry_id: string
+          notes?: string | null
+          unassigned_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          ministry_id?: string
+          notes?: string | null
+          unassigned_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ministry_assignments_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ministry_assignments_ministry_id_fkey"
+            columns: ["ministry_id"]
+            isOneToOne: false
+            referencedRelation: "ministries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ministry_assignments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ministry_budgets: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          id: string
+          ministry_id: string
+          period_id: string
+          released_at: string | null
+          released_by: string | null
+          status: Database["public"]["Enums"]["ministry_budget_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          ministry_id: string
+          period_id: string
+          released_at?: string | null
+          released_by?: string | null
+          status?: Database["public"]["Enums"]["ministry_budget_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          ministry_id?: string
+          period_id?: string
+          released_at?: string | null
+          released_by?: string | null
+          status?: Database["public"]["Enums"]["ministry_budget_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ministry_budgets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ministry_budgets_ministry_id_fkey"
+            columns: ["ministry_id"]
+            isOneToOne: false
+            referencedRelation: "ministries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ministry_budgets_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "budget_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ministry_budgets_released_by_fkey"
+            columns: ["released_by"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -277,6 +738,59 @@ export type Database = {
           },
         ]
       }
+      request_comments: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["comment_entity"]
+          id: string
+          message: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["comment_entity"]
+          id?: string
+          message: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: Database["public"]["Enums"]["comment_entity"]
+          id?: string
+          message?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          enabled: boolean
+          permission: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Insert: {
+          enabled?: boolean
+          permission: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Update: {
+          enabled?: boolean
+          permission?: string
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Relationships: []
+      }
       system_audit_log: {
         Row: {
           action: string
@@ -373,19 +887,29 @@ export type Database = {
         Args: { p_from?: string; p_to?: string }
         Returns: Json
       }
+      get_ministry_budget_summary: {
+        Args: { p_ministry_id: string; p_period_id: string }
+        Returns: Json
+      }
       get_my_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      get_pending_reminders: { Args: never; Returns: Json }
       increment_and_get_folio: { Args: never; Returns: number }
     }
     Enums: {
+      budget_period_status: "DRAFT" | "ACTIVE" | "CLOSED"
+      comment_entity: "INTENTION" | "SETTLEMENT"
+      intention_status: "PENDING" | "APPROVED" | "REJECTED"
       invoice_status: "PENDING" | "SETTLED"
+      ministry_budget_status: "DRAFT" | "RELEASED"
       movement_status: "ACTIVE" | "CANCELLED"
       movement_type: "INCOME" | "EXPENSE"
       notification_status: "PENDING" | "SENT" | "ERROR"
       pdf_status: "PENDING" | "GENERATED" | "ERROR"
-      user_role: "ADMIN" | "OPERATOR" | "VIEWER"
+      settlement_status: "PENDING" | "APPROVED" | "REJECTED"
+      user_role: "ADMIN" | "BURSAR" | "FINANCE" | "MINISTER"
       user_status:
         | "ACTIVE"
         | "INACTIVE"
@@ -521,12 +1045,17 @@ export const Constants = {
   },
   public: {
     Enums: {
+      budget_period_status: ["DRAFT", "ACTIVE", "CLOSED"],
+      comment_entity: ["INTENTION", "SETTLEMENT"],
+      intention_status: ["PENDING", "APPROVED", "REJECTED"],
       invoice_status: ["PENDING", "SETTLED"],
+      ministry_budget_status: ["DRAFT", "RELEASED"],
       movement_status: ["ACTIVE", "CANCELLED"],
       movement_type: ["INCOME", "EXPENSE"],
       notification_status: ["PENDING", "SENT", "ERROR"],
       pdf_status: ["PENDING", "GENERATED", "ERROR"],
-      user_role: ["ADMIN", "OPERATOR", "VIEWER"],
+      settlement_status: ["PENDING", "APPROVED", "REJECTED"],
+      user_role: ["ADMIN", "BURSAR", "FINANCE", "MINISTER"],
       user_status: [
         "ACTIVE",
         "INACTIVE",

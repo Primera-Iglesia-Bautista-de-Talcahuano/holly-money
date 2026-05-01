@@ -7,18 +7,17 @@ import { forgotPasswordSchema } from "@/lib/validators/auth"
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    const body: unknown = await request.json()
     const parsed = forgotPasswordSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ message: "Email inválido" }, { status: 400 })
+      return NextResponse.json({ message: "Invalid email" }, { status: 400 })
     }
 
     const email = parsed.data.email.toLowerCase().trim()
     const admin = createSupabaseAdminClient()
 
-    // Check user exists — always return 200 to avoid email enumeration
-    const { data: authUsers } = await admin.auth.admin.listUsers()
-    const authUser = authUsers.users.find((u) => u.email === email)
+    const { data: authUsers } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    const authUser = authUsers.users.find((u) => u.email === email) ?? null
 
     if (!authUser) {
       return NextResponse.json({ ok: true })
@@ -43,7 +42,6 @@ export async function POST(request: Request) {
 
     if (error) throw error
 
-    // Mark as PENDING_RESET
     await admin
       .from("users")
       .update({ status: "PENDING_RESET", updated_at: new Date().toISOString() })

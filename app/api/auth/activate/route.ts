@@ -9,7 +9,7 @@ export async function POST() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.json({ message: "No autenticado" }, { status: 401 })
+    return NextResponse.json({ message: "Not authenticated" }, { status: 401 })
   }
 
   const admin = createSupabaseAdminClient()

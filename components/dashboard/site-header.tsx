@@ -14,28 +14,34 @@ import {
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useSidebar } from "@/components/ui/sidebar"
+import { NotificationBell } from "@/components/dashboard/notification-bell"
 
 const PAGE_LABELS: Record<string, string> = {
   "/dashboard": "Dashboard",
-  "/movimientos": "Movimientos",
-  "/movimientos/nuevo": "Nuevo Movimiento",
-  "/eventos": "Eventos",
-  "/rendiciones": "Rendiciones",
-  "/usuarios": "Usuarios",
-  "/auditoria": "Auditoría"
+  "/movements": "Movimientos",
+  "/movements/new": "Nuevo Movimiento",
+  "/events": "Eventos",
+  "/settlements": "Rendiciones",
+  "/users": "Usuarios",
+  "/audit": "Auditoría",
+  "/requests": "Solicitudes",
+  "/ministries": "Ministerios",
+  "/budget": "Presupuesto",
+  "/settings": "Configuración"
 }
 
 function usePageLabel() {
   const pathname = usePathname()
-  // Check for detail pages like /movimientos/[id]
-  if (pathname.startsWith("/movimientos/") && pathname !== "/movimientos/nuevo") {
-    return { parent: { label: "Movimientos", href: "/movimientos" }, current: "Detalle" }
+  if (pathname.startsWith("/movements/") && pathname !== "/movements/new") {
+    return { parent: { label: "Movimientos", href: "/movements" }, current: "Detalle" }
+  }
+  if (pathname === "/movements/new") {
+    return { parent: { label: "Movimientos", href: "/movements" }, current: "Nuevo" }
+  }
+  if (pathname.startsWith("/requests/")) {
+    return { parent: { label: "Solicitudes", href: "/requests" }, current: "Detalle" }
   }
   const label = PAGE_LABELS[pathname]
-  // For /movimientos/nuevo show parent
-  if (pathname === "/movimientos/nuevo") {
-    return { parent: { label: "Movimientos", href: "/movimientos" }, current: "Nuevo" }
-  }
   return { parent: null, current: label ?? "..." }
 }
 
@@ -80,7 +86,8 @@ export function SiteHeader() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          <NotificationBell />
           <a
             href={`https://github.com/Primera-Iglesia-Bautista-de-Talcahuano/sistema_contable_pibt/commit/${process.env.NEXT_PUBLIC_COMMIT_SHA_FULL}`}
             target="_blank"

@@ -1,14 +1,20 @@
 "use client"
 
+import type React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useMemo } from "react"
 import {
   LayoutDashboard,
   Briefcase,
   Users,
   ClipboardList,
   CalendarDays,
-  Receipt
+  Receipt,
+  Church,
+  PiggyBank,
+  FileCheck,
+  Settings
 } from "lucide-react"
 import {
   Sidebar,
@@ -16,6 +22,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -25,14 +32,75 @@ import {
 import { NavUser } from "@/components/dashboard/nav-user"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 
-const ALL_LINKS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, adminOnly: false },
-  { href: "/movimientos", label: "Movimientos", icon: Briefcase, adminOnly: false },
-  { href: "/eventos", label: "Eventos", icon: CalendarDays, adminOnly: false },
-  { href: "/rendiciones", label: "Rendiciones", icon: Receipt, adminOnly: false },
-  { href: "/usuarios", label: "Usuarios", icon: Users, adminOnly: true },
-  { href: "/auditoria", label: "Auditoría", icon: ClipboardList, adminOnly: true }
+type NavLink = {
+  href: string
+  label: string
+  icon: React.ElementType
+  roles?: string[]
+}
+
+type NavGroup = {
+  label: string | null
+  links: NavLink[]
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: null,
+    links: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }]
+  },
+  {
+    label: "Finanzas",
+    links: [
+      {
+        href: "/movements",
+        label: "Movimientos",
+        icon: Briefcase,
+        roles: ["ADMIN", "BURSAR", "FINANCE"]
+      },
+      {
+        href: "/settlements",
+        label: "Rendiciones",
+        icon: Receipt,
+        roles: ["ADMIN", "BURSAR", "FINANCE"]
+      },
+      {
+        href: "/budget",
+        label: "Presupuesto",
+        icon: PiggyBank,
+        roles: ["ADMIN", "BURSAR", "FINANCE"]
+      }
+    ]
+  },
+  {
+    label: "Gestión",
+    links: [
+      {
+        href: "/events",
+        label: "Eventos",
+        icon: CalendarDays,
+        roles: ["ADMIN", "BURSAR", "FINANCE"]
+      },
+      { href: "/ministries", label: "Ministerios", icon: Church, roles: ["ADMIN", "BURSAR"] },
+      {
+        href: "/requests",
+        label: "Solicitudes",
+        icon: FileCheck,
+        roles: ["ADMIN", "BURSAR", "FINANCE", "MINISTER"]
+      }
+    ]
+  },
+  {
+    label: "Administración",
+    links: [
+      { href: "/users", label: "Usuarios", icon: Users, roles: ["ADMIN"] },
+      { href: "/audit", label: "Auditoría", icon: ClipboardList, roles: ["ADMIN"] },
+      { href: "/settings", label: "Configuración", icon: Settings, roles: ["ADMIN"] }
+    ]
+  }
 ]
+
+const GROUP_THRESHOLD = 5
 
 export function AppSidebar({
   user
@@ -45,8 +113,38 @@ export function AppSidebar({
 }) {
   const pathname = usePathname()
   const { setOpenMobile } = useSidebar()
-  const isAdmin = user.role === "ADMIN"
-  const links = ALL_LINKS.filter((l) => !l.adminOnly || isAdmin)
+
+  const visibleGroups = useMemo(
+    () =>
+      NAV_GROUPS.map((group) => ({
+        ...group,
+        links: group.links.filter((l) => !l.roles || l.roles.includes(user.role))
+      })).filter((group) => group.links.length > 0),
+    [user.role]
+  )
+
+  const useGroups = useMemo(
+    () => visibleGroups.reduce((sum, g) => sum + g.links.length, 0) >= GROUP_THRESHOLD,
+    [visibleGroups]
+  )
+
+  const renderLinks = (links: NavLink[]) =>
+    links.map((link) => {
+      const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`)
+      return (
+        <SidebarMenuItem key={link.href}>
+          <SidebarMenuButton
+            render={<Link href={link.href} />}
+            isActive={isActive}
+            tooltip={link.label}
+            onClick={() => setOpenMobile(false)}
+          >
+            <link.icon />
+            <span>{link.label}</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      )
+    })
 
   return (
     <Sidebar variant="inset">
@@ -69,28 +167,22 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {links.map((link) => {
-                const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`)
-                return (
-                  <SidebarMenuItem key={link.href}>
-                    <SidebarMenuButton
-                      render={<Link href={link.href} />}
-                      isActive={isActive}
-                      tooltip={link.label}
-                      onClick={() => setOpenMobile(false)}
-                    >
-                      <link.icon />
-                      <span>{link.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {useGroups ? (
+          visibleGroups.map((group) => (
+            <SidebarGroup key={group.label ?? "__general"}>
+              {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+              <SidebarGroupContent>
+                <SidebarMenu>{renderLinks(group.links)}</SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))
+        ) : (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>{renderLinks(visibleGroups.flatMap((g) => g.links))}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />

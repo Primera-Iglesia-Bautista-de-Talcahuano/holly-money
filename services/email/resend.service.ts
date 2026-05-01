@@ -23,18 +23,18 @@ function formatAmount(amount: number): string {
 function buildEmailText(movement: MovementIntegrationPayload): string {
   const fields: [string, string | number | undefined | null][] = [
     ["Folio", movement.folio],
-    ["Fecha", movement.fechaMovimiento],
-    ["Tipo", movement.tipo],
-    ["Monto", formatAmount(movement.monto)],
-    ["Categoría", movement.categoria],
-    ["Concepto", movement.concepto],
-    ["Referente", movement.referente],
-    ["Recibido por", movement.recibidoPor],
-    ["Entregado por", movement.entregadoPor],
-    ["Medio de pago", movement.medioPago],
-    ["N° respaldo", movement.numeroRespaldo],
-    ["Observaciones", movement.observaciones],
-    ["Registrado por", movement.registradoPor]
+    ["Fecha", movement.movementDate],
+    ["Tipo", movement.movementTypeLabel],
+    ["Monto", formatAmount(movement.amount)],
+    ["Categoría", movement.category],
+    ["Concepto", movement.concept],
+    ["Referente", movement.reference],
+    ["Recibido por", movement.receivedBy],
+    ["Entregado por", movement.deliveredBy],
+    ["Medio de pago", movement.paymentMethod],
+    ["N° respaldo", movement.supportNumber],
+    ["Observaciones", movement.notes],
+    ["Registrado por", movement.registeredBy]
   ]
   const lines = fields.filter(([, v]) => v != null && v !== "").map(([k, v]) => `${k}: ${v}`)
   return [`${ORG_NAME}`, ``, `Nuevo movimiento registrado:`, ``, ...lines, ``].join("\n")
@@ -43,18 +43,18 @@ function buildEmailText(movement: MovementIntegrationPayload): string {
 function buildEmailHtml(movement: MovementIntegrationPayload): string {
   const rows = [
     ["Folio", movement.folio],
-    ["Fecha", movement.fechaMovimiento],
-    ["Tipo", movement.tipo],
-    ["Monto", formatAmount(movement.monto)],
-    ["Categoría", movement.categoria],
-    ["Concepto", movement.concepto],
-    movement.referente ? ["Referente", movement.referente] : null,
-    movement.recibidoPor ? ["Recibido por", movement.recibidoPor] : null,
-    movement.entregadoPor ? ["Entregado por", movement.entregadoPor] : null,
-    movement.medioPago ? ["Medio de pago", movement.medioPago] : null,
-    movement.numeroRespaldo ? ["N° respaldo", movement.numeroRespaldo] : null,
-    movement.observaciones ? ["Observaciones", movement.observaciones] : null,
-    ["Registrado por", movement.registradoPor]
+    ["Fecha", movement.movementDate],
+    ["Tipo", movement.movementTypeLabel],
+    ["Monto", formatAmount(movement.amount)],
+    ["Categoría", movement.category],
+    ["Concepto", movement.concept],
+    movement.reference ? ["Referente", movement.reference] : null,
+    movement.receivedBy ? ["Recibido por", movement.receivedBy] : null,
+    movement.deliveredBy ? ["Entregado por", movement.deliveredBy] : null,
+    movement.paymentMethod ? ["Medio de pago", movement.paymentMethod] : null,
+    movement.supportNumber ? ["N° respaldo", movement.supportNumber] : null,
+    movement.notes ? ["Observaciones", movement.notes] : null,
+    ["Registrado por", movement.registeredBy]
   ]
     .filter(Boolean)
     .map(
@@ -109,9 +109,9 @@ export async function sendMovementEmail(
   const resend = new Resend(process.env.RESEND_API_KEY)
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,
-    to: [process.env.NOTIFICATION_EMAIL, movement.registradoEmail].filter(Boolean) as string[],
+    to: [process.env.NOTIFICATION_EMAIL, movement.registeredEmail].filter(Boolean) as string[],
     replyTo: process.env.NOTIFICATION_EMAIL,
-    subject: `[${movement.tipo}] Folio ${movement.folio} - ${movement.concepto}`,
+    subject: `[${movement.movementTypeLabel}] Folio ${movement.folio} - ${movement.concept}`,
     html: buildEmailHtml(movement),
     text: buildEmailText(movement),
     headers: TRANSACTIONAL_HEADERS
