@@ -16,9 +16,8 @@ export async function POST(request: Request) {
     const email = parsed.data.email.toLowerCase().trim()
     const admin = createSupabaseAdminClient()
 
-    // Check user exists — always return 200 to avoid email enumeration
-    const { data: authUsers } = await admin.auth.admin.listUsers()
-    const authUser = authUsers.users.find((u) => u.email === email)
+    const { data: authUsers } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    const authUser = authUsers.users.find((u) => u.email === email) ?? null
 
     if (!authUser) {
       return NextResponse.json({ ok: true })
@@ -43,7 +42,6 @@ export async function POST(request: Request) {
 
     if (error) throw error
 
-    // Mark as PENDING_RESET
     await admin
       .from("users")
       .update({ status: "PENDING_RESET", updated_at: new Date().toISOString() })

@@ -17,22 +17,22 @@ export async function GET() {
 
     const [intentionsPending, settlementsPending] = await Promise.all([
       intentionsService.list({ ministryId: assignment.ministry_id, status: "APPROVED" }),
-      settlementsService.list({ status: "PENDING" })
+      settlementsService.list({ status: "PENDING", submittedBy: user.id })
     ])
 
     const items = [
       ...intentionsPending.map((i) => ({
         type: "INTENTION_APPROVED" as const,
         id: i.id,
-        message: `Solicitud aprobada: ${i.description}`,
+        description: i.description,
         href: `/requests/${i.id}`,
         created_at: i.updated_at
       })),
       ...settlementsPending.map((s) => ({
         type: "SETTLEMENT_PENDING" as const,
         id: s.id,
-        message: `Rendición en revisión: ${s.description}`,
-        href: `/requests/${(s.budget_intentions as unknown as { id: string }).id}`,
+        description: s.description,
+        href: `/requests/${s.intention_id}`,
         created_at: s.created_at
       }))
     ]
@@ -51,28 +51,17 @@ export async function GET() {
     count,
     items: [
       intentionCount > 0
-        ? {
-            type: "INTENTIONS_PENDING",
-            count: intentionCount,
-            message: `${intentionCount} solicitud(es) pendiente(s)`,
-            href: "/requests?status=PENDING"
-          }
+        ? { type: "INTENTIONS_PENDING", count: intentionCount, href: "/requests?status=PENDING" }
         : null,
       settlementCount > 0
         ? {
             type: "SETTLEMENTS_PENDING",
             count: settlementCount,
-            message: `${settlementCount} rendición(es) pendiente(s)`,
             href: "/requests?tab=settlements&status=PENDING"
           }
         : null,
       missingTransfers > 0
-        ? {
-            type: "MISSING_TRANSFERS",
-            count: missingTransfers,
-            message: `${missingTransfers} transferencia(s) sin registrar`,
-            href: "/requests?tab=transfers"
-          }
+        ? { type: "MISSING_TRANSFERS", count: missingTransfers, href: "/requests?tab=transfers" }
         : null
     ].filter(Boolean)
   })

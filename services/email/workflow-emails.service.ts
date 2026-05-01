@@ -58,7 +58,6 @@ function buildButton(label: string, url: string, color = "#1a3a5c"): string {
   return `<a href="${url}" style="display:inline-block;background:${color};color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:600;">${label}</a>`
 }
 
-// ── New intention submitted → tesorería ─────────────────────
 
 export async function sendIntentionNotification(
   intention: { id: string; amount: number; description: string; token: string },
@@ -104,7 +103,6 @@ export async function sendIntentionNotification(
   })
 }
 
-// ── Intention reviewed → minister ────────────────────────────
 
 export async function sendIntentionReviewNotification(
   intention: { id: string; amount: number; description: string },
@@ -151,7 +149,6 @@ export async function sendIntentionReviewNotification(
   })
 }
 
-// ── Transfer registered → minister ───────────────────────────
 
 export async function sendTransferNotification(
   intention: { id: string; amount: number; description: string },
@@ -196,7 +193,6 @@ export async function sendTransferNotification(
   })
 }
 
-// ── Settlement reviewed → minister ───────────────────────────
 
 export async function sendSettlementReviewNotification(
   settlement: { id: string; amount: number; description: string },
@@ -243,7 +239,6 @@ export async function sendSettlementReviewNotification(
   })
 }
 
-// ── Reminder email → tesorería ────────────────────────────────
 
 export async function sendReminderEmail(summary: {
   intentions: number

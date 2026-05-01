@@ -30,7 +30,6 @@ export default async function DashboardPage({
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto">
-      {/* ── Page header ───────────────────────────────────────────── */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-0.5">
           <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">
@@ -75,7 +74,6 @@ export default async function DashboardPage({
         </form>
       </div>
 
-      {/* ── Hero saldo + KPIs ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Hero — saldo actual */}
         <div className="rounded-xl bg-primary p-6 flex flex-col gap-3 text-primary-foreground">
@@ -128,7 +126,6 @@ export default async function DashboardPage({
         </div>
       </div>
 
-      {/* ── Charts ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl bg-card border border-border p-6 flex flex-col gap-4">
           <div className="flex flex-col gap-0.5">
@@ -150,7 +147,6 @@ export default async function DashboardPage({
         </div>
       </div>
 
-      {/* ── Recent movements ──────────────────────────────────────── */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="font-heading text-lg font-semibold tracking-tight text-foreground">

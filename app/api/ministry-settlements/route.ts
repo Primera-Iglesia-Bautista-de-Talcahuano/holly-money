@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/supabase/server"
 import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { settlementsService } from "@/services/settlements/settlements.service"
-import { createSettlementSchema } from "@/lib/validators/settlement"
+import { createSettlementSchema, settlementFiltersSchema } from "@/lib/validators/settlement"
 
 export async function GET(request: Request) {
   const user = await getCurrentUser()
@@ -11,10 +11,18 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url)
-  const intentionId = searchParams.get("intention_id") ?? undefined
-  const status = searchParams.get("status") ?? undefined
+  const parsed = settlementFiltersSchema.safeParse(Object.fromEntries(searchParams))
+  if (!parsed.success) {
+    return NextResponse.json(
+      { message: "Invalid filters", errors: parsed.error.flatten() },
+      { status: 400 }
+    )
+  }
 
-  const data = await settlementsService.list({ intentionId, status })
+  const data = await settlementsService.list({
+    intentionId: parsed.data.intention_id,
+    status: parsed.data.status
+  })
   return NextResponse.json(data)
 }
 

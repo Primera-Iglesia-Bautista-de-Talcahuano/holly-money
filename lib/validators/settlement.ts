@@ -13,5 +13,11 @@ export const reviewSettlementSchema = z.object({
   message: z.string().min(1, "El mensaje es requerido")
 })
 
+export const settlementFiltersSchema = z.object({
+  intention_id: z.string().uuid().optional(),
+  status: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional()
+})
+
 export type CreateSettlementInput = z.infer<typeof createSettlementSchema>
 export type ReviewSettlementInput = z.infer<typeof reviewSettlementSchema>
+export type SettlementFilters = z.infer<typeof settlementFiltersSchema>

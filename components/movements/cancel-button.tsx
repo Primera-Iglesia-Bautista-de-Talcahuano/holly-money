@@ -18,13 +18,13 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import { toast } from "sonner"
 
 export function CancelButton({
-  movementId,
+  movement,
   disabled,
   size,
   className,
   onSuccess
 }: {
-  movementId: string
+  movement: { id: string }
   disabled?: boolean
   size?: React.ComponentProps<typeof Button>["size"]
   className?: string
@@ -39,7 +39,7 @@ export function CancelButton({
     if (!motivo.trim()) return
 
     setLoading(true)
-    const promise = fetch(`/api/movements/${movementId}/cancel`, {
+    const promise = fetch(`/api/movements/${movement.id}/cancel`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ cancellation_reason: motivo })
@@ -63,7 +63,7 @@ export function CancelButton({
 
     await promise.catch(() => {})
     setLoading(false)
-  }, [motivo, movementId, onSuccess, router])
+  }, [motivo, movement.id, onSuccess, router])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

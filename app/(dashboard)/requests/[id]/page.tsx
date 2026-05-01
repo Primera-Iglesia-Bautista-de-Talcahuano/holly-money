@@ -5,9 +5,6 @@ import { intentionsService } from "@/services/intentions/intentions.service"
 import { settlementsService } from "@/services/settlements/settlements.service"
 import { ministriesService } from "@/services/ministries/ministries.service"
 import { IntentionDetailClient } from "@/components/intentions/intention-detail-client"
-import type { ComponentProps } from "react"
-
-type DetailProps = ComponentProps<typeof IntentionDetailClient>
 
 export default async function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
@@ -40,10 +37,10 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
 
   return (
     <IntentionDetailClient
-      intention={intention as unknown as DetailProps["intention"]}
-      comments={comments as unknown as DetailProps["comments"]}
-      transfer={transfer as unknown as DetailProps["transfer"]}
-      settlements={settlements as unknown as DetailProps["settlements"]}
+      intention={intention}
+      comments={comments}
+      transfer={transfer}
+      settlements={settlements}
       canReview={canReview}
       canSubmit={canSubmit}
     />

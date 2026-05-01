@@ -26,6 +26,13 @@ export const cancelMovementSchema = z.object({
   cancellation_reason: z.string().min(3, "Debes indicar un motivo de anulacion")
 })
 
+export const movementFiltersSchema = z.object({
+  search: z.string().optional(),
+  movement_type: z.enum(["INCOME", "EXPENSE", "ALL"]).optional().default("ALL"),
+  status: z.enum(["ACTIVE", "CANCELLED", "ALL"]).optional().default("ALL")
+})
+
 export type CreateMovementInput = z.infer<typeof createMovementSchema>
 export type UpdateMovementInput = z.infer<typeof updateMovementSchema>
 export type CancelMovementInput = z.infer<typeof cancelMovementSchema>
+export type MovementFilters = z.infer<typeof movementFiltersSchema>

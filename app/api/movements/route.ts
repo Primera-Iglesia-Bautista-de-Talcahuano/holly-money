@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createMovementSchema } from "@/lib/validators/movement"
+import { createMovementSchema, movementFiltersSchema } from "@/lib/validators/movement"
 import { movementsService } from "@/services/movements/movements.service"
 import { getCurrentUser } from "@/lib/supabase/server"
 import { PERMISSIONS, can } from "@/lib/permissions/rbac"
@@ -12,14 +12,18 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url)
-  const search = searchParams.get("search") ?? undefined
-  const movement_type = searchParams.get("movement_type") as "INCOME" | "EXPENSE" | "ALL" | null
-  const status = searchParams.get("status") as "ACTIVE" | "CANCELLED" | "ALL" | null
+  const parsed = movementFiltersSchema.safeParse(Object.fromEntries(searchParams))
+  if (!parsed.success) {
+    return NextResponse.json(
+      { message: "Invalid filters", errors: parsed.error.flatten() },
+      { status: 400 }
+    )
+  }
 
   const { data } = await movementsService.list({
-    search,
-    movement_type: movement_type ?? "ALL",
-    status: status ?? "ALL"
+    search: parsed.data.search,
+    movement_type: parsed.data.movement_type,
+    status: parsed.data.status
   })
 
   return NextResponse.json(data)

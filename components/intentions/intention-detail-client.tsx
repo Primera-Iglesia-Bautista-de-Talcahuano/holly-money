@@ -41,49 +41,13 @@ import type {
   AddCommentInput
 } from "@/lib/validators/intention"
 import type { CreateSettlementInput } from "@/lib/validators/settlement"
+import type { intentionsService } from "@/services/intentions/intentions.service"
+import type { settlementsService } from "@/services/settlements/settlements.service"
 
-type Intention = {
-  id: string
-  amount: number
-  description: string
-  purpose: string | null
-  date_needed: string | null
-  status: "PENDING" | "APPROVED" | "REJECTED"
-  is_over_budget: boolean
-  review_message: string | null
-  reviewed_at: string | null
-  created_at: string
-  ministries: { id: string; name: string } | null
-  users: { id: string; full_name: string; email: string } | null
-}
-
-type Transfer = {
-  id: string
-  amount: number
-  transfer_date: string
-  reference: string | null
-  notes: string | null
-  registered_by: string
-} | null
-
-type Comment = {
-  id: string
-  message: string
-  created_at: string
-  users: { id: string; full_name: string; role: string } | null
-}
-
-type Settlement = {
-  id: string
-  amount: number
-  description: string
-  status: "PENDING" | "APPROVED" | "REJECTED"
-  is_late: boolean
-  expense_date: string
-  created_at: string
-  review_message: string | null
-  attachment_url: string | null
-}
+type Intention = Awaited<ReturnType<typeof intentionsService.getById>>
+type Transfer = Awaited<ReturnType<typeof intentionsService.getTransfer>>
+type Comment = Awaited<ReturnType<typeof intentionsService.getComments>>[number]
+type Settlement = Awaited<ReturnType<typeof settlementsService.list>>[number]
 
 const STATUS_CONFIG = {
   PENDING: { icon: Clock, color: "text-amber-500", label: "Pendiente de revisión" },

@@ -52,7 +52,6 @@ export default async function MovementsPage({ searchParams }: Props) {
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto">
-      {/* ── Page header ─────────────────────────────────────────── */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-0.5">
           <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">
@@ -72,7 +71,6 @@ export default async function MovementsPage({ searchParams }: Props) {
         )}
       </div>
 
-      {/* ── Filter form ──────────────────────────────────────────── */}
       <form
         className="rounded-xl bg-card border border-border p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end"
         method="get"
@@ -132,7 +130,6 @@ export default async function MovementsPage({ searchParams }: Props) {
         </div>
       </form>
 
-      {/* ── Table ───────────────────────────────────────────────── */}
       <MovementsTable
         canWrite={canWrite}
         rows={rows.map((row) => ({
@@ -158,7 +155,6 @@ export default async function MovementsPage({ searchParams }: Props) {
         }))}
       />
 
-      {/* ── Pagination ──────────────────────────────────────────── */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">

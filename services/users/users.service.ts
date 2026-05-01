@@ -110,7 +110,6 @@ export const usersService = {
     const email = authUserData.user.email!
     const callbackUrl = `${getSiteUrl()}/auth/callback`
 
-    // Set status to PENDING_RESET
     await admin
       .from("users")
       .update({ status: "PENDING_RESET", updated_at: new Date().toISOString() })

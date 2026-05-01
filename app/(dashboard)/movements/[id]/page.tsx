@@ -42,7 +42,6 @@ export default async function MovementDetailPage({ params }: Props) {
 
   return (
     <div className="flex flex-col gap-8 max-w-6xl mx-auto">
-      {/* ── Page header ─────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-6">
         <div className="flex flex-col gap-2">
           <Link
@@ -96,9 +95,9 @@ export default async function MovementDetailPage({ params }: Props) {
                 <Edit className="size-4 text-primary" data-icon="inline-start" />
                 Editar
               </Button>
-              <RegeneratePdfButton movementId={row.id} />
+              <RegeneratePdfButton movement={row} />
               <CancelButton
-                movementId={row.id}
+                movement={row}
                 className="h-10 px-5 bg-destructive/10 hover:bg-destructive/20 text-destructive border-none shadow-none"
               />
             </>
@@ -107,7 +106,6 @@ export default async function MovementDetailPage({ params }: Props) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* ── Main detail card ─────────────────────────────────── */}
         <div className="lg:col-span-2">
           <Card className="p-6 sm:p-10 border border-border">
             <div className="grid gap-6 md:grid-cols-2">
@@ -181,7 +179,6 @@ export default async function MovementDetailPage({ params }: Props) {
           </Card>
         </div>
 
-        {/* ── Sidebar cards ────────────────────────────────────── */}
         <div className="flex flex-col gap-6">
           <Card className="bg-muted border-none p-6 flex flex-col gap-5">
             <h3 className="text-xs font-bold uppercase tracking-widest text-primary border-b border-primary/10 pb-3">
@@ -254,7 +251,6 @@ export default async function MovementDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* ── Audit log ───────────────────────────────────────────── */}
       <Card className="p-0 overflow-hidden border border-border">
         <CardHeader className="bg-muted/50 px-6 sm:px-8 py-5">
           <CardTitle className="text-base font-bold tracking-tight text-foreground">

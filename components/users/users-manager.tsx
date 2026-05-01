@@ -139,7 +139,6 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
     )
   }, [users, search])
 
-  // ── Create form ──────────────────────────────────────────────────────────────
   const createForm = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
     defaultValues: { full_name: "", email: "", role: "BURSAR" }
@@ -178,7 +177,6 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
     return promise.catch(() => {})
   }
 
-  // ── Edit form ─────────────────────────────────────────────────────────────────
   const editForm = useForm<UpdateUserInput>({
     resolver: zodResolver(updateUserSchema)
   })
@@ -219,7 +217,6 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
     return promise.catch(() => {})
   }
 
-  // ── Delete account ────────────────────────────────────────────────────────────
   const handleDelete = () => {
     if (!deletingUser) return
     const { id: userId, full_name: name } = deletingUser
@@ -243,7 +240,6 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
     )
   }
 
-  // ── Resend invite ─────────────────────────────────────────────────────────────
   const handleResendInvite = (userId: string) => {
     toast.promise(
       fetch(`/api/users/${userId}/resend-invite`, { method: "POST" }).then(async (res) => {
@@ -270,7 +266,6 @@ export function UsersManager({ initialUsers }: { initialUsers: UserRow[] }) {
     )
   }
 
-  // ── Reset account ─────────────────────────────────────────────────────────────
   const handleReset = (userId: string) => {
     toast.promise(
       fetch(`/api/users/${userId}/reset`, { method: "POST" }).then(async (res) => {

@@ -18,19 +18,36 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { FileInput } from "@/components/ui/file-input"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
-type Props = {
-  mode: "create" | "edit"
-  movementId?: string
-  initialValues?: Partial<CreateMovementInput>
-  onSuccess?: () => void
+type EditMovement = {
+  id: string
+  movement_date: string
+  movement_type: string
+  amount: number | string
+  category: string
+  concept: string
+  reference_person?: string | null
+  received_by?: string | null
+  delivered_by?: string | null
+  beneficiary?: string | null
+  payment_method?: string | null
+  support_number?: string | null
+  notes?: string | null
 }
+
+type Props =
+  | { mode: "create"; onSuccess?: () => void }
+  | { mode: "edit"; movement: EditMovement; onSuccess?: () => void }
 
 function toDateValue(value?: string) {
   if (!value) return new Date().toISOString().slice(0, 10)
   return value.slice(0, 10)
 }
 
-export function MovementForm({ mode, movementId, initialValues, onSuccess }: Props) {
+export function MovementForm(props: Props) {
+  const { mode, onSuccess } = props
+  const movement = mode === "edit" ? props.movement : undefined
+  const movementId = movement?.id
+
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [supportFile, setSupportFile] = useState<File | null>(null)
@@ -38,18 +55,18 @@ export function MovementForm({ mode, movementId, initialValues, onSuccess }: Pro
   const form = useForm<MovementFormInput, unknown, CreateMovementInput>({
     resolver: zodResolver(createMovementSchema),
     defaultValues: {
-      movement_date: toDateValue(initialValues?.movement_date),
-      movement_type: initialValues?.movement_type ?? "INCOME",
-      amount: initialValues?.amount ?? ("" as unknown as number),
-      category: initialValues?.category ?? "",
-      concept: initialValues?.concept ?? "",
-      reference_person: initialValues?.reference_person ?? "",
-      received_by: initialValues?.received_by ?? "",
-      delivered_by: initialValues?.delivered_by ?? "",
-      beneficiary: initialValues?.beneficiary ?? "",
-      payment_method: initialValues?.payment_method ?? "",
-      support_number: initialValues?.support_number ?? "",
-      notes: initialValues?.notes ?? ""
+      movement_date: toDateValue(movement?.movement_date),
+      movement_type: (movement?.movement_type as "INCOME" | "EXPENSE") ?? "INCOME",
+      amount: movement ? Number(movement.amount) : ("" as unknown as number),
+      category: movement?.category ?? "",
+      concept: movement?.concept ?? "",
+      reference_person: movement?.reference_person ?? "",
+      received_by: movement?.received_by ?? "",
+      delivered_by: movement?.delivered_by ?? "",
+      beneficiary: movement?.beneficiary ?? "",
+      payment_method: movement?.payment_method ?? "",
+      support_number: movement?.support_number ?? "",
+      notes: movement?.notes ?? ""
     }
   })
 
@@ -111,7 +128,6 @@ export function MovementForm({ mode, movementId, initialValues, onSuccess }: Pro
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-8">
-      {/* SECCIÓN 1: DATOS PRINCIPALES */}
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-4 px-1">
           <div className="h-px flex-1 bg-border" />
@@ -202,7 +218,6 @@ export function MovementForm({ mode, movementId, initialValues, onSuccess }: Pro
         </FieldGroup>
       </div>
 
-      {/* SECCIÓN 2: PARTICIPANTES */}
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-4 px-1">
           <div className="h-px flex-1 bg-border" />
@@ -248,7 +263,6 @@ export function MovementForm({ mode, movementId, initialValues, onSuccess }: Pro
         </div>
       </div>
 
-      {/* SECCIÓN 3: RESPALDO Y OBSERVACIONES */}
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-4 px-1">
           <div className="h-px flex-1 bg-border" />

@@ -3,19 +3,28 @@ import { getCurrentUser } from "@/lib/supabase/server"
 import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { intentionsService } from "@/services/intentions/intentions.service"
 import { ministriesService } from "@/services/ministries/ministries.service"
-import { createIntentionSchema } from "@/lib/validators/intention"
+import { createIntentionSchema, intentionFiltersSchema } from "@/lib/validators/intention"
 
 export async function GET(request: Request) {
   const user = await getCurrentUser()
   if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
 
   const { searchParams } = new URL(request.url)
-  const status = searchParams.get("status") ?? undefined
+  const parsed = intentionFiltersSchema.safeParse(Object.fromEntries(searchParams))
+  if (!parsed.success) {
+    return NextResponse.json(
+      { message: "Invalid filters", errors: parsed.error.flatten() },
+      { status: 400 }
+    )
+  }
 
   if (can(user.permissions, PERMISSIONS.SUBMIT_INTENTIONS)) {
     const assignment = await ministriesService.getMinistryForUser(user.id)
     if (!assignment) return NextResponse.json([])
-    const data = await intentionsService.list({ ministryId: assignment.ministry_id, status })
+    const data = await intentionsService.list({
+      ministryId: assignment.ministry_id,
+      status: parsed.data.status
+    })
     return NextResponse.json(data)
   }
 
@@ -23,8 +32,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
-  const ministryId = searchParams.get("ministry_id") ?? undefined
-  const data = await intentionsService.list({ ministryId, status })
+  const data = await intentionsService.list({
+    ministryId: parsed.data.ministry_id,
+    status: parsed.data.status
+  })
   return NextResponse.json(data)
 }
 

@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/supabase/server"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { getPermissionMap, updatePermission } from "@/services/permissions/permissions.service"
+import { updatePermissionSchema } from "@/lib/validators/settings"
 import type { UserRole } from "@/types/auth"
 import type { Permission } from "@/lib/permissions/rbac"
 
@@ -33,26 +34,16 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    const body = (await request.json()) as { role: string; permission: string; enabled: boolean }
-    const { role, permission, enabled } = body
-
-    if (role === "ADMIN") {
+    const body: unknown = await request.json()
+    const parsed = updatePermissionSchema.safeParse(body)
+    if (!parsed.success) {
       return NextResponse.json(
-        { message: "Administrator permissions cannot be modified" },
+        { message: "Invalid data", errors: parsed.error.flatten() },
         { status: 400 }
       )
     }
 
-    const validRoles: UserRole[] = ["BURSAR", "FINANCE", "MINISTER"]
-    const validPermissions = Object.values(PERMISSIONS)
-
-    if (!validRoles.includes(role as UserRole)) {
-      return NextResponse.json({ message: "Invalid role" }, { status: 400 })
-    }
-    if (!validPermissions.includes(permission as Permission)) {
-      return NextResponse.json({ message: "Invalid permission" }, { status: 400 })
-    }
-
+    const { role, permission, enabled } = parsed.data
     const supabase = await createSupabaseServerClient()
     await updatePermission(supabase, role as UserRole, permission as Permission, enabled)
 

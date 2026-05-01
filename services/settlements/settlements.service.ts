@@ -6,7 +6,12 @@ import type { CreateSettlementInput, ReviewSettlementInput } from "@/lib/validat
 const LATE_THRESHOLD_DAYS = 30
 
 export const settlementsService = {
-  async list(filters?: { intentionId?: string; ministryId?: string; status?: string }) {
+  async list(filters?: {
+    intentionId?: string
+    ministryId?: string
+    status?: string
+    submittedBy?: string
+  }) {
     const admin = createSupabaseAdminClient()
     let query = admin
       .from("expense_settlements")
@@ -16,6 +21,7 @@ export const settlementsService = {
       .order("created_at", { ascending: false })
 
     if (filters?.intentionId) query = query.eq("intention_id", filters.intentionId)
+    if (filters?.submittedBy) query = query.eq("submitted_by", filters.submittedBy)
     if (filters?.status)
       query = query.eq("status", filters.status as "PENDING" | "APPROVED" | "REJECTED")
 

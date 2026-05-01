@@ -48,7 +48,6 @@ export default async function AuditPage() {
           <CardTitle className="text-xl">Registro de Auditoría</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          {/* ── Desktop table ── */}
           <div className="hidden sm:block overflow-x-auto px-6 pb-6">
             <table className="min-w-full text-sm" aria-label="Registro de auditoría">
               <thead>
@@ -122,7 +121,6 @@ export default async function AuditPage() {
             </table>
           </div>
 
-          {/* ── Mobile list ── */}
           <div className="sm:hidden px-4 pb-4">
             <ItemGroup>
               {events.map((event) => (
@@ -152,7 +150,6 @@ export default async function AuditPage() {
             </ItemGroup>
           </div>
 
-          {/* ── Empty state ── */}
           {!events.length && (
             <Empty className="border-0 py-16">
               <EmptyHeader>

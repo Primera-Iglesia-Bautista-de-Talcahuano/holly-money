@@ -17,4 +17,21 @@ export const updateSettingsSchema = z.object({
     .optional()
 })
 
+export const updatePermissionSchema = z.object({
+  role: z.enum(["BURSAR", "FINANCE", "MINISTER"]),
+  permission: z.enum([
+    "MANAGE_USERS",
+    "CREATE_MOVEMENT",
+    "VIEW_MOVEMENT",
+    "MANAGE_MINISTRIES",
+    "MANAGE_BUDGETS",
+    "REVIEW_INTENTIONS",
+    "SUBMIT_INTENTIONS",
+    "MANAGE_SETTINGS",
+    "VIEW_WORKFLOW"
+  ]),
+  enabled: z.boolean()
+})
+
 export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>
+export type UpdatePermissionInput = z.infer<typeof updatePermissionSchema>

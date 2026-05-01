@@ -76,7 +76,6 @@ export function MovementsTable({
 
   return (
     <>
-      {/* ── Mobile card list ─────────────────────────────────────── */}
       <div className="sm:hidden">
         {rows.length === 0 ? (
           <Empty className="border-0 py-16">
@@ -143,7 +142,6 @@ export function MovementsTable({
         )}
       </div>
 
-      {/* ── Desktop table ────────────────────────────────────────── */}
       <div className="hidden sm:block bg-card rounded-xl overflow-hidden border border-border">
         <div className="overflow-x-auto">
           <table
@@ -360,7 +358,7 @@ export function MovementsTable({
                 </Button>
                 {canWrite && selected.status !== "CANCELLED" && (
                   <CancelButton
-                    movementId={selected.id}
+                    movement={selected}
                     onSuccess={() => setSelected(null)}
                     className="h-10 px-5 bg-destructive/10 hover:bg-destructive/20 text-destructive border-none shadow-none"
                   />

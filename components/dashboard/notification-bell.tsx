@@ -7,11 +7,31 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 type NotificationItem = {
-  type: string
+  type:
+    | "INTENTION_APPROVED"
+    | "SETTLEMENT_PENDING"
+    | "INTENTIONS_PENDING"
+    | "SETTLEMENTS_PENDING"
+    | "MISSING_TRANSFERS"
   id?: string
-  message: string
+  description?: string
   href: string
   count?: number
+}
+
+function getNotificationMessage(item: NotificationItem): string {
+  switch (item.type) {
+    case "INTENTION_APPROVED":
+      return `Solicitud aprobada: ${item.description}`
+    case "SETTLEMENT_PENDING":
+      return `Rendición en revisión: ${item.description}`
+    case "INTENTIONS_PENDING":
+      return `${item.count} solicitud(es) pendiente(s)`
+    case "SETTLEMENTS_PENDING":
+      return `${item.count} rendición(es) pendiente(s)`
+    case "MISSING_TRANSFERS":
+      return `${item.count} transferencia(s) sin registrar`
+  }
 }
 
 export function NotificationBell() {
@@ -77,7 +97,7 @@ export function NotificationBell() {
                       {item.count > 9 ? "9+" : item.count}
                     </span>
                   )}
-                  <span>{item.message}</span>
+                  <span>{getNotificationMessage(item)}</span>
                 </Link>
               </li>
             ))}

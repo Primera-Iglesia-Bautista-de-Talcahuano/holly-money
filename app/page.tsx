@@ -16,7 +16,6 @@ export default async function LoginPage() {
 
   return (
     <main className="min-h-[100dvh] flex flex-col md:flex-row">
-      {/* ── Left panel: verse (green) ─────────────────────────────── */}
       <div className="relative flex flex-col justify-center items-center overflow-hidden px-8 py-10 md:py-0 md:w-1/2 bg-primary text-primary-foreground">
         {/* Decorative circles */}
         <div className="pointer-events-none absolute -top-16 -right-16 size-64 rounded-full bg-white/5" />
@@ -52,7 +51,6 @@ export default async function LoginPage() {
         </div>
       </div>
 
-      {/* ── Right panel: login form ───────────────────────────────── */}
       <div className="flex flex-1 flex-col justify-center px-8 py-12 md:px-16 bg-card">
         <div className="mx-auto w-full max-w-sm flex flex-col gap-8">
           <div className="flex flex-col gap-1">

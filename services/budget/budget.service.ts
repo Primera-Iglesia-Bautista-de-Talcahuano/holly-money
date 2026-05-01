@@ -7,7 +7,6 @@ import type {
 } from "@/lib/validators/budget"
 
 export const budgetService = {
-  // ── Budget periods ────────────────────────────────────────
 
   async listPeriods() {
     const admin = createSupabaseAdminClient()
@@ -127,7 +126,6 @@ export const budgetService = {
     return data
   },
 
-  // ── Ministry budgets ───────────────────────────────────────
 
   async listBudgetsByPeriod(periodId: string) {
     const admin = createSupabaseAdminClient()

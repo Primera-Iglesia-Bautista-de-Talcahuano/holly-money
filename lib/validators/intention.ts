@@ -27,7 +27,13 @@ export const addCommentSchema = z.object({
   message: z.string().min(1, "El comentario no puede estar vacío")
 })
 
+export const intentionFiltersSchema = z.object({
+  status: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
+  ministry_id: z.string().uuid().optional()
+})
+
 export type CreateIntentionInput = z.infer<typeof createIntentionSchema>
 export type ReviewIntentionInput = z.infer<typeof reviewIntentionSchema>
 export type RegisterTransferInput = z.infer<typeof registerTransferSchema>
 export type AddCommentInput = z.infer<typeof addCommentSchema>
+export type IntentionFilters = z.infer<typeof intentionFiltersSchema>
