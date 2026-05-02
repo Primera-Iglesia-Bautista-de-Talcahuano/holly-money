@@ -1,6 +1,6 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { getCurrentUser, createSupabaseServerClient } from "@/lib/supabase/server"
 import { PERMISSIONS, can } from "@/lib/permissions/rbac"
 import { updatePermission } from "@/services/permissions/permissions.service"
@@ -19,5 +19,6 @@ export async function updateRolePermission(
 
   const supabase = await createSupabaseServerClient()
   await updatePermission(supabase, role, permission, enabled)
+  revalidateTag("role-permissions", "days")
   revalidatePath("/configuration")
 }
