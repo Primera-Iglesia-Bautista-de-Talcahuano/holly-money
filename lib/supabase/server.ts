@@ -1,7 +1,10 @@
 import { cache } from "react"
+import { cacheTag, cacheLife } from "next/cache"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import type { Database } from "@/types/database.types"
+import { createSupabaseAdminClient } from "@/lib/supabase/admin"
+import type { UserRole } from "@/types/auth"
 
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies()
@@ -29,6 +32,20 @@ export async function createSupabaseServerClient() {
   )
 }
 
+// Cached across requests per role. Tag-invalidated when permissions change.
+async function getPermissionsForRole(role: UserRole): Promise<string[]> {
+  "use cache"
+  cacheTag("role-permissions")
+  cacheLife("days")
+  const admin = createSupabaseAdminClient()
+  const { data } = await admin
+    .from("role_permissions")
+    .select("permission")
+    .eq("role", role)
+    .eq("enabled", true)
+  return (data ?? []).map((p) => p.permission)
+}
+
 // cache() deduplicates calls within a single React render tree (one request).
 // Layout + page both call getCurrentUser — this ensures it only runs once.
 export const getCurrentUser = cache(async function getCurrentUser() {
@@ -47,13 +64,8 @@ export const getCurrentUser = cache(async function getCurrentUser() {
 
   if (!profile || profile.status !== "ACTIVE") return null
 
-  const { data: perms } = await supabase
-    .from("role_permissions")
-    .select("permission")
-    .eq("role", profile.role)
-    .eq("enabled", true)
-
-  const permissions = new Set<string>((perms ?? []).map((p) => p.permission))
+  const permList = await getPermissionsForRole(profile.role)
+  const permissions = new Set<string>(permList)
 
   return {
     id: profile.id,

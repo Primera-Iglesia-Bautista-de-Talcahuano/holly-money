@@ -1,19 +1,24 @@
-import { createSupabaseAdminClient } from "@/lib/supabase/admin"
+import type { SupabaseClient } from "@supabase/supabase-js"
+import type { Database } from "@/types/database.types"
 import { auditService } from "@/services/audit/audit.service"
 import { sendSettlementReviewNotification } from "@/services/email/workflow-emails.service"
 import type { CreateSettlementInput, ReviewSettlementInput } from "@/lib/validators/settlement"
 
+type DB = SupabaseClient<Database>
+
 const LATE_THRESHOLD_DAYS = 30
 
 export const settlementsService = {
-  async list(filters?: {
-    intentionId?: string
-    ministryId?: string
-    status?: string
-    submittedBy?: string
-  }) {
-    const admin = createSupabaseAdminClient()
-    let query = admin
+  async list(
+    db: DB,
+    filters?: {
+      intentionId?: string
+      ministryId?: string
+      status?: string
+      submittedBy?: string
+    }
+  ) {
+    let query = db
       .from("expense_settlements")
       .select(
         "*, budget_intentions(id, ministry_id, ministries(id, name)), users!expense_settlements_submitted_by_fkey(id, full_name, email)"
@@ -30,9 +35,8 @@ export const settlementsService = {
     return data
   },
 
-  async getById(id: string) {
-    const admin = createSupabaseAdminClient()
-    const { data, error } = await admin
+  async getById(db: DB, id: string) {
+    const { data, error } = await db
       .from("expense_settlements")
       .select(
         "*, budget_intentions(id, ministry_id, amount, ministries(id, name)), users!expense_settlements_submitted_by_fkey(id, full_name, email)"
@@ -43,14 +47,12 @@ export const settlementsService = {
     return data
   },
 
-  async create(input: CreateSettlementInput, userId: string) {
-    const admin = createSupabaseAdminClient()
-
+  async create(db: DB, input: CreateSettlementInput, userId: string) {
     const expenseDate = new Date(input.expense_date)
     const daysDiff = Math.floor((Date.now() - expenseDate.getTime()) / 86_400_000)
     const isLate = daysDiff > LATE_THRESHOLD_DAYS
 
-    const { data, error } = await admin
+    const { data, error } = await db
       .from("expense_settlements")
       .insert({
         intention_id: input.intention_id,
@@ -76,11 +78,10 @@ export const settlementsService = {
     return data
   },
 
-  async review(id: string, input: ReviewSettlementInput, reviewerId: string) {
-    const admin = createSupabaseAdminClient()
+  async review(db: DB, id: string, input: ReviewSettlementInput, reviewerId: string) {
     const now = new Date().toISOString()
 
-    const { data: current } = await admin
+    const { data: current } = await db
       .from("expense_settlements")
       .select("status, users!expense_settlements_submitted_by_fkey(email, full_name)")
       .eq("id", id)
@@ -93,7 +94,7 @@ export const settlementsService = {
     let movementId: string | null = null
 
     if (input.action === "APPROVED") {
-      const settlement = await this.getById(id)
+      const settlement = await this.getById(db, id)
       const intention = settlement.budget_intentions as unknown as {
         ministry_id: string
         amount: number
@@ -101,6 +102,8 @@ export const settlementsService = {
       }
       const ministry = intention.ministries
 
+      // Movement INSERT requires service_role: movements_insert RLS only allows ADMIN/BURSAR,
+      // but FINANCE reviewers must also be able to approve. Admin client is used here explicitly.
       const { createSupabaseAdminClient: getAdmin } = await import("@/lib/supabase/admin")
       const { increment_and_get_folio } = await import("@/lib/utils/folio")
       const folio = await increment_and_get_folio()
@@ -132,7 +135,7 @@ export const settlementsService = {
       })
     }
 
-    const { data, error } = await admin
+    const { data, error } = await db
       .from("expense_settlements")
       .update({
         status: input.action,
@@ -166,15 +169,14 @@ export const settlementsService = {
     return { alreadyActioned: false, data }
   },
 
-  async getPendingCount(ministryId?: string) {
-    const admin = createSupabaseAdminClient()
-    let query = admin
+  async getPendingCount(db: DB, ministryId?: string) {
+    let query = db
       .from("expense_settlements")
       .select("id", { count: "exact", head: true })
       .eq("status", "PENDING")
 
     if (ministryId) {
-      const { data: intentions } = await admin
+      const { data: intentions } = await db
         .from("budget_intentions")
         .select("id")
         .eq("ministry_id", ministryId)
